@@ -1,5 +1,6 @@
 ---
 schema_version: "1.0"
+note_sequence: "003"
 paper_id: "arxiv-2504.17096"
 title: "Sailor: Automating Distributed Training over Dynamic, Heterogeneous, and Geo-distributed Clusters"
 source_url: "http://arxiv.org/abs/2504.17096v2"
@@ -7,7 +8,7 @@ pdf_url: "https://arxiv.org/pdf/2504.17096v2"
 input_coverage: "abstract_only"
 evidence_level: "abstract_only"
 created_at: "2026-10-01T00:40:00Z"
-updated_at: "2026-10-01T00:40:00Z"
+updated_at: "2026-10-02T11:17:34Z"
 ---
 
 # 论文精读卡：Sailor: Automating Distributed Training over Dynamic, Heterogeneous, and Geo-distributed Clusters

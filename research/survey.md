@@ -1,6 +1,8 @@
 # 当前 selected corpus 的研究综述
 
 > 状态：pipeline validation survey。本文只基于当前 `selected.jsonl` 中的 3 篇论文及其 paper notes，不代表完整文献全景、完整 state of the art 或 novelty 判断。
+>
+> 上游 Research Brief 当前为 `DRAFT`；本 survey 仅验证流程，不定义或限制后续由 Human + Codex 确认的正式研究方向。
 
 ## Scope & Coverage
 

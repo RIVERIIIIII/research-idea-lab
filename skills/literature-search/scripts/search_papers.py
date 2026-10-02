@@ -36,6 +36,23 @@ STOPWORDS = {
     "in", "is", "of", "on", "or", "over", "the", "to", "using", "what", "with",
 }
 
+RESEARCH_BRIEF = Path("research/research-brief.md")
+
+
+def require_confirmed_research_brief(path: Path = RESEARCH_BRIEF) -> None:
+    """Block formal corpus construction until the human confirms the brief."""
+    if not path.exists():
+        raise ValueError(f"Research Brief is missing: {path}")
+    text = path.read_text(encoding="utf-8")
+    match = re.search(r"^## Status\s*\n+\s*(DRAFT|CONFIRMED)\s*$", text, re.MULTILINE)
+    if not match:
+        raise ValueError("Research Brief must contain ## Status followed by DRAFT or CONFIRMED")
+    if match.group(1) != "CONFIRMED":
+        raise ValueError(
+            "Research Brief status is DRAFT; formal candidates/selected corpus "
+            "construction is blocked until explicit human confirmation"
+        )
+
 
 def build_queries(args: argparse.Namespace) -> list[str]:
     queries = [value.strip() for value in (args.query or []) if value.strip()]
@@ -166,6 +183,7 @@ def validate_all(records: list[dict], label: str) -> None:
 
 
 def run(args: argparse.Namespace) -> dict:
+    require_confirmed_research_brief()
     queries = build_queries(args)
     if not queries and not args.seed:
         raise ValueError("Provide --topic, --question, --keywords, --query, or --seed")

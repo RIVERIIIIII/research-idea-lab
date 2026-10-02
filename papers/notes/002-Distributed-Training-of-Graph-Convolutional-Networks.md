@@ -1,5 +1,6 @@
 ---
 schema_version: "1.0"
+note_sequence: "002"
 paper_id: "doi-6292f6af13eff21be0406757a9650aad82274991d55767ebed0695d900ee9f36"
 title: "Distributed Training of Graph Convolutional Networks"
 source_url: "http://arxiv.org/abs/2007.06281v2"
@@ -7,7 +8,7 @@ pdf_url: "https://arxiv.org/pdf/2007.06281v2"
 input_coverage: "full_text"
 evidence_level: "full_text"
 created_at: "2026-10-01T00:40:00Z"
-updated_at: "2026-10-01T00:40:00Z"
+updated_at: "2026-10-02T11:17:34Z"
 ---
 
 # 论文精读卡：Distributed Training of Graph Convolutional Networks

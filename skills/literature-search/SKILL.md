@@ -1,18 +1,35 @@
 ---
 name: literature-search
-description: Search, expand, normalize, deduplicate, lightly screen, and download academic papers from arXiv, Semantic Scholar, and OpenAlex when building candidates.jsonl and selected.jsonl for the research-idea-lab workflow. Do not use for deep paper analysis, surveys, gap finding, hypotheses, or novelty conclusions.
+description: Search, expand, normalize, deduplicate, lightly screen, and download academic papers from arXiv, Semantic Scholar, and OpenAlex when building candidates.jsonl and selected.jsonl from a human-confirmed research brief. Do not use for deep paper analysis, surveys, gap finding, hypotheses, or novelty conclusions.
 ---
 
 # Literature Search
 
 Build the bounded literature set used by this project. Before running scripts,
-read `docs/data-contract.md`; it is the authoritative schema and identity
-contract.
+read `research/research-brief.md`, then `docs/data-contract.md`. The brief is the
+authoritative scope constraint; the data contract is the authoritative schema
+and identity contract.
+
+## Human Confirmation Gate
+
+- Read the exact value under `## Status` in `research/research-brief.md`.
+- Formal corpus construction is allowed only when the status is `CONFIRMED`.
+- When the status is `DRAFT`, do not batch-create or batch-update
+  `papers/candidates.jsonl` or `papers/selected.jsonl` and do not claim a formal
+  literature review is complete.
+- A bounded exploratory lookup is allowed in `DRAFT` only to clarify a concept,
+  test terminology, or check whether a class of work exists. Keep it separate
+  from the formal corpus and describe it as exploratory.
+- During `DRAFT`, use bounded source-specific lookup commands or read-only API
+  calls; do not invoke unified `scripts/search_papers.py`, which enforces the
+  confirmation gate before writing the formal JSONL files.
+- Only the human may authorize changing the brief from `DRAFT` to `CONFIRMED`.
 
 ## Inputs and outputs
 
 Accept a research topic, research question, keywords, explicit search queries,
-and optional seed-paper identifiers. Write:
+and optional seed-paper identifiers that remain within the confirmed Research
+Brief. For a formal run, write:
 
 - `papers/candidates.jsonl`: canonical searched/expanded and screened records.
 - `papers/selected.jsonl`: the selected subset using identical records and
@@ -38,6 +55,10 @@ Use `python3`; no third-party runtime dependency is required.
    explicit `--coverage-role PAPER_ID=role[,role]` annotations for grounded
    `foundational`, `representative`, `conflicting`, or `limited` judgments.
 6. Download selected PDFs, when needed, with `scripts/download_papers.py`.
+
+When several papers first enter `selected.jsonl` together, preserve that first-
+entry order for later note-sequence assignment; do not use citation rank or a
+later display sort to renumber notes.
 
 Typical bounded run:
 

@@ -1,5 +1,6 @@
 ---
 schema_version: "1.0"
+note_sequence: "001"
 paper_id: "doi-bf74f70e129688b9f8140a658461c41c5ad0dc93886388444d689a5bf6aefc20"
 title: "Power-Aware Allocation of Graph Jobs in Geo-Distributed Cloud Networks"
 source_url: "http://arxiv.org/abs/1808.04479v5"
@@ -7,7 +8,7 @@ pdf_url: "https://arxiv.org/pdf/1808.04479v5"
 input_coverage: "full_text"
 evidence_level: "full_text"
 created_at: "2026-09-30T10:35:06Z"
-updated_at: "2026-09-30T10:35:06Z"
+updated_at: "2026-10-02T11:17:34Z"
 ---
 
 # 论文精读卡：Power-Aware Allocation of Graph Jobs in Geo-Distributed Cloud Networks

@@ -3,6 +3,7 @@
 ```markdown
 ---
 schema_version: "1.0"
+note_sequence: "001"
 paper_id: "..."
 title: "..."
 source_url: "..."
@@ -84,6 +85,8 @@ updated_at: "..."
 
 说明：
 
+- 文件路径为 `papers/notes/{sequence}-{filesystem-safe-title}.md`；文件名仅供人类阅读。
+- `note_sequence` 首次分配后保持不变，论文身份仍由 `paper_id` 决定。
 - 输入不足时保留结构并明确未知项，不为了填满模板而虚构。
 - `input_coverage` 保留现有 data contract 字段；当 `evidence_level` 为
   `metadata_only` 时，将 `input_coverage` 记为 `title_only`。

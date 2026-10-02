@@ -4,6 +4,7 @@
 # 当前 selected corpus 的研究综述
 
 ## Scope & Coverage
+- Research Brief 状态与本 survey 的关系
 - 论文数量与年份范围
 - coverage roles
 - evidence levels

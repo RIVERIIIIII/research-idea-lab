@@ -1,16 +1,25 @@
 # Research Idea Lab Data Contract
 
-Version: `1.0`
+Version: `1.1`
 
 This document defines the shared paper record, deduplication, paper-note, and
 evidence-reference contracts used by the project. JSONL means one complete JSON
 object per line, encoded as UTF-8. Unknown values use `null` (or `[]` for
 multi-value fields); fabricated placeholders such as `"unknown"` are not used.
 
+## 0. Upstream research scope
+
+`research/research-brief.md` is the upstream scope constraint for every
+research-oriented stage. Formal `candidates.jsonl` / `selected.jsonl` corpus
+construction is blocked unless its `## Status` value is exactly `CONFIRMED`.
+Only explicit human confirmation may change `DRAFT` to `CONFIRMED`. Existing
+pipeline-validation data does not define or constrain a new brief.
+
 ## 1. Paper identity
 
-`paper_id` is the canonical, filesystem-safe identity used by every stage and
-as the filename stem under `papers/notes/`.
+`paper_id` is the canonical, filesystem-safe identity used by every stage.
+Human-readable note filenames are not identities and must never replace
+`paper_id` in metadata, evidence, survey, gap, or hypothesis references.
 
 ### 1.1 Generation priority
 
@@ -45,7 +54,8 @@ Normalization rules:
 
 Once written to `candidates.jsonl`, `paper_id` is immutable. If a DOI or another
 stronger identifier is discovered later, populate its identifier field but do
-not rename `paper_id`, its note, or downstream references.
+not rename `paper_id` or downstream references. A note's human-readable
+filename may be changed without changing identity, but is stable by default.
 
 When two existing records are later found to represent one paper, preserve the
 record already referenced downstream. Put the retired ID in
@@ -213,14 +223,42 @@ subset snapshot containing only records chosen for deep reading.
 Each selected paper is written to:
 
 ```text
-papers/notes/{paper_id}.md
+papers/notes/{sequence}-{filesystem-safe-title}.md
 ```
+
+The filename is a human navigation aid only. Readers and tools resolve a note
+by its frontmatter `paper_id`, never by its filename.
+
+### 5.1 Note filename and sequence
+
+- `sequence` is a zero-padded three-digit number (`001`, `002`, ...).
+- Assign it in the order a paper first enters the selected corpus. Once
+  assigned, store it as `note_sequence` in note frontmatter and never change it
+  because of later sorting.
+- If multiple selected papers do not yet have notes, reserve their next
+  sequence values together in first-entry order before generating any one of
+  those notes; processing order must not affect sequence assignment.
+- For migrated notes that predate this rule, use their order in the earliest
+  available `selected.jsonl` snapshot; if no such ordering evidence exists,
+  document the deterministic fallback used.
+- Build the title slug from the display title using Unicode NFKC, transliterate
+  when practical, replace path separators and punctuation with hyphens, keep
+  letters and digits, collapse repeated hyphens, and trim leading/trailing
+  separators. Preserve readable capitalization when safe.
+- Reasonably truncate an overlong slug at a word boundary. The chosen slug is
+  stable by default even if title metadata is later corrected.
+- If normalization or truncation produces a duplicate title slug, append a
+  stable suffix consisting of the first eight lowercase hexadecimal characters
+  of SHA-256(`paper_id`).
+- The filename, title slug, and sequence are never used as a paper identity or
+  citation key.
 
 The note begins with YAML frontmatter:
 
 ```yaml
 ---
 schema_version: "1.0"
+note_sequence: "001"
 paper_id: "arxiv-2401.01234"
 title: "Illustrative Paper Title"
 source_url: "https://arxiv.org/abs/2401.01234"
@@ -323,7 +361,8 @@ The intended trace is therefore explicit:
 
 ```text
 IDEA-... -> HYP-.../GAP-... -> SURV-... -> [@paper_id#E...] ->
-papers/notes/{paper_id}.md -> Paper Schema URL/identifier -> source paper
+papers/notes/{sequence}-{filesystem-safe-title}.md (resolved by frontmatter
+paper_id) -> Paper Schema URL/identifier -> source paper
 ```
 
 ## 7. PDF cache

@@ -12,13 +12,22 @@ description: Produce a grounded Chinese deep-reading note for one selected acade
 - 从 `papers/selected.jsonl` 读取目标记录，不重新生成或修改 `paper_id`。
 - 优先读取 `papers/.cache/pdfs/{paper_id}.pdf`。
 - PDF 不存在时，可以调用现有 `skills/literature-search/scripts/download_papers.py`；不要实现新的下载器。
-- 输出且只输出该论文的 `papers/notes/{paper_id}.md`。
+- 输出且只输出该论文的 `papers/notes/{sequence}-{filesystem-safe-title}.md`。
+- 文件名只用于人类阅读；身份和引用始终使用 frontmatter 中的 `paper_id`。
 
 开始前必须读取：
 
-1. `docs/data-contract.md`，作为身份、note 和 evidence reference 的唯一契约。
-2. `references/note_template.md`，作为固定输出结构。
-3. 需要判断阅读优先级时，再读取 `references/reading_guidelines.md`。
+1. `research/research-brief.md`，作为研究范围的上游约束；`DRAFT` 时只处理人明确指定的 exploratory/pipeline-validation 材料。
+2. `docs/data-contract.md`，作为身份、note 和 evidence reference 的唯一契约。
+3. `references/note_template.md`，作为固定输出结构。
+4. 需要判断阅读优先级时，再读取 `references/reading_guidelines.md`。
+
+## Note filename
+
+- `sequence` 是三位数字，按论文首次进入 selected corpus 的顺序分配。
+- 新建 note 前先读取现有 note frontmatter 的 `note_sequence`。若有多个尚未建 note 的 selected papers，先按它们首次出现在 `selected.jsonl` 的顺序为整组分配后续号码，再处理目标论文；不得按处理顺序、引用量或后续排序重新编号。
+- title slug 使用论文标题生成 filesystem-safe 名称，合理截断；规范见 `docs/data-contract.md`。
+- 标题或文件名不是身份。更新 metadata 不得改变 `paper_id`、evidence ID 或 downstream reference。
 
 ## Evidence level
 
@@ -33,12 +42,12 @@ description: Produce a grounded Chinese deep-reading note for one selected acade
 
 ## 工作流
 
-1. 用 `paper_id` 在 `selected.jsonl` 中找到唯一记录并定位同名 PDF。
+1. 用 `paper_id` 在 `selected.jsonl` 中找到唯一记录，并定位 `{paper_id}.pdf` 缓存；不要通过 note 文件名匹配身份。
 2. 判断 evidence level，并在笔记开头写明输入边界。
 3. 提取研究问题、动机、方法、实验设置、关键结果、局限和研究启发。
 4. 每个重要事实或判断建立稳定 evidence item；已有 `E001` 等编号不得在更新时重排。
 5. 在正文相关判断后使用 `[@paper_id#E...]` 回溯证据项。
-6. 写入 note 后检查 paper_id、类型枚举、引用目标、页码/章节和未知字段。
+6. 写入 note 后检查 note_sequence、paper_id、类型枚举、引用目标、页码/章节和未知字段。
 
 ## 证据约束
 

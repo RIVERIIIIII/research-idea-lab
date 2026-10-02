@@ -9,20 +9,22 @@ description: Build a Chinese, evidence-linked survey from multiple paper notes i
 
 ## 输入与输出
 
+- 上游约束：`research/research-brief.md`；先读取它，再处理 corpus。
 - 主要输入：`papers/notes/*.md`。
 - 辅助输入：`papers/selected.jsonl`，用于核对稳定 `paper_id`、覆盖角色和集合边界。
 - 输出：`research/survey.md`。
-- 论文卡片是证据接口；不要为了写综述而重新独立分析 PDF。
+- 论文卡片是证据接口；按 frontmatter `paper_id` 识别论文，不把可读文件名当作身份。不要为了写综述而重新独立分析 PDF。
 
 ## 工作流
 
-1. 读取 `docs/data-contract.md`，确认引用和证据类型约束。
-2. 读取所有纳入综述的论文卡片，统计论文数、年份、coverage roles 和 evidence levels。
-3. 始终读取 `references/survey_template.md`。
-4. 依据 `references/comparison_dimensions.md` 选择当前材料有证据支持的比较维度。
-5. 依据 `references/related_work_patterns.md` 按问题或方法路线组织文字。
-6. 建立 research problem → method taxonomy → representative evidence → comparison → limitation/open question 的结构。
-7. 校验所有 `[@paper_id]` 与 `[@paper_id#E...]` 引用能解析到输入卡片。
+1. 读取 `research/research-brief.md`；若为 `DRAFT`，不得把现有 validation corpus 写成正式研究范围，并明确 survey 的暂定性质。
+2. 读取 `docs/data-contract.md`，确认引用和证据类型约束。
+3. 读取所有纳入综述的论文卡片，统计论文数、年份、coverage roles 和 evidence levels。
+4. 始终读取 `references/survey_template.md`。
+5. 依据 `references/comparison_dimensions.md` 选择当前材料有证据支持的比较维度。
+6. 依据 `references/related_work_patterns.md` 按问题或方法路线组织文字。
+7. 建立 research problem → method taxonomy → representative evidence → comparison → limitation/open question 的结构。
+8. 校验所有 `[@paper_id]` 与 `[@paper_id#E...]` 引用能按 note frontmatter 解析，不能依赖文件名。
 
 ## 证据规则
 
