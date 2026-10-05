@@ -1,0 +1,50 @@
+{
+  "queries": [
+    "\"optical soft failure\" traffic performance BER packet loss",
+    "\"quality of transmission degradation\" adaptive modulation spectrum optical network",
+    "\"soft failure recovery\" elastic optical network spectrum sharing modulation",
+    "\"proactive fault tolerance\" distributed deep learning failure prediction checkpoint",
+    "\"failure prediction\" geo-distributed training proactive checkpoint"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 6,
+    "openalex": 13
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 19,
+  "batch_after_dedup": 19,
+  "batch_dedup": {
+    "input": 19,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 19
+  },
+  "existing_merge": {
+    "input": 19,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 19
+  },
+  "candidates": 19,
+  "selected": 0,
+  "errors": [
+    "arxiv query failed for '\"optical soft failure\" traffic performance BER packet loss': HTTPError: HTTP Error 429: Unknown Error",
+    "s2 query failed for '\"optical soft failure\" traffic performance BER packet loss': HTTPError: HTTP Error 429: ",
+    "arxiv query failed for '\"quality of transmission degradation\" adaptive modulation spectrum optical network': HTTPError: HTTP Error 429: Unknown Error",
+    "arxiv query failed for '\"soft failure recovery\" elastic optical network spectrum sharing modulation': HTTPError: HTTP Error 429: Unknown Error",
+    "s2 query failed for '\"soft failure recovery\" elastic optical network spectrum sharing modulation': HTTPError: HTTP Error 429: ",
+    "arxiv query failed for '\"proactive fault tolerance\" distributed deep learning failure prediction checkpoint': HTTPError: HTTP Error 429: Unknown Error",
+    "s2 query failed for '\"proactive fault tolerance\" distributed deep learning failure prediction checkpoint': HTTPError: HTTP Error 429: ",
+    "arxiv query failed for '\"failure prediction\" geo-distributed training proactive checkpoint': HTTPError: HTTP Error 429: Too Many Requests",
+    "s2 query failed for '\"failure prediction\" geo-distributed training proactive checkpoint': HTTPError: HTTP Error 429: "
+  ],
+  "candidates_path": "research/investigations/soft-failure-training-impact/data/candidates.jsonl",
+  "selected_path": "research/investigations/soft-failure-training-impact/data/selected.jsonl"
+}

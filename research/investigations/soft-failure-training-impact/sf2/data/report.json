@@ -1,0 +1,40 @@
+{
+  "queries": [
+    "soft failure recovery spectrum sharing elastic optical network",
+    "priority spectrum allocation failure recovery elastic optical network",
+    "optical network bandwidth allocation distributed machine learning job completion time",
+    "coflow scheduling optical circuit network distributed training",
+    "task aware optical network resource allocation AI training"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 40
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 40,
+  "batch_after_dedup": 38,
+  "batch_dedup": {
+    "input": 40,
+    "merged": 2,
+    "conflicts": 2,
+    "added": 38
+  },
+  "existing_merge": {
+    "input": 38,
+    "merged": 0,
+    "conflicts": 2,
+    "added": 38
+  },
+  "candidates": 38,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/investigations/soft-failure-training-impact/sf2/data/candidates.jsonl",
+  "selected_path": "research/investigations/soft-failure-training-impact/sf2/data/selected.jsonl"
+}

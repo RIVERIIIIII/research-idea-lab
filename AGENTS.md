@@ -5,14 +5,18 @@
 工作流：
 
 ```text
-Human + Codex
--> Research Brief
+Research Brief
 -> Human Confirmation
--> literature-search
--> paper-deep-note
--> survey-writer
--> research-gap-finder
--> hypothesis
+-> Literature Search
+-> Corpus Screening
+-> Paper Deep Notes
+-> Survey
+-> Research Gap Finder
+-> Hypothesis
+-> Targeted Literature Back-check
+-> KEEP / REVISE / REJECT
+-> Candidate Ideas
+-> Human Review
 ```
 
 ## Human Confirmation Gate
@@ -21,7 +25,14 @@ Human + Codex
 - 只有人明确确认研究范围后，才能把状态改为 `CONFIRMED`。
 - 状态不是 `CONFIRMED` 时，不得正式构建或批量更新 `candidates.jsonl` 与 `selected.jsonl`，不得声称完成正式 literature review。
 - `DRAFT` 状态允许小规模 exploratory search，用于澄清概念或讨论方向；结果不构成正式 corpus。
-- 当前 3 篇论文、notes 和 survey 仅为 pipeline validation 数据，不得反向限定新的 Research Brief。
+- 当前 corpus、notes、survey、gaps、hypotheses、back-checks 和 candidate ideas 可用于 pipeline validation，但不得反向限定新的 Research Brief，也不得自动视为正式科研结论。
+
+## Final Human Review Gate
+
+- Targeted back-check 复用 `literature-search`，结果单独保存在 `research/backchecks/`，不得直接污染正式 `papers/candidates.jsonl` 或 `papers/selected.jsonl`。
+- Hypothesis 的 decision 只能是 `KEEP`、`REVISE` 或 `REJECT`；`KEEP` 和 `REVISE` 只表示值得继续人工调查。
+- Candidate idea 的状态只能是 `POTENTIAL_CANDIDATE`，并必须同时回溯 hypothesis/gap/evidence 与 back-check closest prior work。
+- Human Review 是最终 Gate。系统不得把未完成人工 prior-art 核查的候选宣布为创新点、novelty 或 confirmed contribution。
 
 ## DRAFT Discussion Behavior
 

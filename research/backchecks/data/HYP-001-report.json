@@ -1,0 +1,46 @@
+{
+  "queries": [
+    "\"optical soft failure\" \"distributed training\" proactive reconfiguration",
+    "QoT degradation aware geo-distributed machine learning scheduling",
+    "training-stage-aware optical network control soft failure",
+    "predictive maintenance elastic optical network AI workload continuity",
+    "resource elasticity worker removal versus network recovery distributed training failure"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 25,
+    "semantic_scholar": 0,
+    "openalex": 20
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 45,
+  "batch_after_dedup": 44,
+  "batch_dedup": {
+    "input": 45,
+    "merged": 1,
+    "conflicts": 1,
+    "added": 44
+  },
+  "existing_merge": {
+    "input": 44,
+    "merged": 0,
+    "conflicts": 1,
+    "added": 44
+  },
+  "candidates": 44,
+  "selected": 0,
+  "errors": [
+    "s2 query failed for '\"optical soft failure\" \"distributed training\" proactive reconfiguration': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'QoT degradation aware geo-distributed machine learning scheduling': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'training-stage-aware optical network control soft failure': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'predictive maintenance elastic optical network AI workload continuity': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'resource elasticity worker removal versus network recovery distributed training failure': HTTPError: HTTP Error 429: "
+  ],
+  "candidates_path": "research/backchecks/data/HYP-001-candidates.jsonl",
+  "selected_path": "research/backchecks/data/HYP-001-selected.jsonl"
+}

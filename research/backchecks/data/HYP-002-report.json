@@ -1,0 +1,46 @@
+{
+  "queries": [
+    "PSRLG-aware geo-distributed training placement optical protection",
+    "regional failure resilient compute network co-allocation distributed machine learning",
+    "disaster-aware virtual infrastructure mapping optical datacenter AI training",
+    "shared risk link group compute placement optical network protection",
+    "correlated failure aware pipeline parallel training multi-datacenter network"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 25,
+    "semantic_scholar": 0,
+    "openalex": 20
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 45,
+  "batch_after_dedup": 42,
+  "batch_dedup": {
+    "input": 45,
+    "merged": 3,
+    "conflicts": 0,
+    "added": 42
+  },
+  "existing_merge": {
+    "input": 42,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 42
+  },
+  "candidates": 42,
+  "selected": 0,
+  "errors": [
+    "s2 query failed for 'PSRLG-aware geo-distributed training placement optical protection': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'regional failure resilient compute network co-allocation distributed machine learning': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'disaster-aware virtual infrastructure mapping optical datacenter AI training': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'shared risk link group compute placement optical network protection': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'correlated failure aware pipeline parallel training multi-datacenter network': HTTPError: HTTP Error 429: "
+  ],
+  "candidates_path": "research/backchecks/data/HYP-002-candidates.jsonl",
+  "selected_path": "research/backchecks/data/HYP-002-selected.jsonl"
+}

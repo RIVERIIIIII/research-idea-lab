@@ -1,0 +1,40 @@
+{
+  "queries": [
+    "\"shared risk link group\" datacenter placement optical",
+    "\"regional failure\" \"geo-distributed\" machine learning optical network"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 16,
+    "semantic_scholar": 0,
+    "openalex": 11
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 27,
+  "batch_after_dedup": 27,
+  "batch_dedup": {
+    "input": 27,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 27
+  },
+  "existing_merge": {
+    "input": 27,
+    "merged": 10,
+    "conflicts": 0,
+    "added": 17
+  },
+  "candidates": 59,
+  "selected": 0,
+  "errors": [
+    "s2 query failed for '\"shared risk link group\" datacenter placement optical': HTTPError: HTTP Error 429: ",
+    "s2 query failed for '\"regional failure\" \"geo-distributed\" machine learning optical network': HTTPError: HTTP Error 429: "
+  ],
+  "candidates_path": "research/backchecks/data/HYP-002-candidates.jsonl",
+  "selected_path": "research/backchecks/data/HYP-002-selected.jsonl"
+}

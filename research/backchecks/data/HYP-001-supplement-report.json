@@ -1,0 +1,40 @@
+{
+  "queries": [
+    "\"soft failure\" \"distributed machine learning\" optical network",
+    "\"quality of transmission\" \"geo-distributed training\" optical"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 16,
+    "semantic_scholar": 0,
+    "openalex": 6
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 22,
+  "batch_after_dedup": 19,
+  "batch_dedup": {
+    "input": 22,
+    "merged": 3,
+    "conflicts": 0,
+    "added": 19
+  },
+  "existing_merge": {
+    "input": 19,
+    "merged": 3,
+    "conflicts": 0,
+    "added": 16
+  },
+  "candidates": 60,
+  "selected": 0,
+  "errors": [
+    "s2 query failed for '\"soft failure\" \"distributed machine learning\" optical network': HTTPError: HTTP Error 429: ",
+    "s2 query failed for '\"quality of transmission\" \"geo-distributed training\" optical': HTTPError: HTTP Error 429: "
+  ],
+  "candidates_path": "research/backchecks/data/HYP-001-candidates.jsonl",
+  "selected_path": "research/backchecks/data/HYP-001-selected.jsonl"
+}
