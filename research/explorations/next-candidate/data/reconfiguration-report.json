@@ -1,0 +1,40 @@
+{
+  "queries": [
+    "hitless optical network reconfiguration distributed machine learning training",
+    "optical circuit reconfiguration collective communication distributed training"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 10,
+    "semantic_scholar": 0,
+    "openalex": 10
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 20,
+  "batch_after_dedup": 18,
+  "batch_dedup": {
+    "input": 20,
+    "merged": 2,
+    "conflicts": 0,
+    "added": 18
+  },
+  "existing_merge": {
+    "input": 18,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 18
+  },
+  "candidates": 18,
+  "selected": 0,
+  "errors": [
+    "s2 query failed for 'hitless optical network reconfiguration distributed machine learning training': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'optical circuit reconfiguration collective communication distributed training': HTTPError: HTTP Error 429: "
+  ],
+  "candidates_path": "research/explorations/next-candidate/data/reconfiguration-candidates.jsonl",
+  "selected_path": "research/explorations/next-candidate/data/reconfiguration-selected.jsonl"
+}

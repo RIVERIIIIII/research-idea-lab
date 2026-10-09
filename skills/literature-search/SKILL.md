@@ -10,6 +10,10 @@ read `research/research-brief.md`, then `docs/data-contract.md`. The brief is th
 authoritative scope constraint; the data contract is the authoritative schema
 and identity contract.
 
+## 共享机制推导规范
+
+使用本 Skill 时读取 [生存性机制发现方法](../../docs/mechanism-discovery.md)，按其中的分阶段职责执行；不得越过本 Skill 的输出边界。
+
 ## Human Confirmation Gate
 
 - Read the exact value under `## Status` in `research/research-brief.md`.
@@ -91,3 +95,9 @@ This skill is responsible only for search, seed expansion, deduplication,
 metadata normalization, lightweight screening, and PDF retrieval. It does not
 perform deep reading, survey writing, research-gap analysis, hypothesis
 generation, experiment design, or novelty assessment.
+
+## 检索组织与回查
+
+在已确认范围内分别组织经典生存性机制与任务特性两条检索线；不以是否同时出现 optical 与 LLM 作为入选必要条件。检索计划说明每组 query 用于补充哪类知识，覆盖经典方法、成立条件、任务特性证据及相邻领域机制；沿用现有 coverage_roles，不新增 JSONL 枚举。
+
+执行 targeted back-check 时，查询应覆盖同问题、同机制、同义词、相邻应用与简单替代方案。使用现有脚本的输出参数将候选、入选、报告及下载记录写入 research/backchecks/ 下的独立路径；先检查脚本参数，不能使用会写入正式 corpus 的默认输出。回查发现相似方案时记录其覆盖范围和剩余差异，不由检索环节判断 novelty。

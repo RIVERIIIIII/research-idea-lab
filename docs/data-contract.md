@@ -354,8 +354,11 @@ Rules:
 5. Absence from the collected literature is written as “not found in the
    current search set,” never as proof of novelty.
 6. Conflicting evidence is retained and cited; it is not silently resolved.
-7. Hypotheses and candidate ideas remain `potentially novel` until broader
-   prior-art checking and human review.
+7. Hypotheses use `status: NEEDS_BACK_CHECK` before back-check; decisions after
+   back-check are only `KEEP`, `REVISE`, or `REJECT`. Candidate ideas use only
+   `status: POTENTIAL_CANDIDATE` and trace both hypothesis/gap/evidence and
+   back-check closest prior work. `KEEP` and `REVISE` mean worthy of further
+   human investigation, not established novelty. Human Review is the final gate.
 
 The intended trace is therefore explicit:
 
@@ -375,3 +378,13 @@ papers/.cache/pdfs/
 
 They are excluded from Git. Notes must reference the canonical `paper_id` and
 source URLs, not depend on the cache path remaining available.
+
+## 8. Mechanism-analysis sections
+
+The shared reasoning guidance is [mechanism-discovery.md](mechanism-discovery.md).
+New notes and downstream outputs include the stage-specific sections in their
+skill templates. These are Markdown analysis sections, not new JSONL fields,
+identity rules, or evidence types. Historical artifacts need not be batch
+rewritten; missing mechanism/property evidence is identified before reuse for
+new GAP or HYP generation. Every factual component retains evidence references;
+proposed mechanisms and expected benefits remain explicitly inferred.

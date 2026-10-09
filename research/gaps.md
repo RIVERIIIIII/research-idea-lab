@@ -96,6 +96,37 @@
 
 必须定向核查 regional-failure-resilient virtual infrastructure mapping、disaster protection in optical DC networks、risk-aware geo-distributed training placement，以及 SRLG-aware compute-network co-optimization。本阶段不执行该检索。
 
+### GAP-003 — 静态业务等级无法表达软故障频谱让渡对同步训练的任务级损失
+
+- **gap_id**：`GAP-003`
+- **title**：静态业务等级无法表达软故障频谱让渡对同步训练的任务级损失
+- **gap_type**：`integration-driven`
+- **description**：软故障恢复已可通过调制切换、扩谱和低等级流降速保障关键光路；训练感知光资源分配也已能读取同步依赖和 communication-bound 状态。全文核查后，问题被收紧为：当 QoT-aware rerouting 无法消除 soft-failure-induced 容量缺口时，flow-to-job 依赖是否会使静态 rate class、task priority 或 CB-driven FS allocation 选择错误的受让流/牺牲流。
+- **why_it_may_matter**：同样的带宽损失可能对非关键流影响很小，却使关键流决定整个 iteration；若这一非线性存在，只恢复连接或按静态等级分配频谱不能等价于最小化训练损失。
+- **derived_from**：[`SURV-001`, `HUMAN-DISC-SF-1`, `HUMAN-DISC-SF-2`]
+- **supporting_papers**：`doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922`；`doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962`；`doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2`
+- **back_check_needed**：`false`
+- **confidence**：`MEDIUM`
+
+#### Observed Evidence
+
+1. 软故障恢复可通过更鲁棒调制恢复 QoT，但可能要求扩展频谱；既有方法允许高等级光路占用低等级光路频谱。[@doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922#E001] [@doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922#E002]
+2. fgOTN 工作已联合建模同步依赖、task/subtask priority 与可调光带宽；CD-CBA 已按 communication-bound label 增减 FS 并选择路径。[@doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962#E003] [@doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962#E004] [@doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2#E002] [@doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2#E003]
+
+#### Cross-paper Synthesis
+
+**综合推断**：软故障频谱让渡与训练感知光资源分配均已有完整先例；尚可核查的不是二者简单结合，而是 QoT/调制可行域造成的不可绕行容量缺口是否引出既有 task-priority/CB allocation 无法表达的跨作业牺牲决策。[@doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922#E010] [@doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962#E011] [@doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2#E012]
+
+#### Counter Evidence
+
+- 静态业务等级可能已经足以保障关键训练连接。[@doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922#E002]
+- fgOTN/CD-CBA 全文已经直接覆盖训练依赖驱动的带宽/FS 分配；新增故障状态可能只是普通约束。[@doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962#E011] [@doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2#E011]
+- P4 packet-optical 工作可在约 2 μs 执行 QoT/QoS-aware rerouting；若备选路径始终有足够带宽，本 gap 不成立。
+
+#### Back-check Result
+
+定向回查见 `research/backchecks/DISC-HYP-A.md`：91 条唯一 metadata records，关键工作分类为 0 DIRECT、6 PARTIAL、2 ADJACENT。四篇 closest work 全文核查后，候选从人工初始 `KEEP` 收紧为 `REVISE`；该结果只支持继续调查，不支持不存在相似工作或 novelty 结论。
+
 ## Rejected / Weak Gap Candidates
 
 ### 1. “把高优先级业务替换成 LLM 训练优先级”

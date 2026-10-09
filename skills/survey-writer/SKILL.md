@@ -7,6 +7,10 @@ description: Build a Chinese, evidence-linked survey from multiple paper notes i
 
 围绕一个研究主题组织多篇论文卡片，输出 `research/survey.md`。重点是梳理研究问题、方法路线、跨论文比较和当前局限，不按论文逐篇拼接摘要。
 
+## 共享机制推导规范
+
+使用本 Skill 时读取 [生存性机制发现方法](../../docs/mechanism-discovery.md)，按其中的分阶段职责执行；不得越过本 Skill 的输出边界。
+
 ## 输入与输出
 
 - 上游约束：`research/research-brief.md`；先读取它，再处理 corpus。
@@ -45,3 +49,7 @@ description: Build a Chinese, evidence-linked survey from multiple paper notes i
 ## 职责边界
 
 本 Skill 不负责搜索、PDF 下载、单篇精读、research-gap 定义、hypothesis、候选创新点、novelty 判断或实验设计。禁止用“没有搜到”推断“不存在”，也不得声称当前材料构成 comprehensive literature review 或 complete state of the art。
+
+## 知识体系输出
+
+按 survey_template 建立经典机制表与任务特性表，允许两表分别由不同论文支持。比较决策条件、信息与控制能力，而不只比较算法和指标；区分作者明确边界与综合推断。交叉关系仅描述已有工作的覆盖和未解决问题，不在本环节生成机会矩阵候选、gap 或新机制。

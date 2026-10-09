@@ -3,9 +3,9 @@
 ## Scope & Status
 
 - **inputs**：已确认的 `research/research-brief.md`、pipeline-validation `research/gaps.md`、`research/survey.md` 及对应 paper evidence。
-- **GAP coverage**：读取 `GAP-001` 与 `GAP-002`；二者都能形成原则上可证伪的待回查判断，因此各生成一个 hypothesis。
+- **GAP coverage**：pipeline validation 读取 `GAP-001` 与 `GAP-002`；后续人机讨论新增并回查 `GAP-003 → DISC-HYP-A`。
 - **validation boundary**：以下内容仅验证 `GAP → grounded + falsifiable hypothesis → back-check queries`。它们不是事实、正式创新点、novelty 结论或 confirmed contribution。
-- **status rule**：所有 hypothesis 均为 `NEEDS_BACK_CHECK`；本阶段不执行查询。
+- **status rule**：`HYP-001/HYP-002` 保留原 validation 状态；`DISC-HYP-A` 已完成独立 targeted back-check，结果见 `research/backchecks/DISC-HYP-A.md`。
 
 ## HYP-001 — 预测驱动的训练状态感知软故障协同控制可能降低任务级恢复代价
 
@@ -75,3 +75,23 @@
 - **confidence**：`LOW`
 - **evidence_status**：`inferred`
 - **status**：`NEEDS_BACK_CHECK`
+
+## DISC-HYP-A — 训练关键性驱动的光层软故障恢复
+
+- **hypothesis_id**：`DISC-HYP-A`
+- **title**：训练关键性驱动的光层软故障恢复
+- **statement**：在多训练任务共享弹性光网络、QoT-aware rerouting 无法提供足够残余带宽、且软故障迫使受损光路改变调制并形成不可避免频谱缺口时，利用同步屏障、pipeline 关键边和 flow-to-job 依赖联合选择恢复频谱受益流与降速牺牲流，相比静态 rate class、普通 task-priority allocation 和 communication-bound FS allocation，可能在相同 QoT 与频谱预算下降低加权迭代时间或任务完成时间。
+- **derived_from**：[`GAP-003`]
+- **research_problem**：静态 rate class 能表达连接优先级，但可能不能表达关键流轻微降速对同步屏障或 pipeline bubble 的任务级放大效应。
+- **supporting_evidence**：
+  - 软故障后的鲁棒调制可能需要额外频谱，并可通过低等级流让渡频谱恢复关键光路。[@doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922#E001] [@doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922#E002]
+  - fgOTN 全文证明同步依赖、任务/子任务优先级和可调光带宽之间存在显式联合决策。[@doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962#E003] [@doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962#E004]
+  - CD-CBA 全文证明 communication-bound labels 会改变 FS 数量与路径选择，并影响训练时间、bubble 与 blocking。[@doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2#E002] [@doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2#E003] [@doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2#E007]
+- **counter_evidence**：静态业务等级可能已经足够；fgOTN 与 CD-CBA 已覆盖训练感知光资源分配；P4 全文表明 QoT/QoS-aware rerouting 可在约 2 μs 执行，若始终存在足够备选路径则不会形成频谱牺牲问题。
+- **assumptions**：存在无法由重路由消除的有限频谱缺口；soft failure 恢复确实触发扩谱或降速；训练依赖造成 task priority 或 communication-bound FS 增配无法完整表达的跨作业非线性损失。
+- **falsifiability**：如果 QoT-aware rerouting 总能提供足够带宽；或静态 rate class、GARA 类 task-priority allocation、CD-CBA 类 communication-bound allocation 在相同 QoT/频谱预算下始终达到相同训练指标；或训练依赖不会改变任何受让流/牺牲流选择，则该 hypothesis 被否定。
+- **uncertainty**：四篇 closest work 已全文核查，但其余相邻训练—光网工作尚未全部全文读取；Semantic Scholar 本轮限流；训练 trace 与 QoT/调制模型的联合验证可行性尚未确认。
+- **back_check_queries**：见 `research/backchecks/DISC-HYP-A.md`。
+- **confidence**：`MEDIUM`
+- **decision**：`REVISE`（人工初始决定为 `KEEP`；四篇 closest work 全文核查后收紧边界）
+- **status**：`BACK_CHECKED`

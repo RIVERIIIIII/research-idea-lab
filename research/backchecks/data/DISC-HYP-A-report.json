@@ -1,0 +1,48 @@
+{
+  "queries": [
+    "soft failure recovery distributed deep learning elastic optical network",
+    "training-aware soft failure recovery optical network",
+    "failure-aware resource allocation geo-distributed machine learning optical network",
+    "QoT-aware distributed LLM training optical network",
+    "modulation adaptation distributed training optical WAN",
+    "spectrum sharing soft failure AI training optical network"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 48,
+    "semantic_scholar": 0,
+    "openalex": 48
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 96,
+  "batch_after_dedup": 79,
+  "batch_dedup": {
+    "input": 96,
+    "merged": 17,
+    "conflicts": 2,
+    "added": 79
+  },
+  "existing_merge": {
+    "input": 79,
+    "merged": 0,
+    "conflicts": 2,
+    "added": 79
+  },
+  "candidates": 79,
+  "selected": 0,
+  "errors": [
+    "s2 query failed for 'soft failure recovery distributed deep learning elastic optical network': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'training-aware soft failure recovery optical network': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'failure-aware resource allocation geo-distributed machine learning optical network': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'QoT-aware distributed LLM training optical network': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'modulation adaptation distributed training optical WAN': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'spectrum sharing soft failure AI training optical network': HTTPError: HTTP Error 429: "
+  ],
+  "candidates_path": "research/backchecks/data/DISC-HYP-A-candidates.jsonl",
+  "selected_path": "research/backchecks/data/DISC-HYP-A-selected.jsonl"
+}

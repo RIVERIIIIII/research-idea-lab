@@ -1,0 +1,38 @@
+{
+  "queries": [
+    "distributed training telemetry optical soft failure localization",
+    "task aware soft failure detection optical network AI training",
+    "cross layer root cause analysis distributed training optical network degradation"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 18,
+    "semantic_scholar": 0,
+    "openalex": 18
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 36,
+  "batch_after_dedup": 29,
+  "batch_dedup": {
+    "input": 36,
+    "merged": 7,
+    "conflicts": 0,
+    "added": 29
+  },
+  "existing_merge": {
+    "input": 29,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 29
+  },
+  "candidates": 29,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/explorations/next-candidate/data/cross-layer-diagnosis-candidates.jsonl",
+  "selected_path": "research/explorations/next-candidate/data/cross-layer-diagnosis-selected.jsonl"
+}

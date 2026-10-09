@@ -2,10 +2,11 @@
 
 ## Scope & Decision Gate
 
-- 输入：`research/hypotheses.md`、`research/backchecks/HYP-001.md`、`research/backchecks/HYP-002.md`。
+- 输入：`research/hypotheses.md` 及 `research/backchecks/` 中对应回查。
 - 只有 `KEEP` 或 `REVISE` 的 hypothesis 可以进入本文件。
 - `HYP-001`：`REVISE`，进入候选。
 - `HYP-002`：`REJECT`，保留历史记录但不生成 candidate idea。
+- `DISC-HYP-A`：经人工初始 KEEP；四篇 closest work 全文核查后收紧为 `REVISE`，保留并更新 `IDEA-002`。
 - 本文件输出只表示值得人工讨论的候选，不表示 novelty、confirmed contribution 或正式创新点。
 
 ## IDEA-001 — 预测软故障窗口内的训练状态感知跨层动作选择
@@ -34,6 +35,33 @@
 - **back_check_summary**：HYP-001 共检索 67 条 raw、60 条唯一结果；关键比较集中包含 0 DIRECT、7 PARTIAL、3 ADJACENT。决策为 `REVISE`，候选已收缩到跨层动作选择边界。
 - **confidence**：`MEDIUM`
 - **status**：`POTENTIAL_CANDIDATE`
+- **human_review**：`REJECT`。该 validation 候选对应后续讨论中的预测窗口/训练动作时机分支 `DISC-SF-3`，已由人明确淘汰，不再作为当前活跃候选。
+
+## IDEA-002 — 不可绕行软故障容量缺口下的训练任务级频谱牺牲协调
+
+- **idea_id**：`IDEA-002`
+- **title**：不可绕行软故障容量缺口下的训练任务级频谱牺牲协调
+- **statement**：研究在 QoT-aware rerouting 无法提供足够残余带宽、soft-failure-induced modulation transition 造成不可避免频谱缺口时，是否需要依据同步屏障、pipeline 关键边和 flow-to-job 依赖，跨训练作业协调恢复频谱受益流与降速牺牲流，并在相同 QoT 与频谱预算下相对静态 rate class、普通 task-priority allocation 和 communication-bound FS allocation 降低任务级损失。
+- **derived_from**：[`DISC-HYP-A`, `GAP-003`]
+- **core_problem**：现有软故障频谱共享已经按静态 rate class 选择频谱牺牲者；fgOTN 和 CD-CBA 已分别按同步任务优先级与 communication-bound 状态分配动态光带宽/FS。待验证问题只剩：在重路由不能消除的软故障容量缺口下，QoT/调制可行域与训练依赖的联合是否迫使系统做出既有两类方法都不能表达的跨作业牺牲决策。
+- **proposed_relation_or_mechanism**：先排除存在足够 QoT/带宽备选路径的情形；对剩余不可避免容量缺口，将 flow 对 barrier/bubble/JCT 的边际影响映射为恢复代价，在 QoT、调制可达性、频谱连续/一致性和最低速率约束下联合选择扩谱、降速及受让/牺牲流。不能只给 CD-CBA 加 failure flag，也不能只把业务等级替换成训练权重。
+- **supporting_evidence**：
+  - 软故障后的鲁棒调制可能要求扩谱，并可由低等级光路让渡频谱。[@doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922#E001] [@doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922#E002]
+  - fgOTN 已证实同步依赖、task/subtask priority 与可调光带宽形成明确资源竞争。[@doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962#E003] [@doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962#E004]
+  - CD-CBA 已证实 communication-bound labels 会改变 FS/路径分配及训练级指标。[@doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2#E002] [@doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2#E007]
+- **closest_prior_work**：
+  - `BC-DHA-001`：最接近的光层恢复工作，覆盖调制切换与频谱让渡，但使用静态业务等级。
+  - `BC-DHA-003`：全文覆盖同步 GDML 的 task/subtask priority 与可调 fgOTN bandwidth。
+  - `BC-DHA-004`：全文覆盖 communication-bound task labeling、动态 FS 增减和路径选择。
+  - `BC-DHA-002`：全文给出约 2 μs 的 QoT/QoS-aware 快速重路由，是绕开本问题的强替代机制。
+  - 详细比较见 `research/backchecks/DISC-HYP-A.md`。
+- **difference_from_prior_work**：待核查差异限定为“重路由不可消除的 soft-failure QoT/调制容量缺口”与“跨训练作业 flow-to-job dependency”共同决定受益/牺牲流；一般 training-aware priority 或 CB-driven FS allocation 已被已有工作覆盖。
+- **counter_evidence**：静态等级可能足够；GARA/CD-CBA 可能已吸收容量变化；约 2 μs 快速重路由可能避免容量缺口；如果只增加 failure state 而不改变决策结构，则候选不成立。
+- **uncertainty**：Semantic Scholar 限流；其余相邻训练—光网工作尚未全部全文核查；不可绕行容量缺口出现频率与训练 trace/QoT 模型联合验证可行性尚未确认。
+- **back_check_summary**：核心检索 96 条 raw、79 条去重记录；精确补查后共 91 条唯一 metadata records。关键比较仍为 0 DIRECT、6 PARTIAL、2 ADJACENT；四篇 closest work 全文核查后 decision 从人工初始 `KEEP` 收紧为 `REVISE`，confidence `MEDIUM`。
+- **problem_validation**：最小反例结果为 `CONDITIONAL_PASS`；81 个邻近合成组合的稳定性核查中，23 个出现不同且更优的 job-group-aware 选择，且集中于中等频谱稀缺区间（23/27）。这排除了单点数值构造，但没有验证现实出现频率，GARA 类全局分配仍可能吸收该问题。详见 `research/investigations/soft-failure-training-impact/minimal-problem-validation.md` 与 `minimal-stability-check.md`。
+- **confidence**：`MEDIUM`
+- **status**：`POTENTIAL_CANDIDATE`
 
 ## Rejected Hypotheses
 
@@ -41,4 +69,4 @@
 
 ## Human Review Gate
 
-`IDEA-001` 必须经过人工讨论和关键 prior work 全文核查后，才能决定是否进入正式科研分析。系统不得自行宣布其为创新点。
+当前唯一保留登记的候选是已收紧边界的 `IDEA-002`，但其**当前推进决定为暂停深入验证（ON HOLD）**，不是正在投入完整仿真的方向。四篇关键 prior work 已全文核查；“不可绕行容量缺口”的现实发生频率与独立论文价值仍待人工判断。最新讨论线索和推进优先级以 `research/current-status.md` 为准。系统不得自行宣布 `IDEA-002` 为创新点。

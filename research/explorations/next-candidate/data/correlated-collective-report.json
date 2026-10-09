@@ -1,0 +1,38 @@
+{
+  "queries": [
+    "SRLG failure collective communication distributed training optical network",
+    "correlated optical path degradation collective algorithm remapping AI training",
+    "failure aware collective communication reconfigurable optical network"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 18,
+    "semantic_scholar": 0,
+    "openalex": 16
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 34,
+  "batch_after_dedup": 30,
+  "batch_dedup": {
+    "input": 34,
+    "merged": 4,
+    "conflicts": 0,
+    "added": 30
+  },
+  "existing_merge": {
+    "input": 30,
+    "merged": 30,
+    "conflicts": 0,
+    "added": 0
+  },
+  "candidates": 30,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/explorations/next-candidate/data/correlated-collective-candidates.jsonl",
+  "selected_path": "research/explorations/next-candidate/data/correlated-collective-selected.jsonl"
+}

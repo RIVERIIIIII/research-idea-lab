@@ -1,0 +1,40 @@
+{
+  "queries": [
+    "optical network failure distributed LLM inference service placement",
+    "SRLG resilient mixture of experts inference optical network"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 10,
+    "semantic_scholar": 0,
+    "openalex": 5
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 15,
+  "batch_after_dedup": 15,
+  "batch_dedup": {
+    "input": 15,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 15
+  },
+  "existing_merge": {
+    "input": 15,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 15
+  },
+  "candidates": 15,
+  "selected": 0,
+  "errors": [
+    "s2 query failed for 'optical network failure distributed LLM inference service placement': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'SRLG resilient mixture of experts inference optical network': HTTPError: HTTP Error 429: "
+  ],
+  "candidates_path": "research/explorations/next-candidate/data/inference-survivability-candidates.jsonl",
+  "selected_path": "research/explorations/next-candidate/data/inference-survivability-selected.jsonl"
+}

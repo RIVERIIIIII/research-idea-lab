@@ -13,6 +13,12 @@
 - corpus limitations：
 - validation 声明：
 
+## Mechanism Opportunity Matrix
+
+| 经典问题/方案及证据 | 受限条件及证据 | 任务特性、适用条件及证据 | 特性为何影响该条件 | 可能改变的决策位置 | 缺失证据/反证 | 处置 |
+|---|---|---|---|---|---|---|
+
+只保留有因果依据的交叉项；不机械穷举。处置为进入 GAP、待补证或排除；此处不设计具体方案。
 ## Candidate Gaps
 
 ### GAP-001 — 标题
@@ -30,6 +36,15 @@
 #### Cross-paper Synthesis
 
 #### Candidate Gap Inference
+
+#### Mechanism Opportunity
+
+- classical_problem_and_scheme:
+- limiting_assumption_and_boundary:
+- task_property_and_conditions:
+- causal_link: 为什么该特性与上述限制有关，可能改变哪个决策？
+- unresolved_question: 仍需解决的机制问题，而非仅缺少某种场景的论文。
+- missing_evidence: 缺失项不能作为肯定支持。
 
 #### Counter Evidence
 

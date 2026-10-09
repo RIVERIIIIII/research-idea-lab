@@ -7,6 +7,10 @@ description: Produce a grounded Chinese deep-reading note for one selected acade
 
 处理一篇已入选论文，输出中文结构化精读卡。核心目标是准确区分论文陈述、实验支持、作者局限、模型推断和待核实信息。
 
+## 共享机制推导规范
+
+使用本 Skill 时读取 [生存性机制发现方法](../../docs/mechanism-discovery.md)，按其中的分阶段职责执行；不得越过本 Skill 的输出边界。
+
 ## 输入与输出
 
 - 从 `papers/selected.jsonl` 读取目标记录，不重新生成或修改 `paper_id`。
@@ -64,3 +68,7 @@ description: Produce a grounded Chinese deep-reading note for one selected acade
 ## 职责边界
 
 本 Skill 只负责单篇论文精读卡。不得写 survey、寻找 research gap、生成 hypothesis、判断创新性或设计完整实验。
+
+## 机制阅读重点
+
+按 note_template 的机制拆解表记录论文支持的六步链条片段。优先提取经典方案依赖的条件、实际改变的决策及收益来源，而非仅列算法名。任务特性需区分观测规律、预测能力与控制权限。作者结论、作者局限和读者推断分别引用对应证据；不为填满链条补造事实，不从单篇启发直接生成候选创新点。

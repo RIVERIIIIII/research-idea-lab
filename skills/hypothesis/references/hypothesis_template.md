@@ -20,6 +20,21 @@
   - statement + [@paper_id#E002]
 - assumptions:
   - ...
+- mechanism_chain:
+  - classical_problem:
+  - classical_scheme_and_decision:
+  - limiting_condition_and_boundary:
+  - task_property_evidence_and_control_conditions:
+  - decision_change_and_causal_link:
+  - expected_benefit_and_source:
+- quality_checks:
+  - property_authenticity:
+  - mechanism_effectiveness:
+  - net_benefit_and_costs:
+  - prior_art_risk:
+- comparison_conditions: 资源预算、故障模型、保障水平及适用的经典/简单替代基线。
+- counterfactual: 移除特性或禁止新增控制后，决策与收益应如何变化？
+- benefit_disappearance_conditions:
 - falsifiability:
 - uncertainty:
 - back_check_queries:

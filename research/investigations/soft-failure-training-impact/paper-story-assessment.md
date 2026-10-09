@@ -1,6 +1,6 @@
 # DISC-SF-1 / DISC-SF-2 论文叙事成立性评估
 
-Status: HUMAN_REVIEW_REQUIRED
+Status: HUMAN_KEEP_BACKCHECKED
 
 ## Search Scope
 
@@ -94,3 +94,13 @@ Status: HUMAN_REVIEW_REQUIRED
 4. 是否有可获得的训练通信 trace 或可信的 iteration-time / bubble 模型用于评价？
 
 本文件只证明该问题具有形成论文叙事的可能性，不证明 novelty。
+
+## Human Decision and Back-check
+
+- Human decision：`KEEP`（2026-10-05）。
+- Targeted back-check：`research/backchecks/DISC-HYP-A.md`。
+- Initial metadata-level decision：`KEEP`，confidence `MEDIUM`。
+- Four-closest-work full-text audit：`REVISE`，confidence `MEDIUM`。
+- 修订边界：只讨论 QoT-aware rerouting 无法提供足够残余带宽、soft-failure modulation fallback 形成不可避免容量缺口的场景；必须证明 QoT/调制可行域与训练依赖共同造成静态等级、GARA 类 task priority 或 CD-CBA 类 communication-bound allocation 无法表达的跨作业牺牲决策，否则应 REJECT。
+- Minimal problem validation：`research/investigations/soft-failure-training-impact/minimal-problem-validation.md`，结果 `CONDITIONAL_PASS`。
+- Synthetic stability check：`research/investigations/soft-failure-training-impact/minimal-stability-check.md`，结果 `PASS`（81 个邻近组合中 23 个产生更优组合决策；仅表示结构稳定，不是现实网络实验）。

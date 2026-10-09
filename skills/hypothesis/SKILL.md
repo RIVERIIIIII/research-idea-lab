@@ -11,6 +11,10 @@ metadata:
 
 把已有 candidate gaps 转换为具体、可讨论且原则上可证伪的 candidate hypotheses。Hypothesis 是待验证判断，不是论文事实、正式创新点或 confirmed contribution。
 
+## 共享机制推导规范
+
+使用本 Skill 时读取 [生存性机制发现方法](../../docs/mechanism-discovery.md)，按其中的分阶段职责执行；不得越过本 Skill 的输出边界。
+
 ## 输入与输出
 
 - 首先读取 `research/research-brief.md`，确认范围与有效问题标准。
@@ -79,3 +83,9 @@ Confidence 不表示创新概率，也不应高于其来源 GAP，除非增加�
 ## 职责边界
 
 本 Skill 只完成 `GAP -> grounded + falsifiable candidate hypothesis -> back-check queries`。不得执行 queries、判断 novelty、生成最终 candidate innovation ideas、扩大 corpus、修改 Research Brief 或设计完整实验。
+
+## 机制与收益推导
+
+按 hypothesis_template 显式完成六步链条，重点解释传统条件、任务特性与决策改变之间的因果关系。既有 GAP 缺少经典机制或特性证据时，标记需要上游补证，不凭空补齐 hypothesis。
+
+逐项检查特性真实性、机制有效性、净收益解释和 prior-art 风险。写出移除特性/禁止新增控制的反事实预测，以及收益消失或机制不成立的条件。比较应说明资源预算、故障与保障条件，区分机制收益、额外资源收益和保障放宽收益；只给原则性验证要求，不扩展为完整实验 protocol。

@@ -7,6 +7,10 @@ description: Identify evidence-linked candidate research gaps from a confirmed r
 
 从现有 evidence 出发，识别值得进一步文献回查的候选 research gaps。目标是区分真实问题线索、工程集成机会和“文献读得还不够”造成的表面空白，而不是硬造创新点。
 
+## 共享机制推导规范
+
+使用本 Skill 时读取 [生存性机制发现方法](../../docs/mechanism-discovery.md)，按其中的分阶段职责执行；不得越过本 Skill 的输出边界。
+
 ## 输入与输出
 
 - 上游范围：`research/research-brief.md`；必须先读取并确认状态为 `CONFIRMED`。
@@ -75,3 +79,9 @@ description: Identify evidence-linked candidate research gaps from a confirmed r
 ## 职责边界
 
 本 Skill 只完成 `evidence → limitation/conflict/unresolved question → candidate gap`。不得生成 hypothesis、candidate innovation ideas、novelty conclusion、实验方案或 targeted literature back-check，也不得扩大 corpus。
+
+## 机制机会分析
+
+在生成 GAP 前，依据 survey 的经典机制表与任务特性表建立有证据的机会矩阵；不机械枚举所有组合。每个保留交叉项说明经典方案的受限条件、任务特性为何与该条件有关、可能改变的决策位置和仍需验证的关系。采用 gap_analysis_template 的新增结构；缺少关键证据时保留为待补证线索，不生成肯定支持的 GAP。
+
+覆盖不足本身只触发回查，不构成机制机会。传统假设可以在原场景下合理；明确在哪些条件下才出现优化机会。通过③④⑤的连接解释待解决问题，但具体方案与可证伪预测留给 hypothesis。
