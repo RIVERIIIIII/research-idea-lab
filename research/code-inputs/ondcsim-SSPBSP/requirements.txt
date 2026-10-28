@@ -1,0 +1,9 @@
+networkx
+numpy~=1.25.1
+pandas~=2.0.3
+pymongo
+simpy
+pyyaml
+matplotlib~=3.7.2
+pyqt5~=5.15.9  # gui for matplotlib
+plotly~=5.16.1

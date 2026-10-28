@@ -1,0 +1,314 @@
+{
+  "scope": "Synthetic arithmetic only; normalized units; not measured gains or novelty evidence.",
+  "plan_count": 168,
+  "admissible_count": 1,
+  "winner": {
+    "action": "handover",
+    "prefix_chunks": 7,
+    "u": {
+      "path": "UB",
+      "mode": "high",
+      "width": 2,
+      "start": 1,
+      "slots": [
+        1,
+        2,
+        3
+      ],
+      "rate": 4.0
+    },
+    "a": {
+      "path": "AB",
+      "mode": "robust",
+      "width": 2,
+      "start": 5,
+      "slots": [
+        5,
+        6,
+        7
+      ],
+      "rate": 2.0
+    },
+    "R": 2.4175,
+    "post_gap": 0.405,
+    "deadline_ok": true,
+    "service_ok": true,
+    "admissible": true
+  },
+  "comparators": {
+    "KV_only": {
+      "action": "handover",
+      "prefix_chunks": 0,
+      "u": {
+        "path": "UB",
+        "mode": "high",
+        "width": 2,
+        "start": 1,
+        "slots": [
+          1,
+          2,
+          3
+        ],
+        "rate": 4.0
+      },
+      "a": {
+        "path": "AB",
+        "mode": "robust",
+        "width": 2,
+        "start": 5,
+        "slots": [
+          5,
+          6,
+          7
+        ],
+        "rate": 2.0
+      },
+      "R": 5.605,
+      "post_gap": 0.405,
+      "deadline_ok": false,
+      "service_ok": true,
+      "admissible": false
+    },
+    "replay_only": {
+      "action": "handover",
+      "prefix_chunks": 8,
+      "u": {
+        "path": "UB",
+        "mode": "high",
+        "width": 2,
+        "start": 1,
+        "slots": [
+          1,
+          2,
+          3
+        ],
+        "rate": 4.0
+      },
+      "a": null,
+      "R": 2.605,
+      "post_gap": 0.405,
+      "deadline_ok": false,
+      "service_ok": true,
+      "admissible": false
+    },
+    "forward": {
+      "action": "forward_to_A",
+      "prefix_chunks": 0,
+      "u": {
+        "path": "UB",
+        "mode": "high",
+        "width": 2,
+        "start": 1,
+        "slots": [
+          1,
+          2,
+          3
+        ],
+        "rate": 4.0
+      },
+      "a": {
+        "path": "AB",
+        "mode": "robust",
+        "width": 2,
+        "start": 5,
+        "slots": [
+          5,
+          6,
+          7
+        ],
+        "rate": 2.0
+      },
+      "R": 2.015,
+      "post_gap": 1.615,
+      "deadline_ok": true,
+      "service_ok": false,
+      "admissible": false
+    },
+    "minimum_width_then_state": {
+      "action": "handover",
+      "prefix_chunks": 7,
+      "u": {
+        "path": "UB",
+        "mode": "high",
+        "width": 1,
+        "start": 1,
+        "slots": [
+          1,
+          2
+        ],
+        "rate": 2.0
+      },
+      "a": {
+        "path": "AB",
+        "mode": "robust",
+        "width": 1,
+        "start": 5,
+        "slots": [
+          5,
+          6
+        ],
+        "rate": 1.0
+      },
+      "R": 2.86,
+      "post_gap": 0.41,
+      "deadline_ok": false,
+      "service_ok": true,
+      "admissible": false
+    },
+    "maximum_capacity_then_state": {
+      "action": "handover",
+      "prefix_chunks": 7,
+      "u": {
+        "path": "UB",
+        "mode": "high",
+        "width": 2,
+        "start": 1,
+        "slots": [
+          1,
+          2,
+          3
+        ],
+        "rate": 4.0
+      },
+      "a": {
+        "path": "AB",
+        "mode": "robust",
+        "width": 2,
+        "start": 5,
+        "slots": [
+          5,
+          6,
+          7
+        ],
+        "rate": 2.0
+      },
+      "R": 2.4175,
+      "post_gap": 0.405,
+      "deadline_ok": true,
+      "service_ok": true,
+      "admissible": true
+    }
+  },
+  "counterexamples": {
+    "base": {
+      "admissible_count": 1,
+      "best": {
+        "action": "handover",
+        "prefix_chunks": 7,
+        "u": {
+          "path": "UB",
+          "mode": "high",
+          "width": 2,
+          "start": 1,
+          "slots": [
+            1,
+            2,
+            3
+          ],
+          "rate": 4.0
+        },
+        "a": {
+          "path": "AB",
+          "mode": "robust",
+          "width": 2,
+          "start": 5,
+          "slots": [
+            5,
+            6,
+            7
+          ],
+          "rate": 2.0
+        },
+        "R": 2.4175,
+        "post_gap": 0.405,
+        "deadline_ok": true,
+        "service_ok": true,
+        "admissible": true
+      }
+    },
+    "relaxed_post_service_1_7": {
+      "admissible_count": 19,
+      "best": {
+        "action": "forward_to_A",
+        "prefix_chunks": 0,
+        "u": {
+          "path": "UB",
+          "mode": "high",
+          "width": 2,
+          "start": 1,
+          "slots": [
+            1,
+            2,
+            3
+          ],
+          "rate": 4.0
+        },
+        "a": {
+          "path": "AB",
+          "mode": "robust",
+          "width": 2,
+          "start": 5,
+          "slots": [
+            5,
+            6,
+            7
+          ],
+          "rate": 2.0
+        },
+        "R": 2.015,
+        "post_gap": 1.615,
+        "deadline_ok": true,
+        "service_ok": true,
+        "admissible": true
+      }
+    },
+    "no_replay_capability": {
+      "admissible_count": 0,
+      "best": null
+    },
+    "expensive_replay": {
+      "admissible_count": 0,
+      "best": null
+    },
+    "slow_configuration_2_0": {
+      "admissible_count": 0,
+      "best": null
+    },
+    "incorrectly_ignore_reach": {
+      "admissible_count": 9,
+      "best": {
+        "action": "handover",
+        "prefix_chunks": 6,
+        "u": {
+          "path": "UB",
+          "mode": "high",
+          "width": 2,
+          "start": 1,
+          "slots": [
+            1,
+            2,
+            3
+          ],
+          "rate": 4.0
+        },
+        "a": {
+          "path": "AB",
+          "mode": "high",
+          "width": 2,
+          "start": 5,
+          "slots": [
+            5,
+            6,
+            7
+          ],
+          "rate": 4.0
+        },
+        "R": 2.23,
+        "post_gap": 0.405,
+        "deadline_ok": true,
+        "service_ok": true,
+        "admissible": true
+      }
+    }
+  }
+}

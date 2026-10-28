@@ -1,0 +1,40 @@
+{
+  "queries": [
+    "Survivable elastic optical networks survey perspective",
+    "multi domain optical restoration topology abstraction",
+    "dual failure path protected elastic optical networks",
+    "optical reprovisioning backup failure recovery",
+    "optical soft failure spectrum sharing recovery"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 15
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 15,
+  "batch_after_dedup": 15,
+  "batch_dedup": {
+    "input": 15,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 15
+  },
+  "existing_merge": {
+    "input": 15,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 15
+  },
+  "candidates": 52,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "papers/candidates.jsonl",
+  "selected_path": "papers/selected.jsonl"
+}

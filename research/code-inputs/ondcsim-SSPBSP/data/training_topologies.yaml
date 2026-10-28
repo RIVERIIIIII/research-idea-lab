@@ -1,0 +1,19 @@
+topologies:
+  topo1:
+    dc_nodes: [3, 4, 5, 6, 8, 9, 10, 11]
+    backbone_link_ids: [2006, 2014, 2015, 2020, 2009, 2021, 2012]
+    reroutes:
+      - failed_link_id: 2020
+        replacement_link_ids: [2009, 2010, 2021]
+  topo2:
+    dc_nodes: [3, 4, 5, 6, 8, 9, 10, 11]
+    backbone_link_ids: [2006, 2014, 2015, 2020, 2009, 2021, 2012]
+    reroutes:
+      - failed_link_id: 2012
+        replacement_link_ids: [2013, 2011, 2009, 2020]
+  topo3:
+    dc_nodes: [3, 4, 5, 6, 8, 9, 10, 11]
+    backbone_link_ids: [2006, 2014, 2015, 2020, 2009, 2021, 2012]
+    reroutes:
+      - failed_link_id: 2015
+        replacement_link_ids: [2014, 2006, 2007, 2013, 2012]

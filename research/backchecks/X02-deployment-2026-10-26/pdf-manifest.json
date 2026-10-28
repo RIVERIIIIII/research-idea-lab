@@ -1,0 +1,27 @@
+[
+  {
+    "file": "pdfs/doi-5fd824a170f5216af494794189ce2cdfcaac6480a66b37862eeeee25f73d2b87.pdf",
+    "sha256": "f069d409314800a3dd237399a7cd82896d51dc5563e22449553f467589485ce8",
+    "pages": 16
+  },
+  {
+    "file": "pdfs/doi-6b40cca715d250a757daefc2d3c56fd0dec84480558f999513286537c83c7286.pdf",
+    "sha256": "0f5d135319f72c0f68c00957ac66b5951519fedf69837fd640ebee48445a798f",
+    "pages": 16
+  },
+  {
+    "file": "pdfs/doi-b2a5d9df6e87024dae4190bac1b92347bd41d3c52e166d686b75a8e0ba73b45a.pdf",
+    "sha256": "1c2bc75aa1dea6f93f50c61e4f3a6f09aaf07036b22e1848e97cb29a0a9e5912",
+    "pages": 15
+  },
+  {
+    "file": "pdfs/doi-c43f3d6ced66eebe65ea6f7c10b1284523860d10a401e8de695044512e25185c.pdf",
+    "sha256": "164d984308c3b70b9d8e5a46b65e20321d11d3ba0f77d04d0c10889a60d30813",
+    "pages": 20
+  },
+  {
+    "file": "pdfs/doi-d1ddeb78995dbcd98685e681df55be21f56fe0ccfc0ff5934f016967472fdbd4.pdf",
+    "sha256": "7ce0c791b0323dda4afdaa366ceab955020a842269c201a8e3dcc93a0eed11cc",
+    "pages": 10
+  }
+]

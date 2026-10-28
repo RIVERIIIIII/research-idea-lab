@@ -1,0 +1,39 @@
+{
+  "queries": [
+    "geo distributed large language model training heterogeneous networks Sailor",
+    "large language model inference disaggregated prefill decode DistServe",
+    "large language model serving migration preemption live migration Llumnix",
+    "distributed training elastic reconfiguration communication synchronization"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 12
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 12,
+  "batch_after_dedup": 12,
+  "batch_dedup": {
+    "input": 12,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 12
+  },
+  "existing_merge": {
+    "input": 12,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 12
+  },
+  "candidates": 12,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/stage2-search-candidates.jsonl",
+  "selected_path": "research/stage2-search-selected.jsonl"
+}

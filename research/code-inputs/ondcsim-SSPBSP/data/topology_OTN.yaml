@@ -1,0 +1,660 @@
+# ======================
+# 完整fgOTN仿真架构（光层+电层+fgOTN的粒度）
+#ODU0-1.25G、ODU1-2.5G、ODU2-10G、ODU2e-10G、ODU3-40G、ODU4-100G、ODUflex-n*1.25G
+#时隙，100G分为1.25G*80个ODU0，一个ODU0包含119*10M（fgTS），一个ODU1包含238*fgTS、一个ODU2包含952*fgTS、n*119fgTS
+# ======================
+
+
+# 接入网OTN节点模板
+otn_access_template: &otn_access_template
+  id: 0
+  name: OTN_ACCESS
+  type: access       # 节点类型：access（接入网）、aggregation（汇聚网）、core（省干传输）
+  wavelength_num: 40        # 支持40个波长
+  add_drop_capability: 10     # 上下路波长数
+  fg_otn_support: true       # 支持fgOTN
+  oduk_support: true         # 支持ODUk
+  wavelength_support: true   # 支持波分
+  lat: 0.0
+  lon: 0.0
+
+# 汇聚网OTN节点模板
+otn_aggregation_template: &otn_aggregation_template
+  id: 0
+  name: OTN_AGGREGATION
+  type: aggregation
+  wavelength_num: 60        # 支持60个波长
+  add_drop_capability: 15     # 上下路波长数
+  fg_otn_support: true       # 支持fgOTN
+  oduk_support: true         # 支持ODUk
+  wavelength_support: true   # 支持波分
+
+# 省干传输OTN节点模板
+otn_core_template: &otn_core_template
+  id: 0
+  name: OTN_CORE
+  type: core
+  wavelength_num: 80        # 支持80个波长
+  add_drop_capability: 20     # 上下路波长数
+  fg_otn_support: false      # 不支持fgOTN
+  oduk_support: true         # 支持ODUk
+  wavelength_support: true   # 支持波分
+  lat: 0.0
+  lon: 0.0
+
+# 用户节点模板定义
+user_template: &user_template
+  id: 0
+  name: User
+
+# --- OTN设备1-900（ROADM/OXC+OTN交换机）---
+# 节点分配规则：
+# 1-300：接入网OTN节点
+# 301-600：汇聚网OTN节点
+# 601-900：省干传输OTN节点
+nodes:
+  # 接入网OTN节点（1-300）
+  - <<: *otn_access_template
+    id: 1
+    name: OTN_ACCESS_1
+  - <<: *otn_access_template
+    id: 2
+    name: OTN_ACCESS_2
+  - <<: *otn_access_template
+    id: 3
+    name: OTN_ACCESS_3
+  - <<: *otn_access_template
+    id: 4
+    name: OTN_ACCESS_4
+  - <<: *otn_access_template
+    id: 5
+    name: OTN_ACCESS_5
+  - <<: *otn_access_template
+    id: 6
+    name: OTN_ACCESS_6
+  - <<: *otn_access_template
+    id: 7
+    name: OTN_ACCESS_7
+  - <<: *otn_access_template
+    id: 8
+    name: OTN_ACCESS_8
+  - <<: *otn_access_template
+    id: 9
+    name: OTN_ACCESS_9
+  - <<: *otn_access_template
+    id: 10
+    name: OTN_ACCESS_10
+  - <<: *otn_access_template
+    id: 11
+    name: OTN_ACCESS_11
+  - <<: *otn_access_template
+    id: 12
+    name: OTN_ACCESS_12
+  - <<: *otn_access_template
+    id: 13
+    name: OTN_ACCESS_13
+  - <<: *otn_access_template
+    id: 14
+    name: OTN_ACCESS_14
+
+  # 汇聚网OTN节点（301-600）
+  - <<: *otn_aggregation_template
+    id: 301
+    name: OTN_AGGREGATION_1
+  - <<: *otn_aggregation_template
+    id: 302
+    name: OTN_AGGREGATION_2
+  - <<: *otn_aggregation_template
+    id: 303
+    name: OTN_AGGREGATION_3
+  - <<: *otn_aggregation_template
+    id: 304
+    name: OTN_AGGREGATION_4
+  - <<: *otn_aggregation_template
+    id: 305
+    name: OTN_AGGREGATION_5
+  - <<: *otn_aggregation_template
+    id: 306
+    name: OTN_AGGREGATION_6
+  - <<: *otn_aggregation_template
+    id: 307
+    name: OTN_AGGREGATION_7
+  - <<: *otn_aggregation_template
+    id: 308
+    name: OTN_AGGREGATION_8
+  - <<: *otn_aggregation_template
+    id: 309
+    name: OTN_AGGREGATION_9
+  - <<: *otn_aggregation_template
+    id: 310
+    name: OTN_AGGREGATION_10
+  - <<: *otn_aggregation_template
+    id: 311
+    name: OTN_AGGREGATION_11
+  - <<: *otn_aggregation_template
+    id: 312
+    name: OTN_AGGREGATION_12
+  - <<: *otn_aggregation_template
+    id: 313
+    name: OTN_AGGREGATION_13
+  - <<: *otn_aggregation_template
+    id: 314
+    name: OTN_AGGREGATION_14
+  - <<: *otn_aggregation_template
+    id: 315
+    name: OTN_AGGREGATION_15
+  - <<: *otn_aggregation_template
+    id: 316
+    name: OTN_AGGREGATION_16
+
+  # 省干传输OTN节点（601-900）
+  - <<: *otn_core_template
+    id: 601
+    name: OTN_CORE_1
+  - <<: *otn_core_template
+    id: 602
+    name: OTN_CORE_2
+  - <<: *otn_core_template
+    id: 603
+    name: OTN_CORE_3
+  - <<: *otn_core_template
+    id: 604
+    name: OTN_CORE_4
+
+# --- 用户节点901-950 --- 
+users:
+  - <<: *user_template
+    id: 901
+  - <<: *user_template
+    id: 902
+  - <<: *user_template
+    id: 903
+  - <<: *user_template
+    id: 904
+  - <<: *user_template
+    id: 905
+
+# ODU0模板定义
+odu0_template: &odu0_template
+  odu0_id: 0
+  bandwidth: 1.25G
+  status: 0           # ODU0状态：0-未占用，1-已占用
+  fg_otn_slots:       # fgOTN时隙配置
+    total_slots: 119     # 每个ODU0支持119个fgOTN时隙
+    available_slots: 119 # 可用fgOTN时隙数
+    occupied_slots: 0    # 已占用fgOTN时隙数
+  consistency_id: 0      # ODU0一致性标识，用于保证ODU0在链路上的一致性
+  support_fg_otn: true   # 是否支持fgOTN（仅接入和汇聚网节点支持）
+
+# 100G波长通道模板
+wavelength_100g_template: &wavelength_100g_template
+  wavelength_id: 0
+  bandwidth: 100G
+  status: 0           #波长状态，默认可用,占用情况：0-未占用，1-已占用
+  consistency_id: 0      # 波长一致性标识，用于保证波长在链路上的一致性
+  odu0_list:             # 示例：id=1的ODU0配置
+    - odu0_id: 1
+      <<: *odu0_template
+
+# 400G波长通道模板
+wavelength_400g_template: &wavelength_400g_template
+  wavelength_id: 0
+  bandwidth: 400G
+  status: 0          #波长状态，默认可用
+  consistency_id: 0      # 波长一致性标识
+  odu0_list:             # 示例：id=1的ODU0配置
+    - odu0_id: 1
+      <<: *odu0_template
+
+# 接入网链路模板
+link_access_template: &link_access_template
+  id: 2000
+  src: 0
+  dst: 0
+  type: access       # 链路类型：access（接入网）、aggregation（汇聚网）、core（省干传输）
+  length_km: 0
+  attenuation: 0.22
+  dispersion: 17
+  osnr: 35                      #dB
+  total_wavelengths: 40         # 光纤总波长容量
+  fg_otn_support: true          # 支持fgOTN
+  oduk_support: true            # 支持ODUk
+  wavelength_support: true      # 支持波分
+  used_wavelengths: 0           # 已使用波长数
+  wavelength_channels:          # 示例：id=1的波长通道配置
+    - wavelength_id: 1
+      <<: *wavelength_100g_template
+      consistency_id: 1
+
+# 汇聚网链路模板
+link_aggregation_template: &link_aggregation_template
+  id: 4000
+  src: 0
+  dst: 0
+  type: aggregation
+  length_km: 0
+  attenuation: 0.22
+  dispersion: 17
+  osnr: 32                      #dB
+  total_wavelengths: 60         # 光纤总波长容量
+  fg_otn_support: true          # 支持fgOTN
+  oduk_support: true            # 支持ODUk
+  wavelength_support: true      # 支持波分
+  used_wavelengths: 0           # 已使用波长数
+  wavelength_channels:          # 示例：id=1的波长通道配置
+    - wavelength_id: 1
+      <<: *wavelength_100g_template
+      consistency_id: 1
+
+# 省干传输链路模板
+link_core_template: &link_core_template
+  id: 6000
+  src: 0
+  dst: 0
+  type: core
+  length_km: 0
+  attenuation: 0.22
+  dispersion: 17
+  osnr: 30                      #dB
+  total_wavelengths: 80         # 光纤总波长容量
+  fg_otn_support: false         # 不支持fgOTN
+  oduk_support: true            # 支持ODUk
+  wavelength_support: true      # 支持波分
+  used_wavelengths: 0           # 已使用波长数
+  wavelength_channels:          # 示例：id=1的波长通道配置
+    - wavelength_id: 1
+      <<: *wavelength_100g_template
+      consistency_id: 1
+
+# 数据中心到OTN节点链路模板
+dc_to_otn_template: &dc_to_otn_template
+  id: 8000
+  src: 0
+  dst: 0
+  type: access       # 默认使用接入网类型
+  length_km: 5
+  attenuation: 0.22
+  dispersion: 17
+  osnr: 35                      #dB
+  total_wavelengths: 40         # 光纤总波长容量
+  fg_otn_support: true          # 支持fgOTN
+  oduk_support: true            # 支持ODUk
+  wavelength_support: true      # 支持波分
+  used_wavelengths: 0           # 已使用波长数
+  wavelength_channels:          # 示例：id=1的波长通道配置
+    - wavelength_id: 1
+      <<: *wavelength_100g_template
+      consistency_id: 1
+
+# 用户到OTN节点链路模板
+user_to_otn_template: &user_to_otn_template
+  id: 9000
+  src: 0
+  dst: 0
+  type: access       # 默认使用接入网类型
+  length_km: 3
+  attenuation: 0.22
+  dispersion: 17
+  osnr: 35                      #dB
+  total_wavelengths: 40         # 光纤总波长容量
+  fg_otn_support: true          # 支持fgOTN
+  oduk_support: true            # 支持ODUk
+  wavelength_support: true      # 支持波分
+  used_wavelengths: 0           # 已使用波长数
+  wavelength_channels:          # 示例：id=1的波长通道配置
+    - wavelength_id: 1
+      <<: *wavelength_100g_template
+      consistency_id: 1
+
+# --- 链路配置2000-10000 --- 
+# 链路分配规则：
+# 2000-3999：接入网链路（连接接入网节点到汇聚网节点）
+# 4000-5999：汇聚网链路（连接汇聚网节点到省干传输节点）
+# 6000-7999：省干传输链路（连接省干传输节点）
+# 8000-8999：数据中心到OTN节点链路（连接数据中心到OTN节点）
+# 9000-9999：用户到OTN节点链路（连接用户到OTN节点）
+
+links:
+  # 接入网链路（2000-3999）
+  - <<: *link_access_template
+    id: 2001
+    src: 1
+    dst: 303
+    length_km: 8
+  - <<: *link_access_template
+    id: 2002
+    src: 1
+    dst: 303
+    length_km: 8
+  - <<: *link_access_template
+    id: 2003
+    src: 1
+    dst: 2
+    length_km: 16  
+  - <<: *link_access_template
+    id: 2004
+    src: 2
+    dst: 3
+    length_km: 20  
+  - <<: *link_access_template
+    id: 2005
+    src: 3
+    dst: 1
+    length_km: 24  
+  - <<: *link_access_template
+    id: 2006
+    src: 4
+    dst: 307
+    length_km: 28  
+  - <<: *link_access_template
+    id: 2007
+    src: 4
+    dst: 307
+    length_km: 28 
+  - <<: *link_access_template
+    id: 2008
+    src: 4
+    dst: 5
+    length_km: 36  
+  - <<: *link_access_template
+    id: 2009
+    src: 5
+    dst: 6
+    length_km: 40  
+  - <<: *link_access_template
+    id: 2010
+    src: 6
+    dst: 4
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2011
+    src: 7
+    dst: 311
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2012
+    src: 7
+    dst: 311
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2013
+    src: 7
+    dst: 8
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2014
+    src: 8
+    dst: 9
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2015
+    src: 9
+    dst: 10
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2016
+    src: 10
+    dst: 7
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2017
+    src: 11
+    dst: 315
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2018
+    src: 11
+    dst: 315
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2019
+    src: 11
+    dst: 12
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2020
+    src: 12
+    dst: 13
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2021
+    src: 13
+    dst: 14
+    length_km: 44  
+  - <<: *link_access_template
+    id: 2022
+    src: 14
+    dst: 11
+    length_km: 44  
+
+
+
+  # 汇聚网链路（4000-5999）
+  - <<: *link_aggregation_template
+    id: 4001
+    src: 301
+    dst: 601
+    length_km: 50
+  - <<: *link_aggregation_template
+    id: 4002
+    src: 302
+    dst: 601
+    length_km: 60
+  - <<: *link_aggregation_template
+    id: 4003
+    src: 301
+    dst: 302
+    length_km: 60
+  - <<: *link_aggregation_template
+    id: 4004
+    src: 302
+    dst: 303
+    length_km: 60
+  - <<: *link_aggregation_template
+    id: 4005
+    src: 303
+    dst: 304
+    length_km: 70
+  - <<: *link_aggregation_template
+    id: 4006
+    src: 304
+    dst: 301
+    length_km: 60
+
+  - <<: *link_aggregation_template
+    id: 4007
+    src: 305
+    dst: 602
+    length_km: 80
+  - <<: *link_aggregation_template
+    id: 4008
+    src: 306
+    dst: 602
+    length_km: 90
+  - <<: *link_aggregation_template
+    id: 4009
+    src: 305
+    dst: 306
+    length_km: 90
+  - <<: *link_aggregation_template
+    id: 4010
+    src: 306
+    dst: 307
+    length_km: 90
+  - <<: *link_aggregation_template
+    id: 4011
+    src: 307
+    dst: 308
+    length_km: 90
+  - <<: *link_aggregation_template
+    id: 4012
+    src: 308
+    dst: 305
+    length_km: 90
+
+  - <<: *link_aggregation_template
+    id: 4013
+    src: 309
+    dst: 603
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4014
+    src: 310
+    dst: 603
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4015
+    src: 309
+    dst: 310
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4016
+    src: 310
+    dst: 311
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4017
+    src: 311
+    dst: 312
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4018
+    src: 312
+    dst: 309
+    length_km: 100
+
+  - <<: *link_aggregation_template
+    id: 4019
+    src: 313
+    dst: 604
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4020
+    src: 314
+    dst: 604
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4021
+    src: 313
+    dst: 314
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4022
+    src: 314
+    dst: 315
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4023
+    src: 315
+    dst: 316
+    length_km: 100
+  - <<: *link_aggregation_template
+    id: 4024
+    src: 316
+    dst: 313
+    length_km: 100
+
+  # 省干传输链路（6000-7999）
+  - <<: *link_core_template
+    id: 6001
+    src: 601
+    dst: 602
+    length_km: 100
+  - <<: *link_core_template
+    id: 6002
+    src: 602
+    dst: 603
+    length_km: 120
+  - <<: *link_core_template
+    id: 6003
+    src: 603
+    dst: 604
+    length_km: 140
+  - <<: *link_core_template
+    id: 6004
+    src: 604
+    dst: 601
+    length_km: 160
+
+# --- 数据中心到OTN节点链路配置8000-8999 ---
+dc_to_otn_links:
+  # 数据中心到OTN节点链路示例
+  - <<: *dc_to_otn_template
+    id: 8001
+    src: 951
+    dst: 2
+    length_km: 5
+  - <<: *dc_to_otn_template
+    id: 8002
+    src: 952
+    dst: 5
+    length_km: 6
+  - <<: *dc_to_otn_template
+    id: 8003
+    src: 953
+    dst: 8
+    length_km: 7
+  - <<: *dc_to_otn_template
+    id: 8004
+    src: 954
+    dst: 9
+    length_km: 8
+  - <<: *dc_to_otn_template
+    id: 8005
+    src: 955
+    dst: 13
+    length_km: 9
+  - <<: *dc_to_otn_template
+    id: 8006
+    src: 956
+    dst: 304
+    length_km: 10
+  - <<: *dc_to_otn_template
+    id: 8007
+    src: 957
+    dst: 311
+    length_km: 11
+  - <<: *dc_to_otn_template
+    id: 8008
+    src: 958
+    dst: 314
+    length_km: 12
+  - <<: *dc_to_otn_template
+    id: 8009
+    src: 959
+    dst: 601
+    length_km: 13
+  - <<: *dc_to_otn_template
+    id: 8010
+    src: 960
+    dst: 604
+    length_km: 14
+
+# --- 用户到OTN节点链路配置9000-9999 ---
+user_to_otn_links:
+  # 用户到OTN节点链路示例
+  - <<: *user_to_otn_template
+    id: 9001
+    src: 901
+    dst: 1
+    length_km: 3
+  - <<: *user_to_otn_template
+    id: 9002
+    src: 902
+    dst: 4
+    length_km: 4
+  - <<: *user_to_otn_template
+    id: 9003
+    src: 903
+    dst: 7
+    length_km: 5
+  - <<: *user_to_otn_template
+    id: 9004
+    src: 904
+    dst: 11
+    length_km: 6
+  - <<: *user_to_otn_template
+    id: 9005
+    src: 905
+    dst: 14
+    length_km: 7

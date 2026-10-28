@@ -1,0 +1,37 @@
+{
+  "queries": [
+    "Caramel Accelerating Decentralized Distributed Deep Learning Computation Scheduling",
+    "Deferred Protection of Deadline Driven Requests Inter Datacenter Elastic Optical Networks"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 4
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 4,
+  "batch_after_dedup": 4,
+  "batch_dedup": {
+    "input": 4,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 4
+  },
+  "existing_merge": {
+    "input": 4,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 4
+  },
+  "candidates": 4,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/backchecks/X03-followup-2026-10-27/exact-candidates.jsonl",
+  "selected_path": "research/backchecks/X03-followup-2026-10-27/exact-selected.jsonl"
+}

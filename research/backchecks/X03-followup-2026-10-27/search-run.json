@@ -1,0 +1,39 @@
+{
+  "queries": [
+    "Caramel Accelerating Synchronous SGD Efficient Aggregation Scheduling",
+    "ByteScheduler Generic Communication Scheduler Distributed DNN Training Acceleration",
+    "time scheduled shared backup path protection optical networks deadline",
+    "Robust Time Shared Backup Strategy Training Large Models Cloud Edge Optical Networks"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 9
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 9,
+  "batch_after_dedup": 9,
+  "batch_dedup": {
+    "input": 9,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 9
+  },
+  "existing_merge": {
+    "input": 9,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 9
+  },
+  "candidates": 9,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/backchecks/X03-followup-2026-10-27/candidates.jsonl",
+  "selected_path": "research/backchecks/X03-followup-2026-10-27/selected.jsonl"
+}

@@ -1,0 +1,233 @@
+# NSFNET 拓扑结构（基于 OTN 模板改造）
+# 所有节点采用接入网 OTN 节点模板
+# 所有链路采用接入网链路模板
+# 链路距离 length_km 初始设为 0，由 topology_OTN.py 根据节点坐标计算
+
+
+# 接入网OTN节点模板
+otn_access_template: &otn_access_template
+  id: 0
+  name: OTN_ACCESS
+  type: access
+  wavelength_num: 40
+  add_drop_capability: 10
+  fg_otn_support: true
+  oduk_support: true
+  wavelength_support: true
+  lat: 0.0
+  lon: 0.0
+  datacenter: 0
+
+# ODU0模板定义
+odu0_template: &odu0_template
+  odu0_id: 0
+  bandwidth: 1.25G
+  status: 0
+  fg_otn_slots:
+    total_slots: 119
+    available_slots: 119
+    occupied_slots: 0
+  support_fg_otn: true
+
+# 100G波长通道模板，status=0表示可用
+wavelength_100g_template: &wavelength_100g_template
+  wavelength_id: 0
+  bandwidth: 100G
+  status: 0
+  odu0_list:
+    - odu0_id: 1
+      <<: *odu0_template
+
+# 接入网链路模板
+link_access_template: &link_access_template
+  id: 2000
+  src: 0
+  dst: 0
+  type: access
+  length_km: 0
+  attenuation: 0.22
+  dispersion: 17
+  osnr: 35
+  total_wavelengths: 40
+  fg_otn_support: true
+  oduk_support: true
+  wavelength_support: true
+  used_wavelengths: 0
+  wavelength_channels:
+    - wavelength_id: 1  # 波长通道 ID 从 1 开始
+      <<: *wavelength_100g_template
+
+
+nodes:
+  # NSFNET 节点（采用接入网 OTN 节点模板）
+  - <<: *otn_access_template
+    id: 1
+    name: Palo-Alto
+    lat: 37.25
+    lon: -122.07
+    datacenter: 951
+  - <<: *otn_access_template
+    id: 2
+    name: San-Diego
+    lat: 32.42
+    lon: -117.08
+    datacenter: 952
+  - <<: *otn_access_template
+    id: 3
+    name: Boulder
+    lat: 40.00
+    lon: -105.16
+    datacenter: 953
+  - <<: *otn_access_template
+    id: 4
+    name: Washington
+    lat: 38.52
+    lon: -77.02
+    datacenter: 954
+  - <<: *otn_access_template
+    id: 5
+    name: Atlanta
+    lat: 33.44
+    lon: -84.23
+    datacenter: 955
+  - <<: *otn_access_template
+    id: 6
+    name: Urbana-Champaign
+    lat: 40.06
+    lon: -88.14
+    datacenter: 956
+  - <<: *otn_access_template
+    id: 7
+    name: Ann-Arbor
+    lat: 42.16
+    lon: -83.43
+    datacenter: 957
+  - <<: *otn_access_template
+    id: 8 
+    name: Lincoln
+    lat: 40.47
+    lon: -96.42
+    datacenter: 958
+  - <<: *otn_access_template
+    id: 9
+    name: Princeton
+    lat: 40.21
+    lon: -74.39
+    datacenter: 959
+  - <<: *otn_access_template
+    id: 10
+    name: Ithaca
+    lat: 42.26
+    lon: -76.30
+    datacenter: 960
+  - <<: *otn_access_template
+    id: 11
+    name: Pittsburgh
+    lat: 40.26
+    lon: -79.58
+    datacenter: 961
+  - <<: *otn_access_template
+    id: 12
+    name: Houston
+    lat: 29.45
+    lon: -95.21
+    datacenter: 962
+  - <<: *otn_access_template
+    id: 13
+    name: Salt-Lake-City
+    lat: 40.39
+    lon: -111.55
+    datacenter: 963
+  - <<: *otn_access_template
+    id: 14
+    name: Seattle
+    lat: 47.33
+    lon: -122.24
+    datacenter: 964 
+
+links:
+  # NSFNET 链路（采用接入网链路模板，length_km 初始为 0，由 Python 代码计算）
+  - <<: *link_access_template
+    id: 2001
+    src: 1
+    dst: 2
+  - <<: *link_access_template
+    id: 2002
+    src: 1
+    dst: 13
+  - <<: *link_access_template
+    id: 2003
+    src: 1
+    dst: 14
+  - <<: *link_access_template
+    id: 2004
+    src: 2
+    dst: 12
+  - <<: *link_access_template
+    id: 2005
+    src: 2
+    dst: 14
+  - <<: *link_access_template
+    id: 2006
+    src: 3
+    dst: 8
+  - <<: *link_access_template
+    id: 2007
+    src: 3
+    dst: 12
+  - <<: *link_access_template
+    id: 2008
+    src: 3
+    dst: 13
+  - <<: *link_access_template
+    id: 2009
+    src: 4
+    dst: 9
+  - <<: *link_access_template
+    id: 2010
+    src: 4
+    dst: 10
+  - <<: *link_access_template
+    id: 2011
+    src: 4
+    dst: 12
+  - <<: *link_access_template
+    id: 2012
+    src: 5
+    dst: 11
+  - <<: *link_access_template
+    id: 2013
+    src: 5
+    dst: 12
+  - <<: *link_access_template
+    id: 2014
+    src: 6
+    dst: 8
+  - <<: *link_access_template
+    id: 2015
+    src: 6
+    dst: 11
+  - <<: *link_access_template
+    id: 2016
+    src: 6
+    dst: 14
+  - <<: *link_access_template
+    id: 2017
+    src: 7
+    dst: 9
+  - <<: *link_access_template
+    id: 2018
+    src: 7
+    dst: 10
+  - <<: *link_access_template
+    id: 2019
+    src: 7
+    dst: 13
+  - <<: *link_access_template
+    id: 2020
+    src: 9
+    dst: 11
+  - <<: *link_access_template
+    id: 2021
+    src: 10
+    dst: 11

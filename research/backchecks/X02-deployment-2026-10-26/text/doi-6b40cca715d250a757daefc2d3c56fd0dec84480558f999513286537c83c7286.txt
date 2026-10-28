@@ -1,0 +1,998 @@
+=== PDF page 1 ===
+PDD: UNLEASHINGECONOMICAL ANDFLEXIBLE
+HETEROGENEOUSLLM INFERENCE VIACROSS-DATACENTER
+PREFILL-DECODEDISAGGREGATION
+Yida Wang1, Xiuhong Li1, Jianping Ma1, Gan Sun1, Yunshen Xu1, Buhe Han1, Jingxu Ng1,4
+Yuhao Luo1,4,Ke Hong 1,2,Guohao Dai 1,3/envel⌢pe,Boxun Li 1/envel⌢pe,Yu Wang 2/envel⌢pe
+1Infinigence-AI, 2Tsinghua University, 3Shanghai Jiao Tong University,4Peking University
+ABSTRACT
+Interconnecting geographically dispersed clusters over wide-area Ethernet provides a scalable and
+cost-effective alternative to building dedicated intra -datacenter heterogeneous clusters for Large
+Language Model (LLM) inference. Nevertheless, this disaggregated architecture across data centers
+imposes heavy KV-cache communication between the two clusters, which in turn causes substan-
+tial Time-to-First-Token latency. Such transmission latency is especially detrimental for agentic
+workloads, which are characterized by long contexts, high cache hit rates, and short output lengths.
+To overcome these bottlenecks, we propose PDD on the basis of prefill-decode disaggregation. PDD
+is a three-tier disaggregation architecture consisting of Prefill instance, Relay Decode (RLD) instance,
+and Main Decode (MD) instance. RLD plays the important role to solve the KV cache communication
+latency issue. On Cluster A, we deploy both Prefill instances and RLD instances. The Prefill instances
+handle the prefill-phase computation, while the RLD instances receive the KV cache immediately via
+high-speed RDMA after prefill completion. At the same time, the KV cache is also transmitted to
+Cluster B over Ethernet. This allows the RLD instances to begin decoding and overlap the KV transfer
+latency. On Cluster B, MD instances receive the KV cache from the Prefill instances over TCP-based
+cross-datacenter networks, along with the tokens produced by the RLD instances. The subsequent
+decoding tasks are then seamlessly handed off from the RLD instances to them for completion.
+To maximize overall system efficiency, PDD employs three core mechanisms: Decode-side Radix-
+Cache to alleviate bandwidth bottlenecks, an Extend-Decode Handoff mechanism to ensure smooth
+control migration between RLD and MD, and multi-stage pipeline orchestration to manage complex
+dependencies between the 3-tiers under high concurrency and long-term serving. Finally, we design a
+low-cost, fine-grained heterogeneous deployment scheme that maximizes latency-masking efficiency
+at marginal cost, establishing a robust reference paradigm for future cross-datacenter inference
+systems. Compared to the Intra-DC homogeneous PD baseline, PDD’s cross-datacenter mapping of
+compute-intensive H100s and memory-bandwidth-optimized H200s achieves a Benefit-Cost Ratio
+(BCR) up to 37.5% higher in SLA-compliant goodput.
+1 Introduction
+The rapid evolution of Large Language Models (LLMs) has driven an unprecedented demand for computational re-
+sources, making cost-efficient inference critically necessary [1–6]. Since LLM inference consists of two computationally
+divergent phases—compute-bound Prefill and memory-bound Decode—modern accelerators exhibit highly asymmetric
+performance profiles across these phases. As our internal benchmarking demonstrates (detailed in Section 2.1), special-
+ized chips can achieve up to 2.1× the throughput of an 8× NVIDIA H100 baseline in Decode, yet lag significantly
+in Prefill. This inherent architectural disparity makes leveraging heterogeneous hardware a highly promising avenue,
+motivating heterogeneous Prefill-Decode (PD) disaggregation [7, 8] to dedicate specific hardware types to the phases
+Corresponding to Boxun Li liboxun@infini-ai.com, Guohao Dai guohao.dai@email.com, and Yu Wang
+yu.wang@email.com
+arXiv:2609.13161v1  [cs.AR]  18 Jul 2026
+
+=== PDF page 2 ===
+9:00 9:30 10:00 10:30 11:00 11:30 12:00
+0
+25
+50
+75
+100
+30%
+44%
+26%
+34%
+42%
+24%
+32%
+43%
+25%
+31%
+38%
+31%
+28%
+45%
+27%
+28%
+44%
+28%
+27%
+39%
+33%
+<100 tokens 100–500 tokens >500 tokens
+(a) Request output-length distribution.
+0 10 20 30 40 50
+<100 
+tokens
+100–500 
+tokens
+~800 
+tokens
+4–10s 1–20s e2el ≈ 19s
+(transfer ≈ 56% e2el)
+4–10s 1–20s 6.0–7.5s e2el ≈ 24s
+(transfer ≈ 43% e2el)
+4–10s 1–20s 16.0–20.0s e2el ≈ 35s
+(transfer ≈ 30% e2el)
+Prefill KV transfer Generation (Decode)
+1.0–1.2s (b) E2EL constituents: prefill, KV transfer, and token generation.
+Figure 1: (a) In real-world agentic workload, 30% of requests produce fewer than 100 tokens, and 41.7% produce
+100–500 tokens. These short-output requests account for over 71% of total volume and remain stable across the 3-hour
+window encompassing 6M requests. (b) For these requests, the observed 1∼20s cross-datacenter KV transfer latency
+dominates the end-to-end latency. At 40∼50 output tokens per second, generation takes only 1∼7.5s ; thus KV cache
+transfer alone accounts for 43%∼56% of e2el, making it the primary bottleneck.
+they optimize best. Despite these advantages, constructing dedicated heterogeneous clusters within a single datacenter
+incurs prohibitive capital expenditures and suffers from poor scalability. This inflexibility makes it difficult to adapt
+to the seamless shifting of model architectures and hardware landscapes. Pragmatically, an alternative approach is
+to interconnect geographically dispersed, already-deployed homogeneous clusters via low-cost wide-area Ethernet,
+enabling cross-datacenter heterogeneous inference.
+However, this cross-datacenter paradigm introduces severe communication bottlenecks, especially during Key-Value
+(KV) cache transfer [9] in PD -disaggregated inference. Compared with intra -datacenter (intra-DC) RDMA [10]
+networks, wide-area Ethernet suffers from tens to hundreds of times higher transmission latency and substantially
+lower bandwidth. These limitations are particularly detrimental for agentic workloads [11]—a critical class of LLM
+applications characterized by extremely long contexts, high prefix cache hit rates, and short output lengths—where
+multi-second to tens-of-seconds transfer delays become entirely unacceptable.
+Specifically, the high cache hit rate significantly boosts the throughput of prefill instances, creating a severe supply-
+demand mismatch in bandwidth. For instance, a single cluster can process over 80 requests per second, with an average
+64K context length. Even for advanced models like DeepSeek-V4-pro [12], which employ techniques such as CSA
+and HCA to substantially compress the KV cache size, the total KV cache generated by 80 concurrent 64K-context
+requests still requires a minimum of approximately 23 GB of storage. Consequently, transferring this payload to the
+decode cluster demands a bandwidth of over 180 Gbps. In contrast, cost-effective cross-datacenter Ethernet connections
+typically provide bandwidths ranging merely from 10 Gbps to 100 Gbps. This substantial disparity establishes a critical
+bandwidth bottleneck for cross-datacenter heterogeneous inference. Beyond this bandwidth issue, cross-datacenter
+communication could also introduce unacceptable latency overheads. As depicted in Figure 1, Ethernet-based KV
+cache transfer becomes the major constituent of the end-to-end latency (e2el) experienced by agentic applications,
+establishing itself as the primary performance bottleneck.
+Despite these challenges agentic workload imposes, preliminary experiments (detailed in Section 2.2) show that
+cross-datacenter heterogeneous inference remains feasible. First, high prefix hit rates not only boost prefill instance
+throughput but also enable the Decode-side RadixCache (DRC) [13]. Through caching the historical KV cache on
+decode instances, DRC can reduce required cross-datacenter bandwidth by up to 10 × at a 90% average hit rate,
+effectively mitigating the bandwidth bottleneck. Second, as the Ethernet-based KV transfer micro-benchmarks show
+(see Table 2), we observe that the severe KV transfer latency is non-uniform in practice. DRC minimizes payloads for
+high-hit-rate requests, which exploit the fairness mechanism of TCP to bypass congestion and arrive within ∼1 second.
+Extreme 20-second latencies are isolated to low-hit-rate requests with large payloads. Therefore, rather than addressing
+transfer latency globally, applying overlap techniques exclusively to these outliers provides a feasible solution.
+Based on these insights, we proposePDD, a novel three-tier cross-datacenter architecture designed to enable economical
+and flexible heterogeneous inference. PDD establishes three distinct instances: Prefill (P) and RelayDecode (RLD)
+instances are co-located in the same datacenter, interconnected via a high-speed RDMA network; MainDecode (MD)
+instances, however, are situated in a geographically distant datacenter, connected to P and RLD via low-cost wide-area
+Ethernet (typically less than 20Gbps).
+2
+
+=== PDF page 3 ===
+The PDD workflow operates as follows: Upon completing the prefill phase, the P instance simultaneously transfers the
+KV cache to an RLD instance via RDMA (taking tens of milliseconds) and to an MD instance via TCP over wide-area
+Ethernet (taking seconds). The RLD instance immediately initiates decoding upon receiving the KV cache, effectively
+masking the much slower Ethernet-based transfer. Once the MD instance completes the KV cache reception, it employs
+anExtend-Decode Handoffmechanism (detailed in Section 3.2): it receives only the Token IDs generated by the
+RLD instance, recomputes their corresponding incremental KV cache locally, and seamlessly resumes token generation.
+This design enables PDD to achieve effective latency masking with minimal overhead. First, RLD instances consume
+marginal hardware resources, as they only generate partial output tokens for low-hit-rate requests, requiring far fewer
+resources than MD instances which handle the vast majority of token generation. Second, transmitting CPU-resident
+Token IDs and recalculating the incremental KV cache on memory-bound MD instances incurs negligible overhead.
+Crucially, this local recomputation approach is significantly more efficient than transmitting the incremental KV cache
+over Ethernet, delivering substantially lower and far more reliable latency.
+Beyond the core architectural design of PDD’s three-tier disaggregation, we introduce several supporting techniques to
+enhance robustness, scalability, and cost-efficiency. To manage complex interactions and maintain DRC consistency,
+we design a multi-stage pipeline orchestration method. To further explore scalability, we leverage a wide-area Ethernet-
+based interconnect topology that enables flexible cross-datacenter routing (such as many-to-many topologies), allowing
+for horizontal scaling across geographically dispersed clusters. Additionally, we introduce a fine-grained heterogeneous
+deployment strategy—combining compute-heavy chips for P instances with a minimal fraction of memory-access-
+efficient chips for RLD instances within the same RDMA network—to mask cross-datacenter latency at a minimal cost
+while maximizing hardware utilization.
+Extensive evaluations on DeepSeek-V4-pro using real-world agentic workload traces demonstrate that PDD effectively
+masks transmission latency and achieves superior cost-efficiency. Compared to the traditional Cross-Datacenter PD
+baseline, PDD reduces the P90 Time-To-First-Token (TTFT) by approximately 46%. Microbenchmarks confirm that
+our local recomputation handoff eliminates bulky KV transfers and H2D/D2H overheads, capping maximum handoff
+latency at 321.4ms with minimal variance, compared to the 512.6ms peaks seen in naive Ethernet transfers. Furthermore,
+compared to the Intra-DC homogeneous PD baseline, PDD’s cross-datacenter mapping of compute-intensive H100s
+and memory-bandwidth-optimized H200s achieves a Benefit-Cost Ratio (BCR) up to 37.5% higher in SLA-compliant
+goodput.
+2 Background
+2.1 Motivating Heterogeneous Prefill-Decode Disaggregation
+LLM inference consists of two computationally divergent phases: Prefill, which is compute-bound, and Decode, which
+is memory-bound. As the AI hardware landscape rapidly diversifies, modern accelerators exhibit highly asymmetric
+performance profiles across these two phases. This inherent architectural disparity strongly motivates heterogeneous
+PD disaggregation, wherein specific hardware types are dedicated to the inference phases they are most optimized for.
+To substantiate this motivation, we conducted comprehensive internal benchmarking across various accelerator architec-
+tures from multiple vendors. Evaluations were performed under a standardized agentic workload scenario: 64K input
+tokens, a 90% prefix cache hit rate, and 512 output tokens, all while strictly adhering to Service Level Agreement (SLA)
+requirements. We measured the throughput of individual accelerator systems relative to a single 8× NVIDIA H100
+system baseline. The performance characteristics of these diverse chips are summarized in Table 1.
+As Table 1 illustrates, performance gaps among accelerators are substantial and highly variable. Vendor A (Chip A)
+achieves 56.7% of the baseline’s Prefill throughput and 38.7% for Decode using the GLM5 model. Vendor C (Chip
+C), evaluated with GLM4.7, exhibits a different balance, offering 41.7% for Prefill but a relatively stronger 56.4%
+for Decode. Conversely, some architectures—such as those from Vendor B and Vendor D—often suffer from severe
+phase-specific bottlenecks, leading to significantly lower overall efficiency under homogeneous PD deployment.
+A more striking example of this hardware asymmetry is observed with Vendor E (Chip E) running the GLM5 model.
+On a per-device basis, its optimal Prefill throughput reaches approximately 81% of the H100 baseline. However, for the
+memory-bound Decode phase, the same chip achieves an impressive 210% of the H100’s performance. This extreme
+contrast—a chip that is moderately competitive in Prefill but vastly superior in Decode—highlights the core inefficiency
+of homogeneous clusters. Confining such a chip to a coupled deployment wastes its exceptional Decode capabilities,
+while utilizing baseline hardware for Decode fails to exploit available architectural advantages.
+3
+
+=== PDF page 4 ===
+Table 1: Throughput of Diverse Accelerators Relative to an8× H100 Baseline (64K Input, 90% Cache Hit, 512 Output)
+Hardware Model Prefill (%) Decode (%)
+Vendor A (Chip A) GLM-5 56.70% 38.70%
+Vendor B (Chip B) GLM-5 43.50% 15.50%
+Vendor C (Chip C) GLM-4.7 41.72% 56.40%
+Vendor D (Chip D) GLM-4.7 24.70% 3.50%
+Vendor E (Chip E) GLM-5 81.00% 210.00%
+2.2 Non-Uniform Transfer Latency under agentic Workloads
+Although DRC can theoretically reduce cross-datacenter bandwidth requirements by up to 10× under an average prefix
+hit rate of 90%, the absolute KV transfer latency varies significantly depending on the underlying workload distribution.
+In our preliminary experiments, we explore how the unique characteristics of agentic workloads shape the latency
+distribution and resource utilization during the Ethernet-based KV transfer phase, demonstrating that extreme transfer
+latencies are highly isolated to specific request types rather than being a global phenomenon.
+Real-world agentic workloads are characterized by a highly skewed, broad distribution of prefix hit rates. While
+the average hit rate might be 90%, the distribution spans a wide range from over 99% down to 2%. Crucially, this
+distribution is heavily concentrated at the higher end, with approximately 70-80% of requests exhibiting ultra-high hit
+rates (e.g., >95%), accompanied by a small fraction of low-hit-rate requests. This is fundamentally different from a
+uniform distribution where all requests hover tightly around the 90% hit rate.
+/uni00000015/uni00000013/uni00000015/uni00000019/uni00000010/uni00000013/uni00000014/uni00000010/uni00000013/uni00000014/uni00000015/uni00000013/uni00000015/uni00000019/uni00000010/uni00000013/uni00000014/uni00000010/uni00000013/uni0000001c/uni00000015/uni00000013/uni00000015/uni00000019/uni00000010/uni00000013/uni00000014/uni00000010/uni00000014/uni0000001a/uni00000015/uni00000013/uni00000015/uni00000019/uni00000010/uni00000013/uni00000014/uni00000010/uni00000015/uni00000018/uni00000015/uni00000013/uni00000015/uni00000019/uni00000010/uni00000013/uni00000015/uni00000010/uni00000013/uni00000015/uni00000015/uni00000013/uni00000015/uni00000019/uni00000010/uni00000013/uni00000015/uni00000010/uni00000014/uni00000013/uni00000015/uni00000013/uni00000015/uni00000019/uni00000010/uni00000013/uni00000015/uni00000010/uni00000014/uni0000001b/uni00000015/uni00000013/uni00000015/uni00000019/uni00000010/uni00000013/uni00000015/uni00000010/uni00000015/uni00000019
+/uni00000013/uni00000008
+/uni00000015/uni00000013/uni00000008
+/uni00000017/uni00000013/uni00000008
+/uni00000019/uni00000013/uni00000008
+/uni0000001b/uni00000013/uni00000008
+/uni00000014/uni00000013/uni00000013/uni00000008
+/uni00000017/uni00000014/uni00000008
+/uni00000017/uni00000019/uni00000008
+/uni00000016/uni00000016/uni00000008
+/uni00000016/uni00000016/uni00000008
+/uni00000016/uni0000001a/uni00000008
+/uni00000017/uni00000018/uni00000008
+/uni00000015/uni0000001c/uni00000008
+/uni00000015/uni0000001b/uni00000008
+/uni00000016/uni00000013/uni00000008
+/uni00000016/uni00000017/uni00000008
+/uni00000017/uni00000013/uni00000008
+/uni00000016/uni00000017/uni00000008
+/uni00000016/uni0000001b/uni00000008
+/uni00000017/uni00000015/uni00000008
+/uni00000015/uni0000001a/uni00000008
+/uni00000016/uni0000001c/uni00000008
+/uni00000014/uni0000001c/uni00000008
+/uni00000014/uni00000017/uni00000008
+/uni00000014/uni00000018/uni00000008
+/uni00000014/uni00000019/uni00000008
+/uni00000014/uni00000015/uni00000008
+/uni00000014/uni00000016/uni00000008
+/uni00000014/uni0000001b/uni00000008
+/uni00000014/uni00000018/uni00000008
+/uni00000014/uni00000018/uni00000008
+/uni00000014/uni00000017/uni00000008
+/uni00000014/uni00000015/uni00000008
+/uni00000014/uni0000001b/uni00000008
+/uni00000014/uni00000019/uni00000008
+/uni00000014/uni00000018/uni00000008
+/uni00000014/uni00000017/uni00000008
+/uni00000014/uni0000001b/uni00000008
+/uni00000014/uni00000014/uni00000008
+/uni00000014/uni00000014/uni00000008
+/uni00000014/uni00000013/uni00000008
+/uni00000014/uni00000019/uni00000008
+/uni00000014/uni00000019/uni00000008
+/uni00000015/uni0000001c/uni00000008
+/uni00000015/uni0000001a/uni00000008
+/uni00000016/uni00000013/uni00000008
+/uni00000015/uni00000015/uni00000008
+/uni00000015/uni0000001a/uni00000008
+/uni00000016/uni00000013/uni00000008
+/uni00000016/uni00000017/uni00000008
+/uni00000016/uni00000017/uni00000008
+/uni00000015/uni00000018/uni00000008
+/uni00000014/uni0000001b/uni00000008
+/uni00000014/uni0000001a/uni00000008
+/uni00000015/uni00000013/uni00000008
+/uni00000016/uni00000018/uni00000008
+/uni00000015/uni00000013/uni00000008
+/uni0000001c/uni0000001c/uni00000008/uni00000010/uni00000014/uni00000013/uni00000013/uni00000008/uni0000001c/uni0000001b/uni00000008/uni00000010/uni0000001c/uni0000001c/uni00000008/uni0000001c/uni0000001a/uni00000008/uni00000010/uni0000001c/uni0000001b/uni00000008/uni0000001c/uni00000019/uni00000008/uni00000010/uni0000001c/uni0000001a/uni00000008/uni0000001c/uni00000018/uni00000008/uni00000010/uni0000001c/uni00000019/uni00000008/uni0000001c/uni00000013/uni00000008/uni00000010/uni0000001c/uni00000018/uni00000008/uni00000013/uni00000008/uni00000010/uni0000001c/uni00000013/uni00000008
+Figure 2: Distribution of requests across different hit rate intervals over time. The figure illustrates the request
+proportions for seven hit rate intervals ranging from 0%-90% up to 99%-100% during January to February 2026.
+To evaluate the impact of this highly skewed distribution, we conducted micro-benchmark tests for Ethernet-based KV
+cache transfer upon a 20Gbps cross-datacenter dedicated line under full-capacity conditions (Requests Per Second, RPS
+= 80). We compared two scenarios both targeting a 90% average hit rate: (1) aWide&Skewed-Distributionscenario
+reflecting real-world agentic workloads (hit rates ranging from 2% to 99% following a highly skewed Beta distribution),
+and (2) aNarrow&Even-Distributionscenario (hit rates ranging from 85% to 95% following a uniform distribution).
+Our experiments (Table 2) reveal two critical insights: First,high transfer latencies are strictly isolated to low-
+hit-rate requests. In the Wide&Skewed scenario, the vast majority of high-hit-rate requests carry minimal payloads.
+These small packets exploit TCP fairness to bypass congestion, maintaining a remarkably low P50 latency ( ∼248
+ms). Conversely, the P99 latency spikes to ∼18.8s, which is exclusively attributable to the rare, massive payloads of
+low-hit-rate requests. Second, the skewed agentic distribution inherentlyprevents TCP connection pool exhaustion.
+The abundance of rapid-completing high-hit-rate requests continuously frees up TCP links, sustaining a high pool
+turnover rate (∼63% utilization). In contrast, the Narrow&Even scenario lacks these lightweight requests to relieve
+pressure. Uniformly prolonged transfers cause concurrent connections to accumulate rapidly, fully exhausting the pool
+(100% utilization). This triggers severe queuing (average 1,682 ms) and globally degrades both P50 and P99 latencies.
+Note that the reported transfer latencies exclude queue latency.
+4
+
+=== PDF page 5 ===
+Table 2: Impact of Hit Rate Distribution on Transfer Latency and System Saturation (RPS=80, Average Hit Rate = 90%)
+Metric Wide&Skewed Distribution
+(agentic Workload)
+Narrow&Even Distribution
+(Uniform-like Workload)
+Hit Rate Range 2%∼99% 85%∼95%
+Per-req KV Payload Range 0.008 GB∼0.280 GB 0.018 GB∼0.047 GB
+Transfer Latency (P50) 248 ms 1,210 ms
+Transfer Latency (P99) 18,883 ms 25,542 ms
+Queue Latency (Avg) 0.31 ms 1,682 ms
+Connection Pool Utilization 63.1% 100.0%
+Dominant Performance Issue Tail-blockage on large requests Connection pool exhaustion
+2.3 Related Works
+PD disaggregation has been extensively studied to mitigate interference between the prefill and decode phases in LLM
+serving. Early works, such as DistServe [8] and Splitwise [7], primarily focus on intra-cluster disaggregation, leveraging
+high-speed RDMA networks to transfer KV cache. Recently, cross-datacenter inference has emerged as a promising
+paradigm to leverage geographically dispersed, heterogeneous hardware resources.
+Notably, PrfaaS (Prefill-as-a-Service) [14], introduced by MoonShot AI and Tsinghua KVCache.AI, serves as a highly
+representative cross-datacenter PD disaggregation architecture. While both PrfaaS and our PDD embrace the paradigm
+of geographically dispersed cross-datacenter disaggregation, they tackle fundamentally disparate challenges based on
+distinct technical assumptions. This orthogonality enables the seamless, synergistic integration of both approaches,
+facilitating the deployment of large-scale heterogeneous inference systems. Table 3 delineates these key differences
+across several dimensions.
+The divergence in fundamental motivation highlights the contrast between PrfaaS and PDD. PrfaaS mitigates SLA
+interference by specially designating remote instances for long-context prefilling, using a context-length-centric
+scheduler to balance cluster loads and prevent Ethernet overload. Its feasibility relies on Linear models, where
+per-token KV cache size decreases as context length grows, making remote transmission viable. Conversely, PDD
+harnesses the cost-effectiveness of heterogeneous hardware across datacenters to satisfy the strict SLAs of agentic
+workloads. Instead of relying on specific architectures, it capitalizes on the intrinsic, highly skewed KV cache hit-rates
+of agentic applications (averaging 90%, with many exceeding 95%). Through latency masking and multi-level pipeline
+orchestration, PDD overlaps cross-datacenter KV transfers exclusively for low-hit-rate outliers to hide transfer delays.
+Ultimately, PDD and PrfaaS are orthogonal in their design philosophy: PrfaaS optimizes SLA fairness through request
+scheduling, whereas PDD optimizes end-to-end Service Level Objectives (SLO) for cross-datacenter heterogeneous
+inference via latency masking. Because they address different bottlenecks, they can be naturally integrated. A unified
+system could employ PrfaaS’s scheduling logic to manage long/short request interference while deploying PDD’s
+three-tier pipeline to ensure cross-datacenter inference remains performant and SLA-compliant.
+Table 3: Comparison between PDD and PrfaaS across key dimensions
+Dimension PrfaaS PDD
+Target
+Problem
+To alleviate SLA interference between long and
+short requests in the prefill phase.
+For high Benefit-Cost Ratio via Heterogeneous Cross-
+Datacenter under SLA Guarantees.
+Core
+Techniques
+Request scheduling and routing based on context
+length.
+Latency masking and multi-level pipeline tuning to hide
+cross-datacenter transfer delays.
+Key
+Dependency
+Linear models, where per-token KV cache size
+decreases as context length grows.
+agentic workload characteristics: high & non-uniform
+KV cache hit rates (avg. 90%).
+Primary
+Goal
+Prevent long requests from monopolizing re-
+sources, thereby improving overall service level.
+Mitigate wide-area Ethernet bottlenecks to achieve SLA-
+compliance on cost-effective heterogeneous infra.
+RelationshipOrthogonal and complementary; can be integrated seamlessly.
+5
+
+=== PDF page 6 ===
+3 Design
+3.1 PDD Architecture Overview
+As illustrated in Figure 3, PDD disaggregates the LLM inference lifecycle into three distinct instances distributed across
+geographically dispersed datacenters:
+• Prefill (P) Instance: Responsible for processing the prompt and generating the initial KV cache. P instances
+are deployed in a primary datacenter equipped with compute-heavy hardware.
+• RelayDecode (RLD) Instance: Co-located with the P instance in the same datacenter and interconnected via
+high-speed RDMA networks. The RLD instance is specifically designed to eagerly generate decoding output
+tokens to mask cross-datacenter transfer latency.
+• MainDecode (MD) Instance: Deployed in a geographically distant datacenter, connected to the primary
+datacenter via low-cost wide-area Ethernet (typically <100 Gbps). The MD instance handles the remaining
+bulk of the token generation phase.
+H T T P _ S E R V E R
+P /R L D  D a t a c e n t e r M D  D a t a c e n t e r
+P r e ﬁ ll
+N o d e s
+P r e ﬁ ll
+N o d e s
+P r e ﬁ ll
+N o d e s
+P r e ﬁ ll
+N o d e s
+R e la y D e c o d e
+N o d e
+R e m o t e - D e c o d e
+N o d e s
+R e m o t e - D e c o d e
+N o d e s
+R e m o t e - D e c o d e
+N o d e s
+R e m o t e - D e c o d e
+N o d e s
+M a in D e c o d e
+N o d e s
+P r e ﬁ x  C a ch e
+P o o l
+D e c o d e  R a d ix
+C a ch e  P o o l
+D e c o d e  R a d ix
+C a ch e  P o o l
+T r a n s m is s io n  o f  T o k e n  IDR D M A - b a s e d  K V  t r a n s fe r
+E t h e r n e t - b a s e d  K V  t r a n s fe rC a c h e  R e a d /W r it e
+R D M A
+T C P
+In p u t  T o k e n s E a g e r  O u t p u t  T o k e n s T a il O u t p u t  T o k e n s
+Figure 3: Overview of the PDD three-tier cross-datacenter PD disaggregation architecture. P and RLD instances are
+co-located within the same datacenter connected via high-speed RDMA, while MD instances are remotely connected
+via wide-area Ethernet.
+The basic workflow initiates when the P instance receives a request and executes the prefill phase to generate the KV
+cache. If the cache hit-rate falls below a threshold H, the P instance concurrently dispatches the KV cache across
+two paths: to the RLD instance via high-bandwidth low-latency RDMA (taking tens of milliseconds) and to the MD
+instance via TCP over wide-area Ethernet (taking seconds). Leveraging the rapid RDMA transfer, the RLD instance
+immediately commences decoding, streaming the initial results—denoted as Eager Output Tokens in Figure 3—to
+the user to minimize perceived latency. Finally, upon completing the cross-datacenter KV transfer via much slower
+Ethernet, the MD instance seamlessly assumes the decoding process, ensuring uninterrupted token generation for the
+remainder of the request.
+6
+
+=== PDF page 7 ===
+3.2 Core Mechanism: Latency Masking via Extend-Decode Handoff
+While the PDD architecture leverages the RLD instance to eagerly generate initial tokens for transfer latency masking, a
+critical challenge arises once the MD instance completes KV cache reception: how to seamlessly hand off the
+decoding task from RLD to MD.
+To avoid the network overhead and H2D/D2H copies associated with transmitting the incremental KV cache from RLD
+to MD, the RLD instance only sends the CPU-resident token IDs to the MD instance. Upon receiving these tokens, the
+MD instance recomputes the incremental KV cache from these tokens while simultaneously generating the next output
+token—a process we termExtend-Decode Handoff. Specifically, Extend-Decode is a decoding paradigm commonly
+utilized in techniques such as Multi-Token Prediction (MTP) and Speculative Decoding. Unlike a standard decode step
+that takes a single token ID as input to produce the next token, it processes multiple input token IDs simultaneously to
+fill their corresponding KV cache and generate the subsequent output token. Due to the memory-bound nature of the
+decoding phase, Extend-Decode incurs marginal extra latency compared to a normal decode step; it adds little memory
+overhead, despite its significantly larger computational overhead. Furthermore, it is possible to fully overlap the extra
+latency introduced by Extend-Decode at the expense of heavier RLD load. To balance user experience against RLD
+load, PDD introduces two distinct Extend-Decode Handoff modes, as visually compared in Figure 4:
+E t h e r n e t  K V  t r a n s f e r
+P r e ﬁ ll
+R D M A  K V
+T r a n s f e r
+R L D
+P r e ﬁ ll M D
+E t h e r n e t  K V  t r a n s f e r E x t e n d - D e c o d e
+M D M D M D M D M D M D
+  K  T o t a l O u t p u t  T o k e n s
+N  E a g e r  O u t p u t  T o k e n s
+( a ) N a iv e  C r o s s - D C  P D  D is a g g r e g a t io n :
+  K - N  T a il O u t p u t  T o k e n s
+( c ) P D D  w it h  C a t c h - U p  H a n d o ﬀ  M o d e :
+M D M D M D
+M D M D M D M D
+P r e ﬁ ll
+R D M A - K V
+T r a n s f e r
+E t h e r n e t  K V  t r a n s f e r E x t e n d - D e c o d e
+N  E a g e r  O u t p u t  T o k e n s
+  K - N - M  T a il O u t p u t
+M  C a t c h - U p  T o k e n s
+E D
+T o k e n  ID
+M D
+...
+...
+...
+... ...
+R L D
+M D
+...
+M D M D M D
+T o k e n  ID T o k e n  ID
+R e d u c e d
+E   E L
+M D M D
+R e d u c e d
+E   E L
+M D
+M D
+M D
+( b ) P D D  w it h  O n e - S h o t  H a n d o ﬀ  M o d e :
+C a t c h e d - U p !
+B e t t e r  O v e r la p p in g
+L a t e n c y  M a s k in gR L D R L D R L D
+R L D R L D R L D R L D R L D R L D R L D
+Figure 4: Timeline comparison of traditional cross-datacenter PD disaggregation versus PDD’s latency masking
+mechanism. The figure illustrates PDD’s two handoff modes: Catch-Up Handoff (gradual Extend-Decode with
+overlapped latency) and One-Shot Handoff (immediate control transfer).
+Catch-Up Handoff Mode.In this mode, the MD instance performs Extend-Decode step-by-step, gradually catching up
+to the RLD’s progress. Once MD’s output progress catches-up with RLD’s latest output, MD would seamlessly take
+over the token generation and replace RLD. The primary advantage of this mode is that it is completely transparent
+to the user; there are no observable fluctuations in OTPS (Output Tokens Per Second) and no temporary output stalls.
+However, to mask the computational time required for the MD’s Extend-Decode Handoff phase, the RLD instance
+7
+
+=== PDF page 8 ===
+must continue generating a supplementary set ofCatch-Up Tokensbefore relinquishing control. The existence of these
+Catch-Up Tokens slightly increases the compute and memory load on the RLD instance.
+One-Shot Handoff Mode.Alternatively, the RLD instance can transfer the entirety of its generated eager output tokens
+to the MD instance in a one-shot style and immediately evict the request, ceasing all further computation. The MD
+instance must then independently execute the Extend-Decode computation without latency overlapping. While this
+mode significantly reduces the load of RLD instance by minimizing its active inference duration, it introduces a trade-off:
+if the Extend-Decode overhead is substantial, the user may experience a temporary "frozen output" phenomenon, which
+also negatively impacts the overall OTPS.
+Overhead Analysis.Both handoff modes replace the bulky incremental KV cache transmission with negligible Token
+ID transfers. The local recomputation on the memory-bound MD instance incurs minimal overhead, which is far more
+efficient and reliable than Ethernet-based KV transmission. PDD can dynamically alternate between these two strategies
+based on the real-time load of the RLD instance. For example, when RLD utilization is moderate and spare compute
+capacity is available, the system defaults to Catch-Up Handoff to guarantee a seamless, high-quality user experience.
+3.3 Multi-Stage Pipeline Orchestration
+In PDD, the introduction of the RLD tier creates new possibilities and challenges for pipeline orchestration. In a
+conventional PD disaggregated architecture, the workflow is deterministic: a request must sequentially pass through
+the Prefill, KV cache transfer, and Decode phases. However, the PDD architecture introduces flexibility, allowing
+three distinct pipeline orchestrations capable of serving the complete lifecycle of any request:P-RLD,P-MD, and
+P-RLD-MD. As illustrated in Figure 3, the P-RLD-MD pipeline is inherently more complex, encompassing multiple
+stages including P, RDMA transfer, TCP transfer, RLD, and MD. In contrast, the P-RLD and P-MD pipelines are
+simpler, each comprising only three sequential stages.
+Figure 5: Impact of routing low-hit-rate requests (e.g., <50% ) through the P-RLD pipeline exclusively. Terminating
+KV cache transfers at RLD prevents the MD-side DRC from updating, causing its hit rate to progressively fall behind
+the P-side prefix-cache hit rate. This discrepancy eventually backfires, shifting disproportionate load back onto the
+RLD instances and risking system collapse.
+To effectively orchestrate these stages in real-world Agentic MaaS scenarios, we first establish a core principle: in the
+PDD cross-cluster PD disaggregated inference architecture, the RLD tier existssolelyto mask inter-cluster transfer
+latency and reduce TTFT. Accordingly, we favorprovisioning RLD with the minimum feasible hardware resources.
+This minimal-resource posture, in turn, imposes stringent demands on how requests occupy and interact with RLD
+instances, leading to two subsequent criteria:
+• Time-Bounded Occupation:Given the unpredictable nature of LLM output lengths, requests with exception-
+ally long outputs must not indefinitely occupy the compute & memory resources of RLD instances.
+• Cache Consistency:As depicted in Figure 5, the KV cache generated by P should ideally be transferred to
+the MD instance rather than terminating at the RLD instance.
+8
+
+=== PDF page 9 ===
+Guided by the core principle and the two criteria above, the PDD architecture adopts only two pipeline orchestrations—P-
+MDandP-RLD-MD—explicitly excluding the P-RLD pipeline. Drawing upon the workload characteristics analyzed
+in Section 2.2, over 70% requests are routed directly through the P-MD pipeline without any RLD intervention. The
+remaining 20% to 30% of low-hit-rate requests are processed via the P-RLD-MD pipeline. Because the MD instance
+ultimately assumes the decoding task, the maximum output length handled by the RLD instance is strictly bounded and
+can be dynamically adjusted based on real-time load conditions. This design inherently prevents long-output requests
+from monopolizing RLD compute and storage resources. Furthermore, since both active pipelines conclude at the MD
+stage, the architecture guarantees parity between the MD-side DRC hit rate and the P-side prefix-cache hit rate.
+3.4 Implications for Inference Infrastructure
+Beyond optimizing pipeline orchestration, the PDD architecture provides novel perspectives for the construction of
+future inference infrastructure. Among these, the most significant and insightful shift is that PDD enables low-cost,
+fine-grained heterogeneous deployment within a single datacenter.
+Low-Cost, Fine-Grained Heterogeneous Deployment.In a traditional intra-DC heterogeneous PD disaggregation
+system, accommodating both compute-bound prefill and memory-bound decode typically requires building massive,
+monolithic heterogeneous clusters. This approach introduces large amounts of secondary hardware (e.g., memory-
+access-efficient chips) alongside primary compute accelerators within a single RDMA domain. Such large-scale
+heterogeneity not only incurs extremely high cost but also suffers from severe inflexibility; when workload patterns
+shift, the fixed, rigid ratio of heterogeneous machines could easily lead to substantial resource waste.
+The PDD architecture fundamentally resolves this bottleneck. Because the RLD instance only processes a small fraction
+of initial decoding tokens and merely works for low-hit-rate requests, it requires only moderate memory bandwidth
+and very little FLOPs. Consequently, providers can deploy a minimal fraction of memory-access-efficient chips for
+RLD instances, while allocating the vast majority of resources to compute-heavy P instances. The bulk of the decoding
+workload is then seamlessly offloaded to MD instances in a remote datacenter.
+As illustrated in Figure 6, this ultra-small-scale heterogeneous approach offers two major advantages:
+• Minimal cost:Introducing only a tiny fraction of diverse accelerators drastically reduces capital expenditure
+compared to traditional intra-DC large-scale heterogeneous clusters.
+• Higher Utilization:The small number of RLD chips mitigates the resource waste associated with traffic pattern
+shift and hardware evolution.
+R D M A  D o m a in
+U n d e r - u t iliz e d
+P
+P
+P
+P
+P
+P
+P
+P
+P
+P
+P
+P
+D
+D
+D
+D
+D
+D
+D
+D
+D
+D
+D
+D
+(a) Traditional Intra-DC Heterogeneous PD
+R D M A  D o m a in
+U n d e r -
+u t iliz e d
+P
+P
+P
+P
+P
+P
+P
+P
+P
+P
+P
+P
+R L D
+R L D
+R D M A  D o m a in
+M D
+M D
+M D
+M D
+M D M D
+M D
+M D
+M D
+T r a ﬃ c  f r o m
+o t h e r  D C
+...
+...
+.........
+...
+c r o s s - D C (b) PDD Fine-Grained Cross-DC Heterogeneous Deployment
+Figure 6: Comparison between traditional large-scale intra-DC heterogeneous PD deployment and the PDD fine-grained
+heterogeneous strategy. PDD minimizes heterogeneous cost and mitigates resource waste under shifting workloads.
+Flexible Cross-DC Topologies.Additionally, the decoupling of P/RLD and MD naturally extends to highly flexible
+cross-DC topologies. Based on the scalability of wide-area Ethernet, PDD enables a vast array of interconnection modes
+between P/RLD and MD clusters. Geographically dispersed primary datacenters (hosting P and fine-grained RLD)
+can be interconnected to centralized, large-scale MD clusters, or they can form distributed many-to-many topologies
+tailored to specific traffic distributions. This versatility allows MaaS providers to horizontally scale compute-bound
+prefill capabilities locally while flexibly centralizing or distributing memory-bound decode workloads, maximizing
+global resource utilization without being constrained by a single datacenter’s physical limits.
+9
+
+=== PDF page 10 ===
+4 Evaluation
+This section presents preliminary experimental results to validate the feasibility and core advantages of the PDD
+architecture. It should be noted that these results are non-exhaustive and primarily serve to demonstrate the effectiveness
+of PDD’s latency overlaping and cost-efficient heterogeneous deployment under Agentic workloads. Comprehensive
+system-level optimizations, further adaptation to other heterogeneous chips, and large-scale empirical evaluations are
+planned for future work.
+4.1 Experimental Setup
+Workloads.We evaluated PDD using real-world Agentic workload traces (we only utilize the overall statistics
+such as input/output length distribution and cache hit rates, no user-sensitive information is involved) to reflect the
+workload characteristics discussed in Section 2.2. The Agentic workload features an average prefix cache hit rate of
+90% with a highly skewed Beta distribution (ranging from 2% to 99%), where over 70% of requests have ultra-high
+hit rates. Output lengths are typically short (30% of requests produce fewer than 100 tokens), with an average output
+length of 1000 tokens.
+Models and Hardware.We conducted tests on DeepSeek-V4-pro. For the PDD deployment, the primary datacenter
+(hosting P and RLD instances) is equipped with 43 NVIDIA H100 nodes (344 GPUs) compute-heavy cluster for 10
+P instances and a single RLD instance. The remote datacenter hosts the MD instances, deployed on a cluster with
+32 NVIDIA H200 nodes (256 GPUs). The two datacenters are interconnected via 2×10 Gbps wide-area Ethernet
+dedicated line, simulating cost-effective cross-datacenter connections. Intra-DC communication between P instances
+and the RLD instance utilizes a standard 400 Gbps RDMA network. For the intra-DC PD Disaggregation deployment,
+we use a cluster encompassing88H100 nodes (704 GPUs) for both P and D instances.
+Baselines and Metrics.To evaluate the effectiveness of latency overlaping, we compare PDD against a traditional
+Cross-Datacenter PD Disaggregation baseline (denoted asCDC-PD). In this setup, DRC is enabled properly but RLD
+latency overlaping mechanism is not employed. To evaluate the cost-efficiency of PDD, we compare PDD against
+intra-DC PD Disaggregation (denoted asIDC-PD). Key metrics monitored in the evaluation include TTFT, TPOT, and
+RPS.
+4.2 End-to-End Performance and Latency Overlap
+We first evaluate the effectiveness of PDD’s latency overlaping mechanism in reducing the user-perceived transfer
+latency (reflected in TTFT) under Agentic workloads. As shown in Table 4 and Figure 7, the naive CDC-PD baseline
+suffers from severe TTFT degradation, with P90 latency spiking to over 18 seconds due to the Ethernet-based KV
+cache transfer bottleneck. Figure 7a reveals that CDC-PD’s transfer latency fluctuates dramatically across requests,
+with frequent multi-second spikes caused by unpredictable Ethernet congestion; these spikes directly propagate to the
+user-perceived TTFT shown in Figure 7b, where the latency tail stretches well beyond 20 seconds. In contrast, PDD
+successfully overlaps this transmission delay, exhibiting much better P99 and P90 TTFT at the expense of an additional
+RLD instance.
+(a) Transfer latency variation of CDC-PD.
+ (b) TTFT variation of CDC-PD.
+Figure 7: Latency characteristics of the CDC-PD baseline under Agentic workloads.
+10
+
+=== PDF page 11 ===
+Because the RLD instance immediately initiates decoding upon receiving the KV cache via high-speed RDMA, PDD
+maintains a stable and low TTFT comparable to intra-DC homogeneous deployments. As evidenced by the high-
+variance transfer latency in Figure 7a, CDC-PD’s Ethernet-based transmission is the root cause of the TTFT tail inflation
+observed in Figure 7b; PDD sidesteps this bottleneck entirely. For the vast majority of high-hit-rate requests (which
+terminate via the P-MD pipeline with minimal KV payloads), the transfer latency is negligible. For low-hit-rate outliers,
+the RLD instance actively generated Eager Output Tokens while the slow Ethernet transfer occurs in the background,
+ensuring that the user perceives continuous token generation without multi-second stalls. Overall, PDD reduces the P90
+TTFT by approximately 46% compared to the CDC-PD, effectively mitigating the cross-datacenter latency bottleneck.
+Table 4: TTFT Comparison between PDD and CDC-PD
+Method P99 P90 P50 Median Mean
+CDC-PD 29.7s 18.3s 6.7s 6.7s 9.2s
+PDD 14.4s 9.8s 4.2s 4.2s 5.1s
+4.3 Microbenchmark: RLD Load Analysis and Handoff Overhead
+To evaluate the load status of RLD, we examine the percentage of output tokens generated by RLD against total output
+tokens under the scenario of 64K input (90% hit rate) and 1K output. As illustrated in Figure 8, the load of RLD is far
+less than the load of MD instances.
+0 1 2 3 4
+Number of T okens 1e6
+RLD Generated
+Output Tokens
+271,769 (6.2%)
+MD Generated
+Output Tokens
+4,121,967 (93.8%)
+MD / RLD Ratio: ~ 15.2x
+Figure 8: Comparison of output token load distribution between RLD and MD. The horizontal bar chart illustrates
+a notable load imbalance, where MD dominates the workload by generating 4,121,967 tokens (93.8% of the total),
+whereas RLD only outputs 271,769 tokens (6.2%), highlighting a 15.2x disparity in processing load.
+Furthermore, we compared the two handoff modes:
+• Catch-Up Handoff Modeachieved a seamless OTPS curve with zero observable output stalls. The RLD
+instance maintained active inference for slightly longer to generate Catch-Up Tokens, increasing its utilization
+(reflected by RLD’s average output length) by roughly 10% compared to One-Shot mode.
+• One-Shot Handoff Modeminimized RLD resource occupation, freeing up memory and compute capacity
+faster. However, it introduced a brief, temporary OTPS dip (lasting <0.5 seconds for 1K-token outputs)
+during the MD’s isolated Extend-Decode phase.
+To evaluate the overhead of the Extend-Decode Handoff mechanism, we conducted micro-benchmarks to compare
+the naive approach of transmitting incremental KV caches over Ethernet against our proposed local recomputation
+approach (transmitting lightweight Token IDs followed by MD-side recomputation).
+The results confirm that replacing bulky KV cache transmission with local recomputation is highly efficient and robust.
+As shown in Table 5, transmitting KV caches over Ethernet suffers from severe latency fluctuations. In our tests
+for a 100-token handoff, the average latency was 185.4ms, but peaked at 512.6ms due to network fluctuations and
+connection pool queueing, with a high standard deviation of 96.3ms. Furthermore, this method incurs an additional
+24.5ms overhead for H2D/D2H memory copies.
+In contrast, our local recomputation approach transmits only a few kilobytes of Token IDs (e.g., 1.5 KB). This
+transmission is fully asynchronous—RLD sends each token ID to MD as it is generated—making its network overhead
+negligible. The local Extend-Decode recomputation for 100 tokens takes an average of 305.2ms. Although the baseline
+average time is slightly higher than a clear-network KV transmission, its maximum latency is capped at 321.4ms with a
+11
+
+=== PDF page 12 ===
+minimal standard deviation of 4.8ms. Crucially, it is immune to network fluctuation and queueing interference and
+eliminates extra H2D/D2H overheads entirely.
+Table 5: Microbenchmark: Handoff Overhead Comparison for a 100-Token Sequence
+Metric KV Cache Trans. Local Recomp.
+Payload Size (KB) 4649 1.5
+Min Latency (ms) 75.2 289.5
+Avg. Latency (ms) 185.4 305.2
+Max Latency (ms) 512.6 321.4
+Latency Std. Dev. (ms) 96.3 4.8
+H2D/D2H Overhead (ms) 24.5 —
+4.4 Cost-Efficiency and Benefit-Cost Ratio of Heterogeneity
+Finally, we evaluate the cost-efficiency of PDD’s cross-datacenter heterogeneous deployment compared to the traditional
+intra-DC homogeneous PD disaggregated cluster (IDC-PD).
+In our PDD deployment, compute-intensive H100 GPUs in the primary datacenter serve the P and RLD instances,
+where each P instance consumes 4 H100 nodes and the RLD instance consumes 3 H100 nodes. Concurrently, memory-
+bandwidth-optimized H200 GPUs are deployed in the remote datacenter to handle MD instances, each utilizing 2 H200
+nodes. In IDC-PD’s deployment, each P instance consumes4 H100 nodes and each D instance consumes 3 H100 nodes.
+We adopt the Benefit-Cost Ratio (BCR)—defined as the ratio of SLA-compliant effective request throughput (goodput)
+to normalized hardware cost—as our primary metric, employing an SLA of 10s P90 TTFT and 50ms P90 TPOT (the
+actual latencies achieved is shown in Table 7). Based on the resource unit prices listed in Table 6, experiment results
+demonstrate that PDD achieves aBCR up to 37.5% higherthan the IDC-PD baseline (Table 8). This improvement is
+attributed to PDD’s capability to map each inference phase to the most suitable hardware across datacenters: the H100
+cluster manages the compute-bound prefill and latency-overlaping RLD, while the remote H200 cluster absorbs the
+memory-bound massive decode workload.
+Table 6: Resource Unit Price Description
+Resource Unit Price Description
+H100 GPUX Xis the current price of an8×H100
+H200 GPU1.2∼1.3XH200 premium over H100 is20%∼30%
+10 Gbps
+Ethernet 0.35X Cost for one cross-datacenter dedicated line
+Table 7: Latency Metrics
+Metric Method P50 P90 P99
+TTFT IDC-PD 3.9s 10.4s 17.2s
+PDD 4.2s 9.8s 14.4s
+TPOT IDC-PD 49.5ms 51.7ms 53.1ms
+PDD 45.4ms 47.9ms 49.7ms
+Table 8: BCR Comparison between IDC-PD and PDD (64K Context, 90% Hit Rate, SLA-Compliant Goodput)
+Metric IDC-PD
+(10P-16D)
+PDD
+(10P-1RLD-16MD)
+Increment
+PDD Over IDC-PD
+#H100 88 43 -45
+#H200 — 32 +32
+Ethernet Cost —0.35X+0.35X
+GPU Cost88X81.4X∼84.6X−6.6X∼ −3.4X(−7.5%∼ −3.9%)
+Total Cost88X81.75X∼84.95X−6.25X∼ −3.05X(−7.1%∼ −3.5%)
+RPS9.0 11.5 +2.5(+27.8%)
+BCR (RPS/$)0.1023 0.1407∼0.1354 +0.0384∼+0.0331(+37.5%∼+32.4%)
+It is worth noting that these preliminary results do not fully capture the ultimate potential of PDD-enabled, cross-
+datacenter heterogeneous disaggregated inference. First, due to resource constraints, our testing was limited to a
+medium scale, utilizing 3 H100 nodes as the RLD instance—the minimal setup required for H100 GPUs to serve the
+Deepseek-V4-pro model. Given the relatively low RLD load at this scale, we expect its associated cost overhead to be
+12
+
+=== PDF page 13 ===
+better amortized in larger deployments, potentially yielding an even higher BCR for PDD. Second, our experiments
+only evaluated heterogeneity between H100 and H200 GPUs. While their cost-performance divergence across the P
+and D phases of Deepseek-V4-pro is significant, this is not the optimal pairing; integrating other specialized AI chips
+with H100 or H200 could unlock substantially greater BCR improvements. Finally, MTP was disabled and some other
+system-level optimizations for both phases were not fully applied (due to DRC related compatibility issues), resulting
+in a performance gap compared to State-of-the-Art (SOTA) implementations. Nevertheless, this lack of tuning does not
+undermine our core conclusion: PDD-style heterogeneous deployment is able to achieve higher BCR in SLA-compliant
+goodput compared to traditional homogeneous PD disaggregation.
+5 Discussion
+Effectiveness Rooted in Workload Characteristics.The superior performance of PDD is not merely a byproduct of
+advanced network optimization (which we did in extensively optimizing the TCP ransfer code in MoonCake Transfer
+Engine), but rather the result of deeply exploiting the intrinsic characteristics of Agentic workloads. The highly skewed
+distribution of prefix cache hit rates (averaging 90% with over 70% exceeding 95%) fundamentally alters the network
+traffic profile. By routing the vast majority of high-hit-rate requests through the P-MD pipeline, the payload size
+is drastically minimized, circumventing TCP connection pool exhaustion and Ethernet congestion. Consequently,
+the system only needs to apply the latency masking mechanism to the isolated tail of low-hit-rate requests via the
+P-RLD-MD pipeline. By converting unreliable, bulky cross-datacenter KV cache transmissions into lightweight Token
+ID transfers followed by local recomputation, PDD transforms an unpredictable wide-area network bottleneck into a
+deterministic, compute-bound local operation.
+Limitations and Future Improvements.While our preliminary evaluations demonstrate clear advantages, certain
+limitations exist that point to future research directions. First, due to hardware availability, our RLD deployment was
+constrained to a 3-node H100 setup. Given that RLD handles only 6.2% of the total token generation load, we anticipate
+that in larger-scale deployments, the fixed RLD overhead will be better amortized, yielding even higher BCR. Second,
+system-level optimizations such as MTP were disabled in our current tests due to DRC compatibility constraints. Finally,
+our evaluation paired H100 with H200 GPUs. Exploring the integration of highly specialized, non-GPU AI accelerators
+(e.g., ASICs optimized for memory-bound decoding) holds the potential to unlock substantially greater cost-efficiency.
+Implications for Future MaaS Infrastructure.Beyond algorithmic optimizations, PDD offers a paradigm shift for
+datacenter construction. Traditional intra-DC heterogeneous deployments require massive, rigid, monolithic clusters,
+incurring prohibitive cost and poor adaptability to shifting model architectures. PDD validates a "minimal local
+heterogeneity + flexible remote disaggregation" approach. By requiring only a tiny fraction of memory-access-efficient
+chips for RLD instances within a primary compute-heavy datacenter, and offloading the bulk of the decoding workload
+to geographically dispersed MD clusters via low-cost Ethernet, MaaS providers can achieve unprecedented elasticity.
+This fine-grained, cross-datacenter design establishes a scalable and economically viable blueprint for next-generation
+inference infrastructure.
+6 Conclusion
+The rapid evolution of LLMs and their diverse hardware requirements have made heterogeneous Prefill-Decode
+disaggregation a necessity for cost-efficient inference. However, deploying such systems across geographically
+dispersed datacenters introduces severe wide-area Ethernet bottlenecks, particularly for latency-sensitive Agentic
+workloads characterized by ultra-long contexts and high prefix hit rates. In this technical report, we proposed PDD, a
+novel three-tier cross-datacenter architecture designed to enable economical and flexible heterogeneous inference. PDD
+introduces a co-located RelayDecode instance that eagerly generates initial tokens via high-speed RDMA to mask the
+slow cross-datacenter KV transfer. To seamlessly hand off decoding to the remote MainDecode instance, we designed
+the Extend-Decode Handoff mechanism, which transmits only lightweight Token IDs and leverages local recomputation,
+effectively eliminating bulky and unreliable network transfers. Supported by a multi-stage pipeline orchestration that
+routes traffic based on cache hit rates, PDD prevents RLD overload while maintaining cache consistency.
+Extensive evaluations on DeepSeek-V4-pro using real-world Agentic workload traces demonstrated the efficacy of our
+approach. Compared to the traditional Cross-Datacenter PD baseline, PDD successfully masked transmission latency,
+reducing P90 TTFT by approximately 46% and capping maximum handoff latency at 321.4ms with minimal variance.
+Furthermore, compared to the Intra-DC homogeneous PD baseline, PDD’s fine-grained heterogeneous mapping of
+compute-intensive and memory-bandwidth-optimized hardware achieved a Benefit-Cost Ratio up to 37.5% higher in
+SLA-compliant goodput. Ultimately, PDD not only resolves the immediate transmission bottlenecks of cross-datacenter
+inference but also provides a highly scalable, adaptable, and cost-effective blueprint for future MaaS infrastructures.
+13
+
+=== PDF page 14 ===
+References
+[1] Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind
+Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Ariel Herbert-V oss, Gretchen
+Krueger, Thomas Henighan, Rewon Child, Aditya Ramesh, Daniel M. Ziegler, Jeff Wu, Clemens Winter,
+Christopher Hesse, Mark Chen, Eric Sigler, Ma teusz Litwin, Scott Gray, Benjamin Chess, Jack Clark, Christopher
+Berner, Sam McCandlish, Alec Radford, Ilya Sutskever, and Dario Amodei. Language models are few-shot
+learners.ArXiv, abs/2005.14165, 2020.
+[2] Hugo Touvron, Louis Martin, Kevin R. Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Niko lay
+Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, Daniel M. Bikel, Lukas Blecher, Cristian Canton
+Ferrer, Moya Chen, Guillem Cucurull, David Esiobu, Jude Fernandes, Jeremy Fu, Wenyin Fu, Brian Fuller,
+Cynthia Gao, Vedanuj Goswami, Naman Goyal, Anthony S. Hartshorn, Saghar Hosseini, Rui Hou, Hakan
+Inan, Marcin Kardas, Viktor Kerkez, Madian Khabsa, Isabel M. Kloumann, Artem Korenev, Punit Singh Koura,
+Marie-Anne Lachaux, Thibaut Lavril, Jenya Lee, Diana Liskovich, Yinghai Lu, Yuning Mao, Xavier Martinet,
+Todor Mihaylov, Pushkar Mishra, Igor Molybog, Yixin Nie, Andrew Poulton, Jeremy Reizenstein, Rashi Rungta,
+Kalyan Saladi, Alan Schelten, Ruan Silva, Eric Michael Smith, R. Subramanian, Xia Tan, Binh Tang, Ross Taylor,
+Adina Williams, Jian Xiang Kuan, Puxin Xu, Zhengxu Yan, Iliyan Zarov, Yuchen Zhang, Angela Fan, Melissa
+Hall Melanie Kambadur, Sharan Narang, Aur’elien Rodriguez, Robert Stojnic, Sergey Edunov, and Thomas
+Scialom. Llama 2: Open foundation and fine-tuned chat models.ArXiv, abs/2307.09288, 2023.
+[3] Jinze Bai, Shuai Bai, Yunfei Chu, Zeyu Cui, Kai Dang, Xiaodong Deng, Yang Fan, Wenhang Ge, Yu Han, Fei
+Huang, Binyuan Hui, Luo Ji, Mei Li, Junyang Lin, Runji Lin, Dayiheng Liu, Gao Liu, Chengqiang Lu, K. Lu,
+Jianxin Ma, Rui Men, Xingzhang Ren, Xuancheng Ren, Chuanqi Tan, Sinan Tan, Jianhong Tu, Peng Wang, Shijie
+Wang, Wei Wang, Shengguang Wu, Benfeng Xu, Jin Xu, An Yang, Hao Yang, Jian Yang, Jian Yang, Shusheng
+Yang, Yang Yao, Bowen Yu, Yu Bowen, Hongyi Yuan, Zheng Yuan, Jianwei Zhang, Xing Zhang, Yichang Zhang,
+Zhenru Zhang, Chang Zhou, Jingren Zhou, Xiaohuan Zhou, and Tianhang Zhu. Qwen technical report.ArXiv,
+abs/2309.16609, 2023.
+[4] DeepSeek-AI, Daya Guo, Dejian Yang, Haowei Zhang, Jun-Mei Song, Ruoyu Zhang, Runxin Xu, Qihao Zhu,
+Shirong Ma, Peiyi Wang, Xiaoling Bi, Xiaokang Zhang, Xingkai Yu, Yu Wu, Z. F. Wu, Zhibin Gou, Zhihong Shao,
+Zhuoshu Li, Ziyi Gao, Aixin Liu, Bing Xue, Bing-Li Wang, Bochao Wu, Bei Feng, Chengda Lu, Chenggang Zhao,
+Chengqi Deng, Chenyu Zhang, Chong Ruan, Damai Dai, Deli Chen, Dong-Li Ji, Erhang Li, Fangyun Lin, Fucong
+Dai, Fuli Luo, Guangbo Hao, Guanting Chen, Guowei Li, H. Zhang, Han Bao, Hanwei Xu, Haocheng Wang,
+Honghui Ding, Huajian Xin, Huazuo Gao, Hui Qu, Hui Li, Jianzhong Guo, Jiashi Li, Jiawei Wang, JingChang
+Chen, Jingyang Yuan, Junjie Qiu, Junlong Li, J. L. Cai, Jiaqi Ni, Jian Liang, Jin Chen, Kai Dong, Kai Hu, Kaige
+Gao, Kang Guan, Kexin Huang, Kuai Yu, Lean Wang, Lecong Zhang, Liang Zhao, Litong Wang, Liyue Zhang,
+Lei Xu, Leyi Xia, Mingchuan Zhang, Minghua Zhang, M. Tang, Meng Li, Miaojun Wang, Mingming Li, Ning
+Tian, Panpan Huang, Peng Zhang, Qiancheng Wang, Qinyu Chen, Qiushi Du, Ruiqi Ge, Ruisong Zhang, Ruizhe
+Pan, Runji Wang, R. J. Chen, Rui-Qi Jin, Ruyi Chen, Shanghao Lu, Shangyan Zhou, Shanhuang Chen, Shengfeng
+Ye, Shiyu Wang, Shuiping Yu, Shunfeng Zhou, Shuting Pan, S. S. Li, Shuang Zhou, Shao-Kang Wu, Tao Yun,
+Tian Pei, T. Sun, T. Wang, Wangding Zeng, Wanjia Zhao, Wen Liu, Wenfeng Liang, Wenjun Gao, Wen-Xia Yu,
+Wentao Zhang, Wangding Xiao, Wei An, Xiaodong Liu, Xiaohan Wang, Xiaokang Chen, Xiaotao Nie, Xin Cheng,
+Xin Liu, Xin Xie, Xingchao Liu, Xinyu Yang, Xinyuan Li, Xuecheng Su, Xuheng Lin, X. Q. Li, Xiangyu Jin,
+Xi-Cheng Shen, Xiaosha Chen, Xiaowen Sun, Xiaoxiang Wang, Xinnan Song, Xinyi Zhou, Xianzu Wang, Xinxia
+Shan, Y . K. Li, Y . Q. Wang, Y . X. Wei, Yang Zhang, Yanhong Xu, Yao Li, Yao Zhao, Yaofeng Sun, Yaohui Wang,
+Yi Yu, Yichao Zhang, Yifan Shi, Yi Xiong, Ying He, Yishi Piao, Yisong Wang, Yixuan Tan, Yiyang Ma, Yiyuan
+Liu, Yongqiang Guo, Yuan Ou, Yuduan Wang, Yue Gong, Yu-Jing Zou, Yujia He, Yunfan Xiong, Yu-Wei Luo,
+Yu mei You, Yuxuan Liu, Yuyang Zhou, Y . X. Zhu, Yanping Huang, Yao Li, Yi Zheng, Yuchen Zhu, Yunxiang Ma,
+Ying Tang, Yukun Zha, Yuting Yan, Zehui Ren, Zehui Ren, Zhangli Sha, Zhe Fu, Zhean Xu, Zhenda Xie, Zhen
+guo Zhang, Zhewen Hao, Zhicheng Ma, Zhigang Yan, Zhiyu Wu, Zihui Gu, Zijia Zhu, Zijun Liu, Zi-Long Li,
+Ziwei Xie, Ziyang Song, Zizheng Pan, Zhen Huang, Zhipeng Xu, Zhongyu Zhang, and Zhen Zhang. Deepseek-r1
+incentivizes reasoning in llms through reinforcement learning.Nature, 645:633 – 638, 2025.
+[5] Kimi Team Yifan Bai, Yifan Bai, Yiping Bao, Shihan Cai, Yuan Cao, Y . Charles, Hongyuan Che, Cheng Chen,
+Guanduo Chen, Huarong Chen, Jia Chen, Jiahao Chen, Jianlong Chen, Jun Chen, Kefan Chen, Liang Chen, Ruijue
+Chen, Xinhao Chen, Yanru Chen, Yanxu Chen, Yicun Chen, Yimin Chen, Yingjian Chen, Yuankun Chen, Yujie
+Chen, Yutian Chen, Zhirong Chen, Ziwei Chen, Dazhi Cheng, Min-Rong Chu, Jialei Cui, Jiaqi Deng, Muxi Diao,
+Haochen Ding, Mengfan Dong, Meng-Wei Dong, Yuxin Dong, Yuhao Dong, Angang Du, Chenzhuang Du, Dikang
+Du, Lingxiao Du, Yulun Du, Yu Fan, Shengjun Fang, Qiulin Feng, Yichen Feng, G. Fu, Kelin Fu, Hongcheng
+Gao, Tong Gao, Yu-Zheng Ge, Shangyi Geng, Chengyang Gong, Xiaocheng Gong, Zhuoma Gongque, Qizheng
+Gu, Xinran Gu, Yi-Chao Gu, Longyu Guan, Yuanying Guo, Xiaoru Hao, Weiran He, Wen-Lin He, Yun He, Chao
+14
+
+=== PDF page 15 ===
+Hong, Hao-Xing Hu, Jiaxi Hu, Yan-Ni Hu, Zhenxing Hu, Ke Huang, Ruiyuan Huang, Weixiao Huang, Zhiqi
+Huang, Tao Jiang, Zhejun Jiang, Xinyi Jin, Yu Jing, Guokun Lai, Aidi Li, C. Li, Cheng Li, Fang Li, Guanghe Li,
+Guanyu Li, Haitao Li, Haoyang Li, Jia Li, Jingwei Li, Junxiong Li, Lincan Li, Mo Li, Weihong Li, Wentao Li,
+Xinhang Li, Xinhao Li, Yang Li, Yanhao Li, Yiwei Li, Yuxiao Li, Zhaowei Li, Zheming Li, Wei Liao, Jiawei
+Lin, Xiaohan Lin, Zhishan Lin, Zi-Cong Lin, Chengyi Liu, Chenyu Liu, Hongzhang Liu, Liang Liu, Shaowei
+Liu, Shudong Liu, Shuran Liu, Tian-Bo Liu, Tianyu Liu, Weizhou Liu, Xiangyan Liu, Yangyang Liu, Yanming
+Liu, Yibo Liu, Yuanxin Liu, Yue Liu, Zhengying Liu, Zhongnuo Liu, Enzhe Lu, Haoyu Lu, Zhiyuan Lu, Jun Luo,
+Tongxu Luo, Ya-Neng Luo, Long Ma, Yingwei Ma, S. J. Mao, Yuan Yuan Mei, Xinhong Men, Fanqing Meng,
+Zhiyong Meng, Yibo Miao, Mi Ni, Kun Ouyang, Siyuan Pan, Bo Pang, Yuchao Qian, Ruoyu Qin, Zeyu Qin,
+Jiezhong Qiu, Bowen Qu, Zeyu Shang, Youbo Shao, Tianxiao Shen, Zhennan Shen, Juanfeng Shi, Li-Xiu Shi,
+Sheng-Peng Shi, Feifan Song, Pengwei Song, Tianhui Song, Xiaoxi Song, Hongjin Su, Jian-Fei Su, Zhaochen
+Su, Linpeng Sui, Jinsong Sun, Jun-Feng Sun, Tong Sun, Flood Sung, Y . Tai, Chuning Tang, Heyi Tang, Xiao Yu
+Tang, Zhe-Chen Tang, Ji-Hua Tao, Shi-Long Teng, Chao Tian, Pengfei Tian, Ao Wang, Bowen Wang, Chensi
+Wang, Chuang Wang, Congcong Wang, Dingkun Wang, Dinglu Wang, Dongliang Wang, Feng Wang, Hailong
+Wang, Haiming Wang, Heng Wang, Huaqing Wang, Hui Wang, Jiahao Wang, Jinhong Wang, Jiuzheng Wang,
+Kaixin Wang, Linian Wang, Qibin Wang, Shengjie Wang, Shuyi Wang, Si-Cheng Wang, Wei Wang, Xiaochen
+Wang, Xinyuan Wang, Yao Wang, Yejie Wang, Yipu Wang, Yiqin Wang, Yucheng Wang, Yuzhi Wang, Zhaoji
+Wang, Zhaowei Wang, Zhengtao Wang, Zhexu Wang, Zihan Wang, Zizhe Wang, Chu Wei, Ming Wei, Chuan
+Wen, Zichen Wen, Chengjie Wu, Haoning Wu, Junyan Wu, Rucong Wu, Wenhao Wu, Yuefeng Wu, Yuhao Wu,
+Yuxin Wu, Zijian Wu, Chenjun Xiao, Jin Xie, Xiao-Ming Xie, Yuchong Xie, Yifei Xin, Bo-Kai Xing, Boyu Xu,
+Jianfan Xu, Jing Xu, Jinjing Xu, L. H. Xu, Lin Xu, Suting Xu, Weixin Xu, Xinbo Xu, Xinran Xu, Yangchuan
+Xu, Yichang Xu, Yuemeng Xu, Zelai Xu, Zi-Yang Xu, Junjie Yan, Yuzi Yan, Guang-Fu Yang, Hao Yang, Junwei
+Yang, Kai Yang, Ning Yang, Ruihan Yang, Xiaofei Yang, Xinlong Yang, Ying Yang, Yi Yang, Zhen Yang, Zhilin
+Yang, Zonghan Yang, Haotian Yao, Dan Ye, Wen guang Ye, Zhuorui Ye, Bohong Yin, Chengzheng Yu, Long
+Yu, Tao Yu, Tianxiang Yu, Enming Yuan, Mengjie Yuan, Xiao feng Yuan, Yang Yue, Weihao Zeng, Dunyuan
+Zha, Haobing Zhan, Dehao Zhang, Hao Zhang, Jin Zhang, Pu Zhang, Qiao Zhang, Rui Zhang, Xiaobin Zhang,
+Y Zhang, Yadong Zhang, Yangkun Zhang, Yichi Zhang, Yizhi Zhang, Yongting Zhang, Yu Zhang, Yushun Zhang,
+Yutao Zhang, Yutong Zhang, Zheng Zhang, Chenguang Zhao, Feifan Zhao, Jinxiang Zhao, Shuai Zhao, Xiangyu
+Zhao, Yikai Zhao, Zijia Zhao, Huabin Zheng, Ruihan Zheng, Shao-Jiang Zheng, Tengyang Zheng, Jun-Xing
+Zhong, Longguang Zhong, Weiming Zhong, M. Zhou, Runjie Zhou, Xinyu Zhou, Zaida Zhou, Jinguo Zhu, Liya
+Zhu, Xinhao Zhu, Yuxuan Zhu, Zhengxin Zhu, Jingze Zhuang, Weiyu Zhuang, Yingtian Zou, and Xinxing Zu.
+Kimi k2.5: Visual agentic intelligence. 2026.
+[6] GLM-4.5 Team Aohan Zeng, Xin Lv, Zhenyu Hou, Zhengxiao Du, Qinkai Zheng, Bin Chen, Da Yin, Chendi
+Ge, Chengxing Xie, Cunxiang Wang, Gengzheng Pan, Hao Zeng, Haoke Zhang, Haoran Wang, Hui Chen, Jiajie
+Zhang, Jian Jiao, Jiaqi Guo, Jingsen Wang, Jin-Cheng Du, Jinzhu Wu, Kedong Wang, Lei Li, Linxi Jim Fan,
+Lucen Zhong, Mingdao Liu, Mingming Zhao, Pengfan Du, Qian Dong, Rui Lu, Shuang-li, Shulin Cao, Song
+Liu, Ting Jiang, Xiaodong Chen, Xiaohan Zhang, Xuancheng Huang, Xue Dong, Yabo Xu, Yao Wei, Yifan An,
+Yilin Niu, Yitong Zhu, Yuan Wen, Yukuo Cen, Yu Bai, Zhongpei Qiao, Zihan Wang, Zikang Wang, Zilin Zhu,
+Ziqian Liu, Zixuan Li, Bo Wang, Bosi Wen, Can Huang, Changpeng Cai, Chao Yu, Chen Li, Chen Huang, Chen
+Wei-Hua Hu, Chenhui Zhang, Chenzheng Zhu, Congfeng Yin, Daoyan Lin, Da-Wei Yang, Dingkun Wang, Ding
+Ai, Erle Zhu, Fang-Yu Yi, Feiyu Chen, Guohong Wen, Hailong Sun, Hai Zhao, Haiyi Hu, Hanchen Zhang, Han
+Liu, Hanyu Zhang, Hao Peng, Hao Tai, Haobo Zhang, He Liu, Hongwei Wang, Hong Yan, Hongyu Ge, Huan Liu,
+Hua Chu, Jian Zhao, Jiachen Wang, Jiajing Zhao, Jiaming Ren, Jiapeng Wang, Jiaxin Zhang, Jiayi Gui, Jia yin
+Zhao, Jijie Li, Jing An, Jing Li, Jing Yuan, Jinhua Du, Jinxin Liu, Junkai Zhi, Junwen Duan, Kai Zhou, Kang
+Wei, Kedong Wang, Keyu Luo, Laiqiang Zhang, Lei Sha, Liang Xu, Lindong Wu, Li Ding, Lu Chen, Minghao Li,
+Nianyi Lin, Pankova Ta, Qiang Zou, Rong-Huang Song, Ruiqi Yang, Shangqing Tu, Shangtong Yang, Shaoxiang
+Wu, Shengyan Zhang, Shijie Li, Shuang Li, Shuying Fan, Wei Qin, Wei Tian, Weining Zhang, Wenbo Yu, Wenjie
+Liang, Xiangtian Kuang, Xiang Cheng, Xiangyang Li, Xiao Yan, Xiaowei Hu, Xiaoying Ling, Xing Fan, Xi Xia,
+Xinyuan Zhang, Xinze Zhang, Xirui Pan, Xunkai Zhang, Yandong Wu, Yanfu Li, Yangyi Fang, Yidong Wang,
+Yi fan Zhu, Yi-Shuai Tan, Yilin Zhou, Yiming Pan, Ying Zhang, Yinpei Su, Yi xin Geng, Yong Yan, Yonglin Tan,
+Yue Bi, Yuhan Shen, Yuhao Yang, Yujiang Li, Yunan Liu, Yunqing Wang, Yuntao Li, Yurong Wu, Yutao Zhang,
+Yu Duan, Yuxuan Zhang, Ze-Xian Liu, Zhen Jiang, Zhenhe Yan, Zheyu Zhang, Zhixiang Wei, Zhuofu Chen,
+Zhuoer Feng, Zijun Yao, Ziwei Chai, Ziyuan Wang, Zuzhou Zhang, Bin Xu, Minlie Huang, Hongning Wang,
+Juanzi Li, Yu-Chao Dong, and Jie Tang. Glm-5: from vibe coding to agentic engineering.ArXiv, abs/2602.15763,
+2026.
+[7] Pratyush Patel, Esha Choukse, Chaojie Zhang, Íñigo Goiri, Aashaka Shah, Saeed Maleki, and Ricardo Bianchini.
+Splitwise: Efficient generative llm inference using phase splitting.2024 ACM/IEEE 51st Annual International
+Symposium on Computer Architecture (ISCA), pages 118–132, 2023.
+15
+
+=== PDF page 16 ===
+[8] Yinmin Zhong, Shengyu Liu, Junda Chen, Jianbo Hu, Yibo Zhu, Xuanzhe Liu, Xin Jin, and Hao Zhang. Distserve:
+Disaggregating prefill and decoding for goodput-optimized large language model serving. InUSENIX Symposium
+on Operating Systems Design and Implementation, 2024.
+[9] Ruoyu Qin, Zheming Li, Weiran He, Jialei Cui, Heyi Tang, Feng Ren, Teng Ma, Shangming Cai, Yineng Zhang,
+Mingxing Zhang, Yongwei Wu, Weimin Zheng, and Xinran Xu. Mooncake: A kvcache-centric disaggregated
+architecture for llm serving.ACM Transactions on Storage, 2024.
+[10] NVIDIA Corporation. Gpudirect rdma. https://docs.nvidia.com/cuda/gpudirect-rdma/, 2023. Ac-
+cessed: 2024-05-20.
+[11] Lei Wang, Chengbang Ma, Xueyang Feng, Zeyu Zhang, Hao ran Yang, Jingsen Zhang, Zhi-Yang Chen, Jiakai
+Tang, Xu Chen, Yankai Lin, Wayne Xin Zhao, Zhewei Wei, and Ji rong Wen. A survey on large language model
+based autonomous agents.Frontiers of Computer Science, 18, 2023.
+[12] DeepSeek-AI, Anyi Xu, Bang Lin, Bing Xue, Bing-Li Wang, Bin Xu, Bo Wu, Bowei Zhang, Chao Lin, Chengyao
+Dong, Chen Ling, Chengda Lu, Chen Zhao, Chengqi Deng, Cheng Hou, Chen Xu, Chenze Shao, Chong Ruan,
+Conner Sun, Damai Dai, Daya Guo, De-Bin Yang, Deli Chen, Dong-Hui Li, Dong-Li Ji, Erhang Li, Fangchen
+Wei, Fangyun Lin, Fang Yuan, Fei Xia, Fucong Dai, Guangbo Hao, Guanting Chen, Guo Cao, Guo-Hui Meng,
+Guowei Li, Han Yu, Han Zhang, Hanwei Xu, Hao Li, Hao Liang, Haoling Zhang, Haoming Luo, Haoran Wei,
+Hao Yuan, Haowei Zhang, Haowen Luo, Hao Chen, Haozhe Ji, Heng Zhang, Honghui Ding, Hongxuan Tang,
+Huanqi Cao, Huazuo Gao, Hui Qu, Hui Zeng, J. Yang, JQ Zhu, Jianming Luo, Jia Song, Jia Yu, Jialiang Huang,
+Jialu Cai, Jian Liang, Jiangting Zhou, Jiasheng Ye, Jiashi Li, Jiaxin Xu, Jiewen Hu, Jieyu Yang, Jin Chen, Jin Yan,
+JingChang Chen, Jing Zhou, Jing Xiang, Jingyang Yuan, Jing Cheng, Jingzi Zhou, Jinhua Zhu, Jiping Yu, Joseph
+Sun, Junliang Ran, Jun Jiang, Junjie Qiu, Junlong Li, Junming Zheng, Jun-Mei Song, Kai Dong, Kaige Gao, Kang
+Guan, Kexing Zhou, Kezhao Huang, Kuai Yu, Lean Wang, Lecong Zhang, Lei Wang, Leyi Xia, Li Zhang, Liang
+Zhao, Lihua Guo, Lin Luo, Lin Ma, Linyan Zhu, Litong Wang, Liyu Cai, Liyue Zhang, Longhao Chen, Mingxi Di,
+My Xu, Max Mei, Miaojun Wang, Mingchuan Zhang, Minghua Zhang, Minghui Tang, Mingming Li, Mi Zhou,
+Min Han, Ning Wang, Pan Huang, Pan Wang, Peixin Cong, Peiyi Wang, Peng Zhang, Qiancheng Wang, Qihao
+Zhu, Qingyang Li, Qinyu Chen, Qiushi Du, Qi Jiang, Rui Tian, Rui qin Xu, Ruijie Lu, Ruiling Xu, Ruiqi Ge,
+Ruisong Zhang, Ruizhe Pan, Runji Wang, Run Da Chen, Runqiu Yin, Runxin Xu, Ruo-Han Shen, Ruoyu Zhang,
+Ruyi Chen, Sh. Liu, Shanghao Lu, Shangmian Sun, Shangyan Zhou, Shan-Shan Chen, Shaofei Cai, Shao Nie,
+Shao-Ping Wu, Shaoyuan Chen, Shengding Hu, Sheng Liu, Shiqiang Hu, Shirong Ma, Shiyu Wang, Shuiping
+Yu, Shunfeng Zhou, Shuting Pan, Shuying Yu, Songyang Zhou, Tao Ni, Tao Yun, Tian Jin, Tianhong Pei, Tian
+Ye, Tianle Lin, Tian Ji, Tianyi Cui, Tianyuan Yue, Tingting Yu, Tu-Tu Wang, W. Y . Zhang, Wl Xiao, Wangding
+Zeng, Wei An, Weilin Zhao, Wen Liu, Wenfeng Liang, Wenjie Pang, Wenjing Luo, Wenjin Yao, Wenjun Gao,
+Wenkai Yang, Wen-Wen Huang, Wenqing Hou, Wentao Zhang, Wenting Ma, Xi Gao, Xiang He, Xiang Wang,
+Xianzu Wang, Xiao Bi, Xiaodong Liu, Xiaohan Wang, Xiaokang Chen, Xiaokang Zhang, Xiaotao Nie, Xiaowen
+Sun, Xiaoxiang Wang, Xin Cheng, Xin Liu, Xin Xie, Xingchao Liu, Xingchen Liu, Xingkai Yu, Xingyou Li,
+Xinyu Yang, Xinyu Zhang, Xu Chen, Xuanyu Wang, Xuecheng Su, Xueyin Chen, Xuheng Lin, Xu Fu, Yc Yan,
+YQ Wang, Yw Ma, Yanfen Luo, Yang Zhang, Yanhong Xu, Yanru Ma, Yanwen Huang, Yao Li, Yao Xu, Yao
+Zhao, Yaofeng Sun, Yaohui Wang, Yi Qian, Yingxia Shao, Yi Yu, Yichao Zhang, Yifan Ding, Yifan Shi, Yijia
+Wu, Yi-Yu Xiong, Yi Ma, Ying He, Ying Tang, Ying Zhou, Yingjia Luo, Yinmin Zhong, Yishi Piao, Yisong
+Wang, Yixiang Zhang, Yixiao Chen, Yixuan Tan, Yixuan Wei, Yiyang Ma, Yiyuan Liu, Yong Yang, Yongqiang
+Guo, Yongtong Wu, Yu Wu, Yukun Li, Yuan Cheng, Yuan Ou, Yuanfan Xu, Yuanhao Li, Yuduan Wang, Yuehan
+Yang, Yue Xu, Yuhan Wu, Yu Meng, Yu Zou, Yukun Zha, Yunfan Xiong, Yupeng Chen, Yuping Lin, Yu Cao,
+Yuqian Wang, Yushun Zhang, Yuting Yan, Yutong Lin, Yuxian Gu, Yu-Wei Luo, Yu mei You, Yuxuan Liu, Yuxuan
+Zhou, Yuyang Zhou, Yuzhen Huang, Zhanghua Wu, Ze Wang, Ze Zhao, Zehui Ren, Zekai Zhang, Zhangli Sha,
+Zhe Fu, Zhe Ju, Zhean Xu, Zhenda Xie, Zhengyan Zhang, Zhe Gao, Zhewen Hao, Zhibin Gou, Zhicheng Ma,
+Zhigang Yan, Zhihong Shao, Zhixiang Huang, Zhixuan Chen, Zhiyu Wu, Zhizhou Ren, Zhongyu Wu, Zhuoshu Li,
+Zhuping Zhang, Zian Xu, Zihao Wang, Zihua Qu, Zihui Gu, Zijia Zhu, Zi-Long Li, Zipeng Zhang, Ziwei Xie,
+Ziyi Gao, Ziyi Wan, Zizheng Pan, and Zong xiang Yao. Deepseek-v4: Towards highly efficient million-token
+context intelligence. 2026.
+[13] Lianmin Zheng, Liangsheng Yin, Zhiqiang Xie, Chuyue Sun, Jeff Huang, Cody Hao Yu, Shiyi Cao, Christos
+Kozyrakis, Ion Stoica, Joseph E. Gonzalez, Clark W. Barrett, and Ying Sheng. Sglang: Efficient execution of
+structured language model programs.Advances in Neural Information Processing Systems 37, 2023.
+[14] Ruoyu Qin, Weiran He, Yaoyu Wang, Zheming Li, Xinran Xu, Yongwei Wu, Weimin Zheng, and Mingxing
+Zhang. Prefill-as-a-service: Kvcache of next-generation models could go cross-datacenter.arXiv preprint
+arXiv:2604.15039, 2026.
+16

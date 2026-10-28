@@ -1,0 +1,14 @@
+failures:
+  num_failures: 0
+  failure_types:
+    node:
+      probability: 0.5
+      rate: 0.2
+      mean_duration: 5
+    link:
+      probability: 0.5
+      rate: 0.2
+      mean_duration: 5
+  # For future extension:
+  # repair_rate: 0.1
+  # correlated_failures: false 

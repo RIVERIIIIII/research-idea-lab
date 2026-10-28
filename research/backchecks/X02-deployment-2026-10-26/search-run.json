@@ -1,0 +1,44 @@
+{
+  "queries": [
+    "geo distributed LLM inference network failure state migration",
+    "optical anycast restoration service relocation datacenter failure",
+    "NFV recovery strategies critical services massive failures optical networks",
+    "cross datacenter prefill decode disaggregation"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 0
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 0,
+  "batch_after_dedup": 0,
+  "batch_dedup": {
+    "input": 0,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 0
+  },
+  "existing_merge": {
+    "input": 0,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 0
+  },
+  "candidates": 0,
+  "selected": 0,
+  "errors": [
+    "openalex query failed for 'geo distributed LLM inference network failure state migration': URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+    "openalex query failed for 'optical anycast restoration service relocation datacenter failure': URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+    "openalex query failed for 'NFV recovery strategies critical services massive failures optical networks': URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>",
+    "openalex query failed for 'cross datacenter prefill decode disaggregation': URLError: <urlopen error [Errno 8] nodename nor servname provided, or not known>"
+  ],
+  "candidates_path": "research/backchecks/X02-deployment-2026-10-26/candidates.jsonl",
+  "selected_path": "research/backchecks/X02-deployment-2026-10-26/selected.jsonl"
+}

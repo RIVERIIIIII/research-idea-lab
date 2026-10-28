@@ -1,0 +1,164 @@
+{
+  "date": "2026-10-19",
+  "changes": [
+    {
+      "old_path": "research/current-status.md",
+      "new_path": "archive/2026-10-19-document-organization/current-status-before.md",
+      "original_sha256": "de6444c3918f0f44fdabd8426ef7a2090149112cdccf0be77d92ded9bba94227",
+      "operation": "snapshot"
+    },
+    {
+      "old_path": "research/thesis-requirements-review.md",
+      "new_path": "archive/2026-10-19-document-organization/thesis-requirements-review.md",
+      "original_sha256": "efa37a36b23e42f290ff38e400c273acf853fc9b4a89c1e86da7b0a3d380dc83"
+    },
+    {
+      "old_path": "research/first-point-mechanism-comparison.md",
+      "new_path": "archive/2026-10-19-document-organization/first-point-mechanism-comparison.md",
+      "original_sha256": "f232d35efb53d16e8100f5e33e6c78c65e272a4f4ce85e36daa6677adde2a4c7"
+    },
+    {
+      "old_path": "research/mechanism-argument-2026-10-19.md",
+      "new_path": "archive/2026-10-19-document-organization/mechanism-argument-2026-10-19.md",
+      "original_sha256": "8ed4eba4ffd052b739ba4cc7e8fbecbe85529130f9a9ee74565f56b1651586a7"
+    },
+    {
+      "old_path": "research/first-point-code-audit.md",
+      "new_path": "research/code-review/first-point-code-audit.md",
+      "original_sha256": "672d1481c4993676459f36343a9ea929a7729f940aca70cca52f6156f09f638b",
+      "current_sha256": "9ff1514e5e81fbe9c0d0e4d668e0dd4d0878f764b42e2736929fd71723af8fbc"
+    },
+    {
+      "old_path": "research/first-point-failure-code-audit.md",
+      "new_path": "research/code-review/first-point-failure-code-audit.md",
+      "original_sha256": "13fe3e5e2337a1027175da3396e0808ec2c902080659dbdd37e9bd9ff475491d"
+    },
+    {
+      "old_path": "research/stage1-supplement-exact-run.json",
+      "new_path": "research/search-records/stage1-supplement-exact-run.json",
+      "original_sha256": "93bee2b27179e7df72b9cdf94d3bb89007a234ba7624fddd685e19f94653d544"
+    },
+    {
+      "old_path": "research/stage2-search-run.json",
+      "new_path": "research/search-records/stage2-search-run.json",
+      "original_sha256": "67e4787900ff109e2ae215b5247d637ef0f15b2456b0a6e1b38d77967e62a60b"
+    },
+    {
+      "old_path": "research/stage3-mapping-candidates.jsonl",
+      "new_path": "research/search-records/stage3-mapping-candidates.jsonl",
+      "original_sha256": "f85cea0aeb97c7c0f03eae965be38e1dab56884c4aac2b638e222261025477e6"
+    },
+    {
+      "old_path": "research/stage1-supplement-seeds-selected.jsonl",
+      "new_path": "research/search-records/stage1-supplement-seeds-selected.jsonl",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old_path": "research/stage2-search-candidates.jsonl",
+      "new_path": "research/search-records/stage2-search-candidates.jsonl",
+      "original_sha256": "c452c84200a85023eb7b67fb70d575755c5a740b361e526a8f769d6de9e91503"
+    },
+    {
+      "old_path": "research/stage1-supplement-search-run.json",
+      "new_path": "research/search-records/stage1-supplement-search-run.json",
+      "original_sha256": "50f45fc843412637641fba9190a14aa88b7d7aec503d7007c9dfb8002f8df2fc"
+    },
+    {
+      "old_path": "research/stage2-search-selected.jsonl",
+      "new_path": "research/search-records/stage2-search-selected.jsonl",
+      "original_sha256": "1ae969be581dc2def162d11024a7e5e578c7a4bda384b154c8f109802f376754"
+    },
+    {
+      "old_path": "research/stage3-scenario-candidates.jsonl",
+      "new_path": "research/search-records/stage3-scenario-candidates.jsonl",
+      "original_sha256": "df50af539d5118b6fabb4a751d06dc87f6d6987e2f97b2769c39f84e13e0117e"
+    },
+    {
+      "old_path": "research/stage3-mapping-run.json",
+      "new_path": "research/search-records/stage3-mapping-run.json",
+      "original_sha256": "92b79123b6d89c9f8d803618ba4394143a05ecd77bcbf250a48c7ebf6dd737da"
+    },
+    {
+      "old_path": "research/stage1-supplement-exact-candidates.jsonl",
+      "new_path": "research/search-records/stage1-supplement-exact-candidates.jsonl",
+      "original_sha256": "723869c03c7e6a7b74d4c084b859e713cb522fdbfab0b46636f706e5e1e5fb57"
+    },
+    {
+      "old_path": "research/stage2-recovery-search-run.json",
+      "new_path": "research/search-records/stage2-recovery-search-run.json",
+      "original_sha256": "96606d226b258f3d1c72ff9f1fedc06ec68eb634faceb6e8d9518ebad67d47d0"
+    },
+    {
+      "old_path": "research/stage3-scenario-selected.jsonl",
+      "new_path": "research/search-records/stage3-scenario-selected.jsonl",
+      "original_sha256": "ea22077ca982d86f9f6e0ad6ea24a3c492550269e97c3670d8dc58ec78d9c6b3"
+    },
+    {
+      "old_path": "research/stage3-scenario-run.json",
+      "new_path": "research/search-records/stage3-scenario-run.json",
+      "original_sha256": "78515b578007fbf74228163943c8c9097edf970ed94469da8d6d558817943d90"
+    },
+    {
+      "old_path": "research/stage1-srlg-search-run.json",
+      "new_path": "research/search-records/stage1-srlg-search-run.json",
+      "original_sha256": "1857dfebcc18d8daa7362a5df8b8808e22ab11cfbfcfb31da29fac95e9e679ac"
+    },
+    {
+      "old_path": "research/stage3-edgeflow-candidates.jsonl",
+      "new_path": "research/search-records/stage3-edgeflow-candidates.jsonl",
+      "original_sha256": "4d352160e0c8d0208686b53605670ded12288bd836ed03a1d751aabd83e7e977"
+    },
+    {
+      "old_path": "research/stage1-supplement-seeds-candidates.jsonl",
+      "new_path": "research/search-records/stage1-supplement-seeds-candidates.jsonl",
+      "original_sha256": "85d485dc227281cc6cb4f1c272015518773cc86d5b95f8b24b5b1ee74df13c56"
+    },
+    {
+      "old_path": "research/stage2-recovery-search-selected.jsonl",
+      "new_path": "research/search-records/stage2-recovery-search-selected.jsonl",
+      "original_sha256": "d765f042e377433418ccaaa001ef2f9c75bee71a97ba10f9d62d50c4ec35a8a7"
+    },
+    {
+      "old_path": "research/stage1-search-run.json",
+      "new_path": "research/search-records/stage1-search-run.json",
+      "original_sha256": "f990cc4d92cc208423226ad962924dd9c195db310f9e1726137fe86a5dc3cf2d"
+    },
+    {
+      "old_path": "research/stage1-seed-search-run.json",
+      "new_path": "research/search-records/stage1-seed-search-run.json",
+      "original_sha256": "de6b94173e5d7d78a61aa049ebe267cda67a052448da4dc0a42bcfa9779f153c"
+    },
+    {
+      "old_path": "research/stage2-recovery-search-candidates.jsonl",
+      "new_path": "research/search-records/stage2-recovery-search-candidates.jsonl",
+      "original_sha256": "0b8b04da0825941ce9a0b53278ac7ad28e00738fe1850aedf2216a0453af9bde"
+    },
+    {
+      "old_path": "research/stage1-supplement-exact-selected.jsonl",
+      "new_path": "research/search-records/stage1-supplement-exact-selected.jsonl",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old_path": "research/stage3-edgeflow-selected.jsonl",
+      "new_path": "research/search-records/stage3-edgeflow-selected.jsonl",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "old_path": "research/stage3-mapping-selected.jsonl",
+      "new_path": "research/search-records/stage3-mapping-selected.jsonl",
+      "original_sha256": "af72a3bae59e062918f3185dd164af8ee7b2b4134916b3a4aaf6b337e21fa9bc"
+    },
+    {
+      "old_path": "research/stage3-edgeflow-run.json",
+      "new_path": "research/search-records/stage3-edgeflow-run.json",
+      "original_sha256": "d916b2c1165da0f6509a5310a38fb46ac8219a7608ea3215ea35e81ae8d5225d"
+    },
+    {
+      "old_path": "research/stage1-supplement-seeds-run.json",
+      "new_path": "research/search-records/stage1-supplement-seeds-run.json",
+      "original_sha256": "29d3b8650252d2ff6d71bcc92ab7d7bc2e055c28e48a22cdaef7eb6a7060595e"
+    }
+  ],
+  "protected_files_checked": 64,
+  "policy": "No evidence, corpus, stable IDs, original code, backchecks or check outputs modified; discussions archived, not research decisions."
+}

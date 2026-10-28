@@ -1,0 +1,39 @@
+{
+  "queries": [
+    "Efficient Routing and Bandwidth Assignment for Inter Data Center Live Virtual Machine Migrations",
+    "optical network virtual machine migration compression spectrum allocation",
+    "optical network service restoration state reconstruction relocation",
+    "KV cache migration optical routing wavelength state reconstruction"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 11
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 11,
+  "batch_after_dedup": 11,
+  "batch_dedup": {
+    "input": 11,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 11
+  },
+  "existing_merge": {
+    "input": 11,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 11
+  },
+  "candidates": 11,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/backchecks/X02-deployment-2026-10-26/mechanism-candidates.jsonl",
+  "selected_path": "research/backchecks/X02-deployment-2026-10-26/mechanism-selected.jsonl"
+}

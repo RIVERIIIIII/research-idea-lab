@@ -1,0 +1,129 @@
+paper_experiment:
+  global:
+    model_name: Qwen2.5
+    topology_file: data/nsfnet_topology.yaml
+    datacenters_file: data/datacenters_OTN.yaml
+    service_file: data/service.yaml
+    training_topologies_file: data/training_topologies.yaml
+    wavelength_state_file: data/wavelength_state_profiles.yaml
+    wavelength_state_profile: fragmented_wan_demo
+    output_dir: result/paper
+    bw_wave_gbps: 100.0
+    rho_gpu: 0.35
+    rho_gpu_overrides:
+      3: 0.26
+      5: 0.26
+      8: 0.22
+      9: 0.22
+      4: 0.14
+      6: 0.14
+      10: 0.14
+      11: 0.14
+    rho_gpu_compensation: 0.26
+    rho_gpu_compensation_overrides:
+      3: 0.26
+      5: 0.26
+      8: 0.26
+      9: 0.26
+      4: 0.40
+      6: 0.40
+      10: 0.40
+      11: 0.40
+    rho_wave: 0.35
+    alpha_mode: dp_minus_one
+    alpha_scale: 2.0
+    dp_reserve_ratio: 0.2
+    dp_softness_beta: 0.7
+    min_reserved_dp_groups: 1
+    recovery_distance_weights:
+      dp: 1.0
+      wave: 0.5
+    optical_critical_beta: 0.8
+    optical_degradation_gamma: 0.005
+    fixed_tp: 4
+    fixed_pp: null
+    ssp_bound: 0
+    ssp_simulation_steps: 100
+    derive_dp_base: true
+    derive_n_wave_base: true
+    include_before_failure: true
+    compare_states:
+      - no_opt
+      - pure_optical
+      - pure_compute
+      - joint
+
+  baselines:
+    dp_base_source: derive_from_prefailure_budget
+    n_wave_base_source: derive_from_prefailure_budget
+    n_wave_base_cap: 1
+
+  figure1:
+    enabled: true
+    training_topologies:
+      - topo1
+      - topo2
+      - topo3
+    x_metric: num_training_dcs
+    y_metric: T_iter
+
+  figure2:
+    enabled: true
+    training_topology: topo2
+    x_metric: propagation_latency_growth_ratio
+    y_metric: recovery_gap_to_before
+    aux_metric: optimized_tensor_parallel
+    severity_levels:
+      - name: s1
+        reroute_length_scale: 1.0
+        reroute_bandwidth_scale: 1.0
+      - name: s2
+        reroute_length_scale: 1.3
+        reroute_bandwidth_scale: 0.9
+      - name: s3
+        reroute_length_scale: 1.6
+        reroute_bandwidth_scale: 0.8
+      - name: s4
+        reroute_length_scale: 2.0
+        reroute_bandwidth_scale: 0.7
+      - name: s5
+        reroute_length_scale: 2.5
+        reroute_bandwidth_scale: 0.6
+
+  figure3:
+    enabled: true
+    training_topology: topo2
+    x_metric: tensor_parallel_degree
+    y_metric: r_inter
+    tp_scan_values: [4, 8]
+
+  strategies:
+    before_failure:
+      enabled: true
+      use_failure_reroute: false
+      optimize_dp: false
+      optimize_n_wave: false
+
+    no_opt:
+      enabled: true
+      use_failure_reroute: true
+      optimize_dp: false
+      optimize_n_wave: false
+
+    pure_optical:
+      enabled: true
+      use_failure_reroute: true
+      optimize_dp: false
+      optimize_n_wave: true
+
+    pure_compute:
+      enabled: true
+      use_failure_reroute: true
+      optimize_dp: true
+      optimize_n_wave: false
+
+    joint:
+      enabled: true
+      use_failure_reroute: true
+      optimize_dp: true
+      optimize_n_wave: true

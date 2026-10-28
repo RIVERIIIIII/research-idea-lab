@@ -1,0 +1,41 @@
+{
+  "queries": [
+    "optical network shared path protection restoration",
+    "optical shared risk link group survivability",
+    "bandwidth squeezed restoration elastic optical"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 12,
+    "semantic_scholar": 4,
+    "openalex": 12
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 28,
+  "batch_after_dedup": 26,
+  "batch_dedup": {
+    "input": 28,
+    "merged": 2,
+    "conflicts": 0,
+    "added": 26
+  },
+  "existing_merge": {
+    "input": 26,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 26
+  },
+  "candidates": 26,
+  "selected": 0,
+  "errors": [
+    "s2 query failed for 'optical network shared path protection restoration': HTTPError: HTTP Error 429: ",
+    "s2 query failed for 'bandwidth squeezed restoration elastic optical': HTTPError: HTTP Error 429: "
+  ],
+  "candidates_path": "papers/candidates.jsonl",
+  "selected_path": "papers/selected.jsonl"
+}

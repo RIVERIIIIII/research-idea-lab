@@ -1,0 +1,628 @@
+=== PDF page 1 ===
+Deferred Protection of Deadline-Driven Requests in
+Inter-Datacenter Elastic Optical Networks
+Andre K. Horota∗, Rodrigo A. Costa∗, Sabidur Rahman§, Omran Ayoub¶, Gustavo B. Figueiredo∗,
+Massimo Tornatore¶§, and Biswanath Mukherjee§
+∗ Federal University of Bahia, Brazil. Email: {andre.kazuo, rodrigoac, gustavo}@dcc.ufba.br
+¶Politecnico di Milano, Italy. Email: {massimo.tornatore, omran.ayoub}@polimi.it
+§University of California, Davis, USA. Email: {krahman, bmukherjee}@ucdavis.edu
+Abstract—Inter-Datacenter Elastic Optical Networks (IDC-
+EONs) can serve increasing trafﬁc demands among distributed
+datacenters (DC). Inter-DC trafﬁc demands are typically charac-
+terized by ﬂexibility in terms of start time, end time, and assigned
+transmission rates. In addition, such trafﬁc demand can have a
+backup data transfer path that can be ﬂexibly scheduled (as
+long as it is completed before a certain deadline). Such demands
+are called Deadline-Driven Requests (DDRs). For high DDR
+transmission rates, even a few milliseconds of trafﬁc interruption
+(e.g., due to some equipment failure) can result in huge amount
+of data loss. Existing protection mechanisms against failures,
+such as Dedicated Path Protection (DPP), originally designed
+for transport networks, have limitations in case of IDC-EONs
+due to high spectrum utilization. This work proposes a novel
+DPP approach applicable to DDRs in IDC-EONs, called Deferred
+Protection (DP), which schedules the backup path at a later time
+than the working path, and its reservation can be gradually
+removed while the working data is successfully delivered. Illus-
+trative numerical results demonstrate that DP decreases blocking
+probability and provides more efﬁcient use of spectral resources
+compared to traditional DPP for realistic case studies.
+Index Terms —Inter-datacenter elastic optical networks;
+deadline-driven requests; dedicated path protection; deferred
+protection.
+I. I NTRODUCTION
+Inter-Datacenter Elastic Optical Networks (IDC-EONs) are
+a promising candidate for next-generation inter-DC networks
+thanks to their ability to ﬂexibly support diverse rates of
+modern cloud services. Most cloud services require to transmit
+large amount of data (e.g., tens to hundreds of GBs) before a
+pre-established deadline [1]. In these types of services, e.g.,
+data backups/synchronization, the maximum allowable time to
+complete a data transfer is deﬁned by the service requirements.
+Hence, there is ﬂexibility in its transmission rate, starting
+time, and end time, as long as deadline is met. These kind
+of requests are called as Deadline-Driven Requests (DDRs).
+Survivability is an important research problem in IDC-
+EONs, as, given the high data rates in IDC-EONs [2], interrup-
+tions of a few milliseconds can lead to signiﬁcant data loss [3].
+Dedicated Path Protection (DPP) is a well-known protection
+technique traditionally deployed in optical networks to prevent
+such losses. DPP assigns a dedicated backup route to each
+established primary route, such that, in case of a failure in
+the primary path, the dedicated protection path can take over
+the data transfer.
+The traditional DPP schemes (e.g., 1+1 and 1:1, in this
+study we will focus on the later) have inefﬁciencies in IDC-
+EONs, particularly in case of deadline-driven services, e.g., in
+terms of excessive spectrum utilization [4]. As transmission
+rates across DCs increase, need for more efﬁcient protection
+schemes becomes more compelling. A deadline-aware protec-
+tion scheme, which can leverage DDRs’ ﬂexibility, is needed
+to overcome the inefﬁciencies of traditional DPP schemes.
+In this study, we present a novel protection mechanism for
+DDRs in IDC-EONs. Our proposal is based on the concept of
+deferred protection , i.e., we consider reserving capacity for
+the dedicated backup path of DDRs in later time intervals
+with respect to the working paths, as long as deadline is not
+violated. Besides, instead of deallocating backup resources
+only after the transfer of primary resources is completed, we
+implement a new deallocation policy, which allows dynamic
+removal of backup capacity (namely, frequency slots in the
+IDC-EONs) just after some subsets of working data has been
+transferred. These two features are jointly considered in our
+proposed heuristic Routing, Modulation Level, and Spectrum
+Assignment (RMLSA) algorithm (named DP+DD), that al-
+lows to periodically schedule and assign proper bandwidth for
+primary and backup routes of DDRs within a pre-determined
+deadline. To the best of our knowledge, this is the ﬁrst study
+to address the problem of deferred protection of DDRs in
+IDC-EONs.
+The rest of the study is organized as follows: Section II
+discusses related works. In Section III, we introduce the pro-
+posed protection mechanism and related heuristic algorithm.
+Numerical examples are presented in Section IV. Section V
+concludes the paper with possible future directions.
+II. R ELATED WORK
+The problem of providing DPP to DDRs in IDC-EONs has
+not been addressed in the literature yet but several studies
+have approached survivability and DDRs in EONs separately,
+or applied them in other research areas.
+Ref. [5] addressed an ofﬂine version of the Routing and
+Spectrum Assignment (RSA) problem with DPP in Elastic
+Optical Networks (EONs), where an optimal solution based
+on integer linear program (ILP) and meta-heuristic algorithms
+for large-scale optimization instances were developed. Also,
+in [6], the RSA problem with DPP was formulated as an ILP
+978-3-903176-21-8 © 2020 IFIP
+
+=== PDF page 2 ===
+and a heuristic solution was proposed, but for mixed unicast
+and anycast demands. In [6], the problem is solved while
+accounting for physical-layer impairments.
+Ref. [7] presented a solution to the RMLSA problem,
+that takes into account survivability and trafﬁc behavior in
+time domain in EONs. Different survivability policies were
+presented by considering immediate reservation (IR) and
+advanced reservation (AR) requests. By taking into account
+survivability, for protection of IR and AR requests but not
+DDRs, the work in [7] is the closest to our proposal. IR and
+AR differ from DDRs as requests whose start time of data
+transmission is speciﬁed (AR) or assumed to be immediate
+(IR) yet not necessarily must be delivered before a pre-
+established deadline (DDRs). Ref. [4] evaluated energy and
+cost-efﬁciency of EONs and compares them with conventional
+wavelength-division-multiplexing (WDM) networks. Due to
+importance of resilience in optical networks, they also eval-
+uated different protection schemes. Again, DDRs were not
+addressed in this study.
+DDRs have been subject of study in several areas of net-
+working, such as silicon-photonics interconnection networks
+[8], cloud computing [9], ﬂow scheduling systems [10], inter-
+datacenter transfers [11], multicasting in overlay networks
+[12], and bulk-data transfers [13].We will concentrate below
+on the most relevant contributions with respect to our problem
+in EONs.
+Ref. [12] considered a multilayer optimization problem that
+combined two approaches: (1) optimization of overlay multi-
+cast DDRs and (2) provisioning of created overlay multicast
+DDR trees as a sets of unicast demands in the underlying
+EONs. Although this study addressed the use of DDRs in
+EONs, survivability was not considered.
+Authors in [13] proposed joint frequency and time-domain
+optimization algorithms of static RSA for DDRs in EONs.
+They formulated the problem as an ILP and then proposed
+six scheduling schemes, which combine three request ordering
+strategies with two RSA algorithms. However, Ref. [13] stud-
+ied an ofﬂine version of the RSA problem, and survivability
+was not considered. As previously stated, none of these works
+address the problem of DPP for DDRs in IDC-EONs.
+III. A N ALGORITHM FOR DPP OF DDR S BASED ON
+DEFERRED PROTECTION
+Here, we present a novel approach to provide DPP to
+DDRs based on deferred protection, and we described a
+heuristic RMLSA algorithm (DP+DD) to allocate resources
+to connections using our proposed scheme. The approach
+consists of two steps: (i) a new scheme to reserve protection
+capacity, called Deferred Dedicated Path Protection (DDPP)
+and (ii) a novel backup deallocation policy, called Dynamic
+Deallocation of Backup Slots (DDBS).
+A. Deferred Dedicated Path Protection (DDPP)
+The DDR request model offers high ﬂexibility in the search
+for feasible primary and backup paths. That is because, as
+long as the requested amount of data is transmitted before the
+deadline, different transmission rates and holding times can be
+used to transmit the data on the primary path and to protect
+it on the backup path. Deferred Dedicated Path Protection
+(DDPP) is a novel protection scheme that beneﬁts from such
+a ﬂexibility by decoupling both the bandwidth provision and
+reservation time of the primary path from the backup path.
+Hence, when the reservation mechanism is called, it chooses
+the primary path as the one with the maximum number of
+available slots, taking as a reference the current time. The idea
+behind using the maximum transmission time is to shorten its
+holding time, which in turn may allow accommodating new
+requests while giving more degree of freedom to the search
+for backup resources. After that, it searches for the backup
+path taking into consideration for the bandwidth assignment,
+the remaining time and the amount of data to be transmitted.
+The main idea behind reserving resources in a late period
+is to have more available spectrum at current time (so that
+blocking probability is minimized) while still keeping the data
+transmissions protected.
+It is worth noticing, since deferred protection is designed
+to operate with DDRs and might not occur in parallel with
+the primary/working data, in case of a failure, protection
+switching time becomes irrelevant as long as the requested
+deadline is met. In fact, reservation of backup resources will
+be scheduled at a future instant of time after transmission
+through primary path is over, and will only be activated in
+case of a failure in the primary path.
+Fig. 1 illustrates the differences between the proposed
+protection scheme and existing dedicated path protection
+scheme DPP 1:1. In Fig. 1(a), the operation of a DPP 1:1
+scheme is shown. Although the data is transmitted only on
+the primary path, while the backup path is reserved for
+use in case of failure, primary and backup resources are
+assigned simultaneously (same start and end times). In this
+conﬁguration, during normal network operation, backup path
+can also be used for transmission of low-priority trafﬁc. In
+the event of a failure on primary path, transmission of low-
+priority trafﬁc in backup path is interrupted, and the backup
+Fig. 1. Differences between (a) DPP 1:1 and (b) DDPP protection schemes.
+Consider in this example that deadline for ﬁnishing the transmission is 10 s.
+Thus, start and end time of primary/backup paths in DPP 1:1 are the same
+(from t 0 to t 10). In DDPP, however, start and end time of primary/backup
+paths are different (the ﬁrst is provisioned from t 0 to t 5 and the latter from
+t6 to t 10).
+
+=== PDF page 3 ===
+path is used to restore the primary transmission affected by
+the failure. Fig. 1(b) shows the operation of the proposed
+DDPP scheme. Main difference between DDPP and the other
+protection scheme is that DDPP is a deadline-aware protection
+scheme, i.e., it takes advantage of the ﬂexibility offered by
+DDRs to perform data protection. This way, DDPP starts
+transmitting data only through the primary path and schedules
+the transmission through the backup path at a later time
+(different start and end times), without violating the deadline.
+B. Dynamic Deallocation of Backup Slots
+Dynamic Deallocation of Backup Slots (DDBS) is a policy
+that gradually and dynamically removes backup frequency slot
+reservations while the working data is successfully delivered.
+A frequency slot is a portion of optical spectrum (usually
+with spectral width of 12.5 GHz) that is used to represent the
+amount of data being transmitted. The idea behind this policy
+is that, as each request needs to be transferred in a certain
+time, each allocated primary slot of this request will take a
+certain period of time to be transferred. We call “transmission
+time per slot” (TT slot) the amount of time to transmit each
+slot of a given connection. Note that, as different connections
+may have different transmission times, TT slot may also may
+be different from one connection to another. TT slot can be
+calculated as follows:
+TTslot = TTreq
+NSlotsreq
+, (1)
+where TTreq is transmission time of the request and NSlotsreq
+is total number of slots of the request, i.e., sum of frequency
+slots allocated in each link of the chosen primary path. So,
+after the duration time of a slot is passed, we can assume
+that the amount of data in this transmitted slot no longer
+needs to be protected, allowing the backup slots protecting
+it to be removed. This process is illustrated in Fig. 2. During
+transmission time, as primary slots are being successfully
+transferred, they no longer need to be protected, allowing the
+corresponding amount of backup slots to be removed from
+the backup path, thus increasing the availability of spectral
+resources.
+The number of frequency slots to be removed ( NSrm) from
+the backup path can be calculated as follows:
+NSrm = TTslotP
+TTslotB
+, (2)
+where TTslotP and TTslotB are the “transmission time per
+slot” of the primary and backup paths, respectively. For
+example, let us consider the transmission time of the request
+(TTrequest) in Fig. 2 to be 5 seconds. In this example, primary
+and backup paths have different lengths (hence different
+modulation formats). So, by calculating TT slot of the primary
+path using Eqn. (1), we ﬁnd that TT slot of primary path is
+1 s. Then, we calculate TT slot of the backup path using the
+same equation, ﬁnding that TT slot of backup path is 0.5 s.
+So, using Eqn. (2), we ﬁnd that each transmitted primary slot
+is equivalent to, in this example, two backup slots. Therefore,
+Fig. 2. Operation of DDBS policy.
+as depicted in Fig. 2, for each transmitted slot in the primary
+path, two slots with the closest time are removed from the
+backup path by DDBS policy. Note that we start removing
+from the closest time and not from the furthest because we
+want closer available spectrum to serve incoming requests that
+may require using these links. However, since removal of the
+furthest slots can be beneﬁcial at light loads, a comparative
+analysis between both cases will be addressed in future work.
+C. Heuristic RMLSA Algorithm for DDRs
+Our RMLSA algorithm is called Deferred Dedicated Path
+Protection with Dynamic Deallocation of Backup Slots
+(DP+DD). As arriving requests are deadline-driven, they are
+deﬁned as tuplesri = (s, d, b, t i, DM ), where s is source node,
+d destination node, b is amount of data to be transferred, t i
+is request arrival time, and DM is maximum allowed time to
+ﬁnish the data transfer. We assume that a lightpath can only
+be established if it can be protected by a dedicated backup
+path.
+To guarantee protected transmission of the requested data
+within the deadline, DP+DD calculates minimum transmission
+rate (and hence, transmission time) of the incoming request
+based on TRmin = b/t, where b is amount of data to be
+transferred and t is transmission time to be considered.
+DP+DD is formally described in Algorithm 1. Whenever
+a new request ri arrives (line 1), DP+DD must calculate
+the transmission time and associated transmission rate for
+ri (line 2). Hence, initially, DP+DD calculates the minimum
+transmission rate required to ensure that transmission time
+(or “holding time”) is 1/n of the required deadline. After that,
+search for primary path starts by seeking for all shortest paths
+with source node s and destination node d and storing it in
+Sps,d (line 3). Then, for a given path in Sps,d (line 4), we
+compute its length and appropriate modulation format (line
+5). Line 6 veriﬁes if this path has enough available slots to
+accommodate ri. If so, path is deﬁned as primary path of ri
+(line 7). If not, remaining paths in Sps,d are tested (Line 6).
+If no path with available spectrum is found (line 8), then ri
+is blocked (Line 20). If there is a primary path deﬁned for
+ri, DP+DD starts searching for another path in Sps,d (line 9)
+that must be disjoint of the primary path (line 10). If such
+path is found, its availability is then veriﬁed to protect the
+primary path of ri (line 12). If this path is able to do so, it
+is deﬁned as backup path of ri (line 13). If no other path is
+found (line 14), ri is blocked (Line 20). If two disjoint paths
+
+=== PDF page 4 ===
+Algorithm 1: DP+DD Algorithm
+1 Arrival of request ri;
+2 Calculates transmission rate and transmission time for
+ri;
+3 Search for all shortest paths with s-d pair of ri and
+stores in Sps,d;
+4 for path in Sps,d do
+5 Compute path length and modulation format;
+6 if path is able to accommodate ri then
+7 path is deﬁned as primary path ;
+8 if∃ primary path then
+9 for path in Sps,d do
+10 if path̸= primary path then
+11 Compute path length and modulation
+format;
+12 if path is able to accommodate ri then
+13 path is deﬁned as backup path ;
+14 if∃ backup path then
+15 ri is accepted;
+16 Allocate ri in primary path and reserve in
+backup path ;
+17 While wait for ri holding time, deallocate
+from backup path using DDBS policy;
+18 After ri transmission time, deallocate and
+close ri from primary path;
+19 else
+20 Blocks ri
+with available spectrum are found, then ri is accepted (line
+15). Line 16 executes the spectrum allocation ( primary path )
+and reservation ( backup path ) ensuring spectrum continuity
+and contiguity constraints. Then, while the holding time of
+ri is not over, DDBS policy dynamically removes backup
+slots that are no longer protecting primary slots (line 17).
+After ri transmission time, primary slots are deallocated and
+both connections are closed (line 18). Runtime complexity of
+DP+DD algorithm is on the order of O((W + P )× E× T ),
+where W and P represents the search for primary and backup
+paths, respectively, E represents the spectrum assignment and
+T the assignment in the time domain.
+IV. N UMERICAL EXAMPLES
+We developed a discrete-event simulator in Python to eval-
+uate the performance of DP+DD. In an IDC-EON scenario,
+we compared DP+DD with DPP 1:1 protection scheme 1
+applied to a RMLSA algorithm, in line to the one proposed
+in [4]. The comparison between DP+DD and DPP 1:1 was
+divided in two parts: ﬁrst, we evaluated overall performance
+of DP+DD compared to DPP 1:1 protection scheme. For this,
+1As DPP 1+1 is used to minimize protection switching time, and in
+DDRs real target is deadline, this protection scheme was not considered in
+simulations.
+transmission-rate assignment in DPP 1:1 was performed in
+traditional way, i.e., using minimum transmission rate required
+to meet the requested deadline. For DP+DD, however, we
+used proportion 1/n of the required deadline (with n = 4, 3
+or 2, depending on spectrum availability). DP+DD starts with
+1/4 of the deadline in an attempt to ﬁnish the data transfer
+as quickly as possible, since we have discovered through
+simulations that, in our settings, with higher bandwidth as-
+signments (hence transmission times shorter than 1/4 of the
+deadline), there are no performance gains in terms of blocking
+probability (more sensitivity analisys of this parameter is left
+as future work). For this ﬁrst scenario, we use the acronyms
+’DP+DD’ and ’DPP 1:1’. In the second part, we decided
+to evaluate in isolation the performance of deadline-aware
+scheduling of backup path in our proposed scheme, ﬁxing
+the transmission-rate assignment. For this, we performed
+transmission assignment in both DP+DD and DPP 1:1 using
+the same transmission rate and same deadline proportion ( 1/2
+of required deadline). For this scenario, we use the acronyms
+’Fixed DPP 1:1’ and ’Fixed DP+DD’.
+Independent simulation runs with 10,000 requests randomly
+generated among all node pairs were repeated, and blocking
+results were averaged to generate plotted results with conﬁ-
+dence intervals of +-5% for a conﬁdence level of 95%. Since
+we are studying an IDC-EON scenario, we considered each
+network node as a different DC to quantify overall blocking
+probability (BP), spectrum utilization (SU), and fragmentation
+ratio (FR) in the network. Amount of data to be transferred
+among DCs was uniformly extracted between 12.5 GB and
+62.5 GB, and request arrivals follow a Poisson process.
+Deadline to terminate the transmission ranged from 5, 10, 25,
+and 50 seconds. Network topology used in the simulations
+was NSFNET, with 14 nodes and 21 edges (Fig. 3).
+Each link had 300 slots, with spectral width of 12.5 GHz.
+Modulation formats used, their respective transparent reaches
+(km) and capacity per slot (GHz) are: BPSK (4000 and 12.5),
+QPSK (2000 and 25), 8-QAM (1000 and 37.5), and 16-QAM
+(500 and 50) [14]. For spectrum allocation and reservation,
+First-Fit policy was used. Other metrics considered to evaluate
+the proposed approach were: average number of primary slots
+(NPS) and average number of backup slots (NBS) allocated
+per accepted request, and the average duration time (ADT) of
+accepted requests.
+Fig. 3. NSFNET network topology (distances in km).
+
+=== PDF page 5 ===
+A. DP+DD versus DPP 1:1
+Fig. 4 shows the results for BP (top), SU (center), and FR
+(bottom) as a function of network load. Results for BP show
+that DP+DD had best performance, as blocking becomes non-
+negligible, i.e., in our settings, larger than 10−5, for loads
+higher than 35Erl (25Erl for DPP 1:1). As the network load
+increases, the gap remains high (almost 37% less blocking
+for DP+DD) which demonstrates the utility of using deferred
+protection and ﬂexible transmission rates. Observing SU,
+DP+DD and DPP 1:1 present very similar results. We see
+that DP+DD performs better up to the start of higher loads (65
+Erl), where it is surpassed by DPP 1:1. Even though DP+DD
+performed worse for higher loads, this small difference in
+terms of SU apart from the great performance for BP further
+shows the potential of offering deferred protection. Regarding
+FR, DP+DD also achieved best results, reaching about 15%
+less fragmentation even under high load. In summary, DP+DD
+presents signiﬁcant improvements in terms of blocking prob-
+ability while providing efﬁcient use of spectral resources
+without over-fragmenting the network.
+10−6
+10−5
+10−4
+10−3
+10−2
+10−1
+100
+ 0  10  20  30  40  50  60  70  80  90  100
+BP
+DPP 1:1
+Elastic DP+DD
+10−1
+100
+101
+102
+ 0  10  20  30  40  50  60  70  80  90  100
+SU
+DPP 1:1
+Elastic DP+DD
+10−1
+100
+ 0  10  20  30  40  50  60  70  80  90  100
+FR
+Load (Erlangs)
+DPP 1:1
+Elastic DP+DD
+Fig. 4. BP, SU, and FR as a function of network load (Erlangs).
+ 0.1
+ 1
+ 10
+ 0  10  20  30  40  50  60  70  80  90  100
+NPS
+Fixed DPP 1:1
+Fixed DP+DD
+ 0.1
+ 1
+ 10
+ 0  10  20  30  40  50  60  70  80  90  100
+NBS
+Fixed DPP 1:1
+Fixed DP+DD
+ 0.1
+ 1
+ 10
+ 100
+ 0  10  20  30  40  50  60  70  80  90  100
+ADT
+Load (Erlangs)
+Fixed DPP 1:1
+Fixed DP+DD
+Fig. 5. NPS, NBS, and ADT as a function of network load (Erlangs).
+NPS, NBS, and ADT as a function of network load are
+presented in Fig. 5. As we can see, DP+DD assigns a greater
+amount of slots for primary paths (top of Fig. 5). Hence,
+transmission is performed in a considerably shorter time than
+the deadline. On the other hand, although NBS (center of
+Fig. 5) of DP+DD is lower than NPS due to more available
+time to perform data protection, it is still greater compared to
+NBS and NPS of DPP 1:1. Lastly, as DP+DD allocates more
+frequency slots in primary paths so that the transmission can
+be performed more quickly, ADT (bottom of Fig. 5) is much
+smaller than DPP 1:1. In other words, DP+DD offers more
+bandwidth so that the requests are allocated for less time,
+thus avoiding the prolonged negative impacts on normal DC
+operation by minimizing time interval between backup start
+and end times.
+B. Fixed DP+DD vs. Fixed DPP 1:1
+Fig. 6 shows the results for BP, SU, and FR as a function
+of network load. Top ﬁgure shows results for BP. As we
+can see, blocking for ’Fixed DP+DD’ becomes non-negligible
+considerably later (from 35Erl) than for ’Fixed DPP 1:1’ (from
+15Erl). As load increases, BP of DP+DD continues to be 28%
+less than DPP up to the maximum load. This performance
+of ’Fixed DP+DD’ demonstrates the advantage of deferring
+backup reservation instead of using traditional protection
+schemes such as DPP 1:1. For SU (center), ’Fixed DP+DD’
+presented very similar results compared to ’Fixed DPP 1:1’,
+although the latter performed better (especially under higher
+network loads). In relation to FR (bottom), ’Fixed DP+DD’
+also had best results, especially under lower network loads. As
+load increases, the difference becomes smaller (around 2%),
+although ’Fixed DPP 1:1’ never surpasses ’Fixed DP+DD’.
+This good performance of ’Fixed DP+DD’ regarding BP,
+SU, and FR reinforces the potential and efﬁciency of using
+deferred protection.
+NPS (top), NBS (center), and ADT (bottom) as a function
+of network load are presented in Fig. 7. As we can see,
+’Fixed DP+DD’ and ’Fixed DPP 1:1’ had very similar results
+10−710−610−510−410−310−210−1100
+ 0  10  20  30  40  50  60  70  80  90  100
+BP
+Fixed DPP 1:1
+Fixed DP+DD
+10−1
+100
+101
+102
+ 0  10  20  30  40  50  60  70  80  90  100
+SU
+Fixed DPP 1:1
+Fixed DP+DD
+10−1
+100
+ 0  10  20  30  40  50  60  70  80  90  100
+FR
+Load (Erlangs)
+Fixed DPP 1:1
+Fixed DP+DD
+Fig. 6. BP, SU, and FR as a function of network load (Erlangs).
+
+=== PDF page 6 ===
+ 0.1
+ 1
+ 10
+ 0  10  20  30  40  50  60  70  80  90  100
+NPS
+Fixed DPP 1:1
+Fixed DP+DD
+ 0.1
+ 1
+ 10
+ 0  10  20  30  40  50  60  70  80  90  100
+NBS
+Fixed DPP 1:1
+Fixed DP+DD
+ 0.1
+ 1
+ 10
+ 100
+ 0  10  20  30  40  50  60  70  80  90  100
+ADT
+Load (Erlangs)
+Fixed DPP 1:1
+Fixed DP+DD
+Fig. 7. NPS, NBS, and ADT as a function of network load (Erlangs).
+regarding NPS, NBS, and ADT. This similarity was already
+expected, since we used the same parameters for both rate
+and transmission time.
+V. C ONCLUSION
+Survivability is very important aspect of IDC-EONs. We
+proposed a novel approach that offers deferred dedicated path
+protection of deadline-driven requests, along with dynamic
+deallocation of backup slots. The proposed DP+DD algorithm
+shows signiﬁcant improvement in terms of spectrum utiliza-
+tion and network congestion compared to prior protection
+approaches. Blocking probability and network fragmentation
+ratio are reduced by around 37% and 15% in the ﬁrst scenario
+and 28% and 2% in the second scenario, respectively. Future
+studies can improve DP+DD by applying shared backup
+techniques, elastic protection (i.e., transmission rate associated
+to backup path can vary in time), and by exploring the space-
+division-multiplexing techniques.
+ACKNOWLEDGEMENT
+This work was supported in part by the National Science
+Foundation (NSF) grant 1716945, Brazilian National Research
+Council (CNPq) grant 420907/2016-5 and Coordination of
+Improvement of Higher Level Personnel (CAPES) grant
+1726178.
+REFERENCES
+[1] D. Andrei, M. Tornatore, M. Batayneh, C. U. Martel, and B. Mukherjee,
+“Provisioning of deadline-driven requests with ﬂexible transmission
+rates in WDM mesh networks,” IEEE/ACM Transactions on Networking
+(TON), vol. 18, no. 2, pp. 353–366, 2010.
+[2] S. B. Yoo, Y . Yin, and K. Wen, “Intra and inter datacenter networking:
+The role of optical packet switching and ﬂexible bandwidth optical
+networking,” 2012 16th International Conference on Optical Network
+Design and Modelling (ONDM) , 2012.
+[3] R. Alaskar, A. Alyatama, and I. Ahmad, “Ofﬂine routing and spectrum
+allocation algorithms for elastic optical networks with survivability,”
+ICN 2017 , p. 19, 2017.
+[4] J. L. Vizca ´ıno, Y . Ye, V . L´opez, F. Jim´enez, F. Musumeci, M. Tornatore,
+A. Pattavina, and P. M. Krummrich, “Protection in optical transport
+networks with ﬁxed and ﬂexible grid: Cost and energy efﬁciency
+evaluation,” Optical Switching and Networking , vol. 11, pp. 55–71,
+2014.
+[5] K. Walkowiak, M. Klinkowski, B. Rabiega, and R. Go ´scie´n, “Routing
+and spectrum allocation algorithms for elastic optical networks with
+dedicated path protection,” Optical Switching and Networking , vol. 13,
+pp. 63–75, 2014.
+[6] R. Goscien, K. Walkowiak, and M. Klinkowski, “Joint anycast and
+unicast routing and spectrum allocation with dedicated path protection
+in elastic optical networks,” Int. Conf. on the Design of Reliable
+Communication Networks (DRCN) , 2014.
+[7] E. E. Moghaddam, H. Beyranvand, and J. A. Salehi, “Routing, spectrum
+and modulation level assignment, and scheduling in survivable elastic
+optical networks supporting multi-class trafﬁc,” Journal of Lightwave
+Technology, 2018.
+[8] K. Wen, S. Runley, and K. Bergman, “Designing silicon photonic
+interconnection networks for deadline-driven applications,” 2014 Opto-
+Electronics and Communication Conference and Australian Conference
+on Optical Fibre Technology , pp. 10–12, 2014.
+[9] G. Liu, H. Shen, and H. Wang, “Deadline guaranteed service for multi-
+tenant cloud storage,” IEEE Transactions on Parallel and Distributed
+Systems, vol. 27, no. 10, pp. 2851–2865, 2016.
+[10] S. Omranian-Khorasani and M. Naghibzadeh, “Deadline constrained
+load balancing level based workﬂow scheduling for cost optimization,”
+2017 2nd IEEE International Conference on Computational Intelligence
+and Applications (ICCIA) , pp. 113–118, 2017.
+[11] S. Ji, S. Liu, and B. Li, “Deadline-aware scheduling and routing for
+inter-datacenter multicast transfers,” 2018 IEEE International Confer-
+ence on Cloud Engineering (IC2E) , pp. 124–133, 2018.
+[12] W. Kmiecik and K. Walkowiak, “Dynamic overlay multicasting for
+deadline-driven requests provisioning in elastic optical networks,” 2017
+20th Conference on Innovations in Clouds, Internet and Networks
+(ICIN), pp. 31–35, 2017.
+[13] H. Chen, Y . Zhao, J. Zhang, W. Wang, and R. Zhu, “Static routing and
+spectrum assignment for deadline-driven bulk-data transfer in elastic
+optical networks,” IEEE Access , vol. 5, pp. 13 645–13 653, 2017.
+[14] N. G. Anoh, M. Babri, A. D. Kora, R. M. Faye, B. Aka, and
+C. Lishou, “An efﬁcient hybrid protection scheme with shared/dedicated
+backup paths on elastic optical networks,” Digital Communications and
+Networks, vol. 3, no. 1, pp. 11 – 18, 2017.

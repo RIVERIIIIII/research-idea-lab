@@ -1,0 +1,169 @@
+DC_template: &DC_template
+  type: Data_Center
+  id: 1000
+  name: DC0
+  server_num: 1000
+  server:
+    GPU_num: 8
+    GPU_type: NVIDIA_A100
+    storage:
+      type: SSD
+      capacity_GiB: 8000
+      free_GiB: 8000
+      bandwidth_GiBps: 8
+    memory:
+      type: DDR4
+      capacity_GiBps: 32
+      free_GiBps: 32
+      bandwidth_GiBps: 8
+  network:
+    type: NVLink
+    topology: HPN
+    bw_intra: 1.8  # 机内带宽 (TB/s)
+    bw_inter: 0.1  # 机间带宽 (TB/s)
+  co_location_node: 0
+  # 背景任务配置
+  background_tasks:
+    enabled: true  # 是否启用背景任务
+    gpu_utilization:
+      min_ratio: 0.2  # GPU最小占用比例
+      max_ratio: 0.5  # GPU最大占用比例
+    random_seed: 42  # 随机种子，确保多次运行占用一致
+
+
+# --- 数据中心950-1000（ROADM/OXC+OTN交换机）---
+datacenters:
+  - <<: *DC_template
+    id: 951
+    name: Palo-Alto
+    co_location_node: 1
+
+  - <<: *DC_template
+    id: 952
+    name: San-Diego
+    co_location_node: 2
+
+  - <<: *DC_template
+    id: 953
+    name: Boulder
+    co_location_node: 3
+    server:
+      GPU_num: 8
+      GPU_type: NVIDIA_A100
+      storage:
+        type: SSD
+        capacity_GiB: 8000
+        free_GiB: 8000
+        bandwidth_GiBps: 8
+      memory:
+        type: DDR4
+        capacity_GiBps: 32
+        free_GiBps: 32
+        bandwidth_GiBps: 8
+
+  - <<: *DC_template
+    id: 954
+    name: Washington
+    co_location_node: 4
+    server:
+      GPU_num: 8
+      GPU_type: NVIDIA_A100
+      storage:
+        type: SSD
+        capacity_GiB: 8000
+        free_GiB: 8000
+        bandwidth_GiBps: 8
+      memory:
+        type: DDR4
+        capacity_GiBps: 32
+        free_GiBps: 32
+        bandwidth_GiBps: 8
+
+  - <<: *DC_template
+    id: 955
+    name: Atlanta
+    co_location_node: 5
+
+  - <<: *DC_template
+    id: 956
+    name: Urbana-Champaign
+    co_location_node: 6
+
+  - <<: *DC_template
+    id: 957
+    name: Ann-Arbor
+    co_location_node: 7
+
+  - <<: *DC_template
+    id: 958
+    name: Lincoln
+    co_location_node: 8
+
+  - <<: *DC_template
+    id: 959
+    name: Princeton
+    co_location_node: 9
+    server:
+      GPU_num: 8
+      GPU_type: NVIDIA_A100
+      storage:
+        type: SSD
+        capacity_GiB: 8000
+        free_GiB: 8000
+        bandwidth_GiBps: 8
+      memory:
+        type: DDR4
+        capacity_GiBps: 32
+        free_GiBps: 32
+        bandwidth_GiBps: 8
+
+  - <<: *DC_template
+    id: 960
+    name: Ithaca
+    co_location_node: 10
+    server:
+      GPU_num: 8
+      GPU_type: NVIDIA_A100
+      storage:
+        type: SSD
+        capacity_GiB: 8000
+        free_GiB: 8000
+        bandwidth_GiBps: 8
+      memory:
+        type: DDR4
+        capacity_GiBps: 32
+        free_GiBps: 32
+        bandwidth_GiBps: 8
+
+  - <<: *DC_template
+    id: 961
+    name: Pittsburgh
+    co_location_node: 11
+    server:
+      GPU_num: 8
+      GPU_type: NVIDIA_A100
+      storage:
+        type: SSD
+        capacity_GiB: 8000
+        free_GiB: 8000
+        bandwidth_GiBps: 8
+      memory:
+        type: DDR4
+        capacity_GiBps: 32
+        free_GiBps: 32
+        bandwidth_GiBps: 8
+
+  - <<: *DC_template
+    id: 962
+    name: Houston
+    co_location_node: 12
+
+  - <<: *DC_template
+    id: 963
+    name: Salt-Lake-City
+    co_location_node: 13  
+
+  - <<: *DC_template
+    id: 964
+    name: Seattle
+    co_location_node: 14

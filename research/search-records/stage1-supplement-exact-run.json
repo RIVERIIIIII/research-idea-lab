@@ -1,0 +1,37 @@
+{
+  "queries": [
+    "GMPLS based Multidomain Restoration Analysis Strategies Policies Experimental Assessment",
+    "Pre emptive reprovisioning mesh optical networks"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 2
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 2,
+  "batch_after_dedup": 2,
+  "batch_dedup": {
+    "input": 2,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 2
+  },
+  "existing_merge": {
+    "input": 2,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 2
+  },
+  "candidates": 2,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/stage1-supplement-exact-candidates.jsonl",
+  "selected_path": "research/stage1-supplement-exact-selected.jsonl"
+}

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>X02｜光网络故障下的推理状态重建与光资源联合恢复</title>
+<style>
+:root{--blue:#007bbb;--dark:#005f96;--pale:#e2edf4;--orange:#bd6123;--ink:#111;--serif:"Charter","Songti SC","STSong","SimSun","Noto Serif CJK SC",serif}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body{font-family:var(--serif);color:var(--ink);background:#e9edf1}button,a{ -webkit-tap-highlight-color:transparent}button{font:inherit}a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}button:focus-visible,a:focus-visible{outline:3px solid #df9b29;outline-offset:4px}#stage{width:1280px;height:720px;position:absolute;left:50%;top:50%;transform-origin:center;background:white;box-shadow:0 8px 40px #253c5320}.slide{display:none;position:absolute;inset:0;background:#fff;overflow:hidden}.slide.active{display:block}.topnav{position:absolute;inset:0 0 auto;height:34px;background:var(--blue);display:flex;align-items:flex-start;justify-content:space-between;padding:2px 24px;color:#fff;z-index:1}.nav-section{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:0}.nav-section:last-child{flex:0 0 118px}.section-link{font-family:var(--serif);font-size:14px;line-height:16px;color:#fff9;border:0;background:none;padding:0;cursor:pointer}.nav-section.current .section-link{color:#fff}.nav-dots{display:flex;gap:3px;height:12px;align-items:center}.nav-dot{width:8px;height:8px;border:1px solid #ffffff75;background:transparent;border-radius:50%;padding:0;cursor:pointer}.nav-dot.current{background:#fff;border-color:#fff}.nav-dot.past{border-color:#fff}.foot{position:absolute;inset:auto 0 0;height:24px;background:var(--blue);color:#fff;display:grid;grid-template-columns:220px 1fr 220px;align-items:center;padding:0 24px;font-size:14px;font-weight:600}.foot-center{text-align:center}.foot-page{text-align:right}.slide-title{margin:0;position:absolute;left:24px;right:165px;top:53px;font-size:33px;line-height:1.35;font-weight:700;color:var(--blue)}.brand{position:absolute;right:25px;top:58px;width:103px;height:auto}.content{position:absolute;top:126px;left:80px;right:70px;bottom:61px;display:flex;flex-direction:column;justify-content:center;gap:21px;font-size:27px;line-height:1.43}.content.top{justify-content:flex-start}.content p{margin:0}.blue{color:var(--blue);font-weight:700}.muted{color:#575757}.small{font-size:22px}.tiny{font-size:19px}.source{font-size:17px;line-height:1.4;color:#555}.source a{color:var(--dark)}.content .source:last-child{margin-top:3px}.sources-bottom{position:absolute;left:80px;right:75px;bottom:35px;font-size:15px;line-height:1.35;color:#555}.sources-bottom a{color:var(--dark)}.block{margin:0 -8px}.block h3{margin:0;background:var(--dark);padding:5px 12px;color:#fff;font-size:28px;line-height:1.3;font-weight:400}.block .block-body{padding:9px 12px 11px;background:var(--pale);font-size:25px;line-height:1.4}.block.orange h3{background:var(--orange)}.block.orange .block-body{background:#f6ede6}.bullets{padding-left:27px;margin:0;display:grid;gap:17px}.bullets li::marker{color:var(--blue)}table{width:100%;border-collapse:collapse;font-size:24px;line-height:1.4;border-top:3px solid #111;border-bottom:2px solid #111}th{font-weight:700;text-align:left;border-bottom:1px solid #111}th,td{padding:12px 14px;vertical-align:top}td:first-child{white-space:nowrap}tbody tr+tr{border-top:1px solid #ddd}table.compact{font-size:23px}table.compact th,table.compact td{padding:10px 12px}.rule-note{padding-top:11px;border-top:1px solid #b9b9b9;font-size:22px}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:44px}.two-col h3{font-size:29px;color:var(--blue);font-weight:700;margin:0 0 14px}.two-col p{margin:0 0 17px}.math{font-family:"Cambria Math","STIX Two Math","Times New Roman",var(--serif);font-size:30px;line-height:1.5;text-align:center;white-space:normal}.math sub{font-size:.65em}.math sup{font-size:.65em}.math.small{font-size:27px}.math .roman{font-style:normal}.equation-row{display:flex;align-items:center;justify-content:center;gap:22px}.fraction{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.86em;line-height:1.2}.fraction>span:first-child{padding:0 8px 4px;border-bottom:1.5px solid}.fraction>span:last-child{padding:4px 8px 0}.cover-band{position:absolute;top:93px;left:80px;right:80px;background:var(--blue);color:white;text-align:center;padding:19px 20px 22px}.cover-band h1{margin:0;font-weight:400;font-size:43px;line-height:1.38;letter-spacing:1px}.cover-band p{font-size:24px;margin:10px 0 0}.cover-type{position:absolute;top:308px;width:100%;text-align:center;font-size:27px}.cover-school{position:absolute;top:386px;width:100%;text-align:center;font-size:22px;line-height:1.3}.cover-date{position:absolute;top:469px;width:100%;text-align:center;font-size:28px}.cover-logo{position:absolute;top:547px;left:415px;width:450px;height:auto}.agenda{font-size:32px;display:grid;gap:31px;list-style:none;margin:0;padding:0 0 0 25px}.agenda li{display:flex;gap:22px;align-items:center}.agenda a{display:flex;gap:22px;align-items:center}.agenda .num{display:inline-flex;justify-content:center;align-items:center;width:37px;height:37px;background:var(--blue);color:white;border-radius:50%;font-size:24px}.agenda small{font-size:23px;color:#555;margin-left:5px}.flowline{display:flex;justify-content:center;align-items:center;gap:26px;padding:15px 0 8px}.flowline .site{text-align:center;min-width:220px;border-top:2px solid var(--blue);border-bottom:2px solid var(--blue);padding:15px 10px}.site b{display:block;color:var(--blue);font-size:30px}.site span{display:block;font-size:23px;margin-top:5px}.flow-arrow{font-size:38px;color:var(--blue)}.state-table td,.state-table th{text-align:center}.state-table th:first-child,.state-table td:first-child{text-align:left}.state-table td:nth-child(2){background:#e7f1f7}.state-table td:nth-child(3){background:#f1f1f1}.steps{list-style:none;counter-reset:steps;margin:0;padding:0;display:grid;gap:19px}.steps li{counter-increment:steps;display:grid;grid-template-columns:35px 1fr;gap:15px}.steps li:before{content:counter(steps);color:var(--blue);font-size:27px;font-weight:700}.steps li span{display:block;font-size:22px;color:#555;margin-top:3px}.good{font-weight:700;color:var(--dark)}.result-row{background:#e5f0f7}.statusline{font-size:22px;color:#555}.refs{list-style:none;padding:0;margin:0;display:grid;gap:16px;counter-reset:refs;font-size:20px;line-height:1.35}.refs li{counter-increment:refs;position:relative;padding-left:39px}.refs li:before{content:"[" counter(refs) "]";position:absolute;left:0;color:var(--blue)}.refs .ref-title{font-style:italic}.thanks{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:34px}.thanks h1{font-size:60px;font-weight:400;color:var(--blue);margin:0}.thanks p{font-size:27px;margin:0}.thanks .summary{max-width:960px;text-align:center;font-size:25px;line-height:1.6}.speaker-notes{display:none}#hint{position:fixed;bottom:7px;left:0;right:0;text-align:center;font:12px/1.3 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#5d6d7c;pointer-events:none}#tools{position:fixed;right:16px;bottom:37px;display:flex;gap:2px;padding:5px;background:#ffffffed;border:1px solid #c2d1dc;box-shadow:0 2px 12px #0001;opacity:0;pointer-events:none;transition:opacity .18s;z-index:20}body.show-tools #tools,#tools:focus-within{opacity:1;pointer-events:auto}#tools button{font:14px/1.4 -apple-system,"PingFang SC",sans-serif;background:none;border:0;padding:6px 10px;cursor:pointer;color:#17506d}#tools button:hover{background:#e2edf4}.overlay{display:none;position:fixed;inset:0;background:#172b3cef;z-index:30;padding:35px;overflow:auto}.overlay.open{display:block}.overlay-head{max-width:1350px;margin:0 auto 22px;display:flex;align-items:center;justify-content:space-between;color:white;font:20px/1.5 -apple-system,"PingFang SC",sans-serif}.overlay-head button{background:none;color:white;border:1px solid #ffffff80;padding:7px 14px;cursor:pointer;font:inherit}#overview-grid{max-width:1350px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:16px}.thumb{background:white;border:3px solid transparent;padding:18px 19px;cursor:pointer;text-align:left;min-height:145px;color:#111}.thumb.active{border-color:#71c9ff}.thumb small{display:block;color:#777;font:13px -apple-system,sans-serif;margin-bottom:11px}.thumb strong{color:var(--blue);font-size:23px;line-height:1.4;display:block}.thumb span{display:block;margin-top:12px;font-size:15px;color:#666}#notes-panel{position:fixed;right:0;top:0;bottom:0;width:min(440px,90vw);background:#f9fbfd;border-left:4px solid var(--blue);box-shadow:-5px 0 25px #0002;z-index:25;display:none;padding:25px;font-family:-apple-system,"PingFang SC",sans-serif;overflow:auto}#notes-panel.open{display:block}#notes-panel h2{font-size:21px;color:var(--dark);line-height:1.45;padding-right:30px}#notes-panel p{font-size:16px;line-height:1.85;margin:15px 0}#notes-panel .close{position:absolute;top:20px;right:18px;background:none;border:0;font-size:24px;cursor:pointer}#live-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-height:760px){#hint{display:none}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}@media print{@page{size:1280px 720px;margin:0}html,body{overflow:visible!important;height:auto!important;width:1280px!important;background:white!important}#stage{position:static!important;transform:none!important;width:1280px!important;height:auto!important;box-shadow:none!important;margin:0!important}.slide,.slide.active{display:block!important;position:relative!important;width:1280px!important;height:720px!important;break-after:page;page-break-after:always;overflow:hidden!important}.slide:last-child{break-after:auto;page-break-after:auto}#hint,#tools,.overlay,#notes-panel,#live-status{display:none!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}a{color:inherit;text-decoration:none}}
+</style>
+</head>
+<body>
+<main id="stage" aria-label="X02中期研究方案演示">
+
+<section class="slide active cover" data-section="0" data-title="研究点二：联合恢复">
+  <div class="cover-band"><h1>光网络故障下的推理状态重建<br>与光资源联合恢复</h1><p>广域算力光网络生存性研究 · X02</p></div>
+  <div class="cover-type">硕士学位论文中期研究方案</div>
+  <div class="cover-school">北京邮电大学电子工程学院<br><span lang="en">Beijing University of Posts and Telecommunications</span></div>
+  <div class="cover-date">2026 / 10 / 27</div>
+  <img class="cover-logo" src="data:image/png;base64,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" alt="北京邮电大学校名与校徽">
+  <aside class="speaker-notes"><p>本演示只展开第二研究点X02。CLFR为已完成、已发表工作；X02处于方案设计阶段，已有场景、初步模型、求解思路与条件分析，尚未完成算法实现和性能实验。导师不要求第二点已有阶段结果。</p><p>版式参考用户提供的Minimalist BUPT Beamer PDF；校名与校徽直接取自该模板，不重绘。</p></aside>
+</section>
+
+<section class="slide" data-section="0" data-title="汇报内容">
+  <h2 class="slide-title">汇报内容</h2>
+  <div class="content"><ol class="agenda">
+    <li><a href="#3"><span class="num">1</span>研究背景与问题 <small>业务、故障及恢复选择</small></a></li>
+    <li><a href="#6"><span class="num">2</span>核心思路 <small>部分重建与已有研究边界</small></a></li>
+    <li><a href="#8"><span class="num">3</span>模型与技术路线 <small>决策、约束和拟议求解方法</small></a></li>
+    <li><a href="#11"><span class="num">4</span>初步分析与待验证问题 <small>条件性依据及研究边界</small></a></li>
+  </ol></div>
+  <aside class="speaker-notes"><p>先交代第二点为何与第一点不同，再将主场景和部分重建方式讲清楚，随后说明联合模型与拟议算法。最后展示条件推导和纸面算例，不把它们称为实验结果。</p></aside>
+</section>
+
+<section class="slide" data-section="0" data-title="论文定位与研究点关系">
+  <h2 class="slide-title">论文定位与研究点关系</h2>
+  <div class="content">
+    <p>总主题：<span class="blue">广域算力光网络生存性研究</span></p>
+    <table><thead><tr><th style="width:19%">研究点</th><th style="width:36%">第一点：CLFR</th><th>第二点：X02</th></tr></thead><tbody>
+      <tr><td>业务对象</td><td>跨域分布式训练</td><td>跨站分段推理</td></tr>
+      <tr><td>恢复目标</td><td>训练迭代性能与同步效率</td><td>请求状态续接与服务连续性</td></tr>
+      <tr><td>关键决策</td><td>波长补偿、DP容量及副本放置</td><td>恢复动作、重建比例及光配置</td></tr>
+      <tr><td>当前进度</td><td>已发表，已完成实验</td><td>已形成初步研究方案</td></tr>
+    </tbody></table>
+    <p class="rule-note">共享物理光网、算力站点与故障基础，分别扩展训练迭代和推理会话模型。</p>
+  </div>
+  <div class="sources-bottom">依据：CLFR原文§2–3及项目第一点边界记录；不将“算网联合”本身作为X02新增贡献。</div>
+  <aside class="speaker-notes"><p>CLFR在固定故障后重路由拓扑上，联合增量波长、DP容量调整与副本重放置。X02拟研究的是正在运行的请求如何恢复状态，以及临时状态连接和持续服务连接如何配置。不是仅将训练标签换成推理。</p><p>来源：research/first-point-evidence.md，E001–E006；Cross-Layer Failure Recovery for Geo-distributed Training over Optical Transport Networks。原文未明确的过程成本不应被说成恒为零。</p></aside>
+</section>
+
+<section class="slide" data-section="0" data-title="故障场景与业务影响">
+  <h2 class="slide-title">故障场景与业务影响</h2>
+  <div class="content">
+    <p>模型分段部署，生成每个token都需调用远程模型段。</p>
+    <div class="flowline"><div class="site"><b>U · 协调端</b><span>保存历史输入记录</span></div><div class="flow-arrow">⇄</div><div class="site"><b>A · 原执行站点</b><span>模型段K与会话KV</span></div><div class="flow-arrow">→</div><div class="site"><b>B · 候选站点</b><span>兼容模型与可用资源</span></div></div>
+    <ul class="bullets small">
+      <li>单光纤链路故障影响U—A承载；<span class="blue">A仍存活、状态可读，控制面可用</span>。</li>
+      <li>原有保护或合理转发若已满足业务要求，允许原地继续。</li>
+      <li>不能及时恢复时，请求可能停顿；换站前需先恢复一致会话状态。</li>
+    </ul>
+    <div class="block"><h3>保障对象</h3><div class="block-body">当前请求正确继续，停顿可控，并满足恢复后的生成性能要求。</div></div>
+  </div>
+  <div class="sources-bottom">[1] Petals §3.2支持分段执行与历史输入恢复；光承载映射及单光纤故障为本研究设定。</div>
+  <aside class="speaker-notes"><p>图中箭头表示执行依赖和候选接替关系，不是实际物理光纤拓扑。U是推理协调端，不必等同终端用户。A受影响的是数据承载，不是KV存储失效；若A完全失联，不能再假设从A迁出后缀KV。</p><p>https://arxiv.org/html/2312.08361v1 §3.2；本研究还需核验具体光网承载、状态接口及成本。</p></aside>
+</section>
+
+<section class="slide" data-section="0" data-title="可比较的恢复动作">
+  <h2 class="slide-title">可比较的恢复动作</h2>
+  <div class="content">
+    <table><thead><tr><th style="width:23%">恢复动作</th><th style="width:36%">需要做什么</th><th>主要代价与限制</th></tr></thead><tbody>
+      <tr><td>原站点恢复</td><td>保护、重路由、光资源调整<br>或电子/IP转发</td><td>剩余资源、配置时间<br>及恢复后绕行时延</td></tr>
+      <tr><td>完整KV接替</td><td>A向B搬运全部会话KV<br>启用U—B服务连接</td><td>状态传输量较大<br>目标显存及接替开销</td></tr>
+      <tr><td>部分重建接替</td><td>重放部分历史输入<br>其余KV由A复制</td><td>记录传输与重建计算<br>两类状态连接的资源协调</td></tr>
+    </tbody></table>
+    <div class="block"><h3>统一比较口径</h3><div class="block-body">相同故障、资源预算与服务要求，<b>不预设迁移最优</b>。</div></div>
+    <p class="small">已有最新状态备份若存在，允许直接接替并计入准备成本。</p>
+  </div>
+  <aside class="speaker-notes"><p>端到端透明光路无法重建，不等于业务不能通过中间站点分段转发。实验中应保留设备支持的合理动作。主场景不免费假定有最新KV备份；若确有备份，它可能是更快的恢复方案。</p><p>经典光云恢复参考[4]、[5]。原始策略与适配到推理业务后的版本应分别说明。</p></aside>
+</section>
+
+<section class="slide" data-section="1" data-title="部分重建与状态续接">
+  <h2 class="slide-title">部分重建与状态续接</h2>
+  <div class="content">
+    <p>对齐到同一已确认位置N，选择前缀长度k。</p>
+    <table class="state-table"><thead><tr><th style="width:22%">历史状态</th><th style="width:39%">前缀：0 … k−1</th><th>后缀：k … N−1</th></tr></thead><tbody>
+      <tr><td>信息来源</td><td>U保存的模型段输入记录</td><td>A保存的会话KV</td></tr>
+      <tr><td>恢复路径</td><td>U → B</td><td>A → B</td></tr>
+      <tr><td>目标端动作</td><td>重放前缀，恢复对应KV</td><td>导入对应位置的KV</td></tr>
+    </tbody></table>
+    <p class="math">前缀重建　＋　后缀复制　→　一致状态验证　→　继续生成</p>
+    <p class="small">两支路允许并行，但需共同满足网络、计算与显存约束。</p>
+    <p class="rule-note">同一模型、快照、位置和精度约定；不存在的记录不能视为可用能力。</p>
+  </div>
+  <div class="sources-bottom">借鉴[1]输入记录恢复与[2]前缀/后缀分割；本状态续接协议仍需具体接口和正确性核验。</div>
+  <aside class="speaker-notes"><p>k=0为完整KV复制，k=N为全部从输入记录重建。这里重建的是一个模型段的历史KV，不是重算整段用户回答。两部分覆盖互不重叠的历史位置，导入后验证并切换。</p><p>本方案是有条件的协议推导，不是Petals或ctHO已实现本系统的事实；特别不能与EdgeFlow按层使用activation投影的机制混为一谈。</p></aside>
+</section>
+
+<section class="slide" data-section="1" data-title="已有研究与拟研究位置">
+  <h2 class="slide-title">已有研究与拟研究位置</h2>
+  <div class="content">
+    <table class="compact"><thead><tr><th style="width:23%">工作</th><th style="width:36%">已解决的部分</th><th>X02的拟研究位置</th></tr></thead><tbody>
+      <tr><td>Petals [1]</td><td>历史输入记录与模型段恢复</td><td>故障后的光资源可行配置</td></tr>
+      <tr><td>ctHO [2]</td><td>前缀重算与后缀KV传输<br>联合回传速率分配</td><td>显式记录传输、双来源路径<br>与连续光频谱约束</td></tr>
+      <tr><td>EdgeFlow [3]</td><td>给定端点带宽下选目标<br>及逐层KV/activation分配</td><td>可编排的光路、频谱和调制<br>及恢复后服务保障</td></tr>
+      <tr><td>经典光云恢复 [4,5]</td><td>原端点恢复、备份接替<br>服务迁移及状态搬运代价</td><td>运行中推理状态的部分重建<br>与瞬态/持续连接联合决策</td></tr>
+    </tbody></table>
+    <p class="rule-note">借鉴已有状态恢复能力，拟贡献集中在<span class="blue">具体故障问题的联合模型与求解</span>。</p>
+  </div>
+  <aside class="speaker-notes"><p>只讨论已经阅读的模型边界，不宣称所有现有方法均无法处理。EdgeFlow的逐层activation输入可用性不能从Petals的模型段输入记录直接推出。经典光云恢复并非完全不感知状态或计算资源。</p><p>实验可使用适用的经典生存性方法作主要基线；最近邻用于书面说明借鉴和差异，不要求复现所有性能。来源固定于参考文献页所列原著。</p></aside>
+</section>
+
+<section class="slide" data-section="2" data-title="联合恢复模型：决策与目标">
+  <h2 class="slide-title">联合恢复模型：决策与目标</h2>
+  <div class="content">
+    <table class="compact"><thead><tr><th style="width:23%">决策</th><th style="width:33%">含义</th><th>主要变量</th></tr></thead><tbody>
+      <tr><td>留在哪里</td><td>原站点继续或换站接替</td><td>恢复动作a，目标b</td></tr>
+      <tr><td>重建多少</td><td>前缀重放与后缀复制的分界</td><td>前缀长度k</td></tr>
+      <tr><td>走哪条路</td><td>状态连接与持续服务连接</td><td>路径p<sub>H</sub>、p<sub>V</sub>、p<sub>S</sub></td></tr>
+      <tr><td>分配哪些光资源</td><td>连续频槽、调制及配置时序</td><td>起始槽f、槽数w、调制m</td></tr>
+    </tbody></table>
+    <div class="block"><h3>优化目标</h3><div class="block-body">首先缩短受影响请求的最大恢复停顿，再控制增量光资源占用。</div></div>
+    <p class="small">重建比例改变传输需求；光资源可行性反过来影响目标和重建选择。</p>
+  </div>
+  <aside class="speaker-notes"><p>不以任意加权的目标包装收益。第一目标最小化最大停顿，在同停顿值下再优化光资源。模型可以覆盖同一故障影响的多请求，不在线假定剩余输出长度已知。</p><p>详细有限计划0-1模型见research/proposals/X02-midterm-2026-10-26/model-notes.md。指定路径、策略和时间网格内的参考最优，不声称连续原问题全局最优。</p></aside>
+</section>
+
+<section class="slide" data-section="2" data-title="恢复停顿与关键约束">
+  <h2 class="slide-title">恢复停顿与关键约束</h2>
+  <div class="content" style="gap:22px">
+    <p class="math small">T<sub>恢复</sub> = T<sub>决策</sub> + max{T<sub>服务就绪</sub>, T<sub>前缀支路</sub>, T<sub>KV支路</sub>}<br>+ T<sub>验证切换</sub> + T<sub>下一有效输出</sub></p>
+    <table class="compact"><thead><tr><th style="width:23%">约束</th><th>必须保证</th></tr></thead><tbody>
+      <tr><td>状态正确</td><td>同一快照与位置，前后缀不重不漏，在途输出去重</td></tr>
+      <tr><td>计算与显存</td><td>参数、KV、输入缓冲及重建工作区均有可用资源</td></tr>
+      <tr><td>光网络可行</td><td>路径可达，频槽连续且沿路一致，调制可达，资源不冲突</td></tr>
+      <tr><td>服务保障</td><td>停顿不超过剩余预算，恢复后的完整推理链满足性能约定</td></tr>
+    </tbody></table>
+    <p class="small">计入状态准备、传播、传输、重建及配置；检测前等待也消耗用户停顿预算。</p>
+  </div>
+  <aside class="speaker-notes"><p>两条状态支路中的配置、准备、传播和数据传输均计入，前缀支路还含重建。共有成本不要重复相加，独立支路可以并行。停顿从用户最后有效输出到下一有效输出统计，不能在检测后重新起表而漏算等待。</p><p>首版QoT用距离可达性与保守裕度近似，不宣称实现完整GN干扰模型。最终组合和其他业务最低保障也要检查。</p></aside>
+</section>
+
+<section class="slide" data-section="2" data-title="拟议求解流程">
+  <h2 class="slide-title">拟议求解流程</h2>
+  <div class="content" style="gap:23px">
+    <ol class="steps">
+      <li><div>读取故障与状态快照<span>剩余光资源、状态记录、目标算力/显存、服务预算</span></div></li>
+      <li><div>保留原地恢复，并生成接替候选<span>联合考虑目标、重建长度及所需状态/服务路径</span></div></li>
+      <li><div>由停顿预算推导最低容量需求<span>映射到满足连续性和调制可达性的频槽配置</span></div></li>
+      <li><div>检查资源冲突并搜索恢复计划<span>支配裁剪、有限宽度联合搜索及必要回退</span></div></li>
+      <li><div>输出可执行计划，或明确保障不可满足<span>小规模以完整枚举或MILP作参考，比较解质量与求解开销</span></div></li>
+    </ol>
+  </div>
+  <div class="sources-bottom">算法为拟研究路线，尚未实现；同样计入其决策耗时，不预设性能或近似保证。</div>
+  <aside class="speaker-notes"><p>关键不是“先跑一个恢复算法，再跑一个重建算法”，而是每个候选都包含完整任务动作和光配置，容量需求由恢复预算反推。多请求共享资源时，按槽和时段检查冲突。</p><p>支配裁剪必须比较资源占用向量，不能仅凭路径长度删除可能避开竞争的计划。搜索宽度、路径数量及k的块粒度可控制复杂度，但需报告漏解和最优差距。</p></aside>
+</section>
+
+<section class="slide" data-section="3" data-title="相对经典基线的条件性优势">
+  <h2 class="slide-title">相对经典基线的条件性优势</h2>
+  <div class="content">
+    <p>比较同一目标与可执行光配置下的<span class="blue">固定全KV接替</span>和部分重建。</p>
+    <p class="math">T<sub>全KV</sub> = c + a<sub>V</sub> + βN</p>
+    <p class="math">T(k) = c + max{a<sub>H</sub> + αk, a<sub>V</sub> + β(N−k)}</p>
+    <p class="small">α：单位前缀记录传输与重建成本；β：单位KV传输成本。<br>a<sub>H</sub>、a<sub>V</sub>：各支路固定开销；c：共同的其他恢复成本。</p>
+    <div class="block"><h3>严格改善的充分条件</h3><div class="block-body">存在合法k，使两条状态支路均早于全KV搬运完成，且新增开销未抵消节省。</div></div>
+    <p class="small">要求状态可执行、资源公平、服务连接不主导；不证明优于所有经典保护方法。</p>
+  </div>
+  <aside class="speaker-notes"><p>这是线性成本与独立可行支路下的书面推导，非实测规律。若平衡点k*=(aV+βN−aH)/(α+β)在(0,N)，连续模型中可得严格状态准备收益；整数k需检查相邻值。如果服务连接就绪更慢，要再取max；若新方案有额外成本Δ，还需扣除。</p><p>最优计划保留全部经典可行动作时，扩大可行集只能使相同目标的最优值不增。但不能把它当实际启发式或在线求解总耗时不劣的证明。证据：classical-baseline-proof.md。</p></aside>
+</section>
+
+<section class="slide" data-section="3" data-title="归一化纸面算例（非实验结果）">
+  <h2 class="slide-title">归一化纸面算例（非实验结果）</h2>
+  <div class="content" style="gap:20px">
+    <p class="small">同一资源图与记录策略；剩余停顿预算H = 2.5，恢复后间隔阈值L = 1。</p>
+    <table><thead><tr><th style="width:31%">恢复策略</th><th>恢复停顿</th><th>恢复后间隔</th><th>完整保障</th></tr></thead><tbody>
+      <tr><td>原站点经B转发</td><td>2.015</td><td>1.615</td><td>不达标</td></tr>
+      <tr><td>完整KV接替</td><td>5.605</td><td>0.405</td><td>不达标</td></tr>
+      <tr><td>全部记录重建</td><td>2.605</td><td>0.405</td><td>不达标</td></tr>
+      <tr class="result-row"><td><b>部分重建接替</b></td><td><b>2.4175</b></td><td><b>0.405</b></td><td class="good">达标</td></tr>
+    </tbody></table>
+    <div class="block orange"><h3>仅说明条件可发生，不代表实际提升</h3><div class="block-body">全部数字均为人为设置；放宽L至1.7，原站点转发即成为更快的可行选择。</div></div>
+    <p class="small">强顺序法也得到2.4175，与完整枚举同值；本例未证明新算法优势。</p>
+  </div>
+  <aside class="speaker-notes"><p>所有数字为归一化数据/时间单位，不能标为秒，也不应计算为真实提升百分比。有限菜单共168个计划，计入保护带、调制距离可达性、状态传播、准备、计算、配置、导入及下一token交付。</p><p>8个历史块中重建前7块，UB速率4、AB速率2。前缀支路0.1+1.75/4+0.875=1.4125，KV支路0.6+1/2=1.1，加共同1.005得到2.4175。源和目标存储约束在合成预算中满足。</p><p>本例原站点转发的恢复停顿更短，只是后续生成不满足所设要求，不能说迁移在所有指标上更优。原始结果：research/checks/X02-midterm-2026-10-26/results.json；模型与脚本同目录。</p></aside>
+</section>
+
+<section class="slide" data-section="3" data-title="当前进展与待验证问题">
+  <h2 class="slide-title">当前进展与待验证问题</h2>
+  <div class="content">
+    <div class="two-col">
+      <div><h3>已完成的方案准备</h3><ul class="bullets small"><li>故障与业务场景界定</li><li>已有工作与恢复动作对照</li><li>初步联合模型和求解流程</li><li>条件推导与纸面可行性检查</li></ul></div>
+      <div><h3>后续必须验证</h3><ul class="bullets small"><li>具体模型的状态续接正确性</li><li>记录、重建和光配置的实际成本</li><li>资源竞争下的求解效果与开销</li><li>相对经典生存性基线的适用边界</li></ul></div>
+    </div>
+    <div class="block"><h3>拟形成的研究内容</h3><div class="block-body">面向推理状态续接的联合恢复模型，以及满足服务时限的光资源配置与求解方法。</div></div>
+    <p class="small">X02以研究方案形式汇报，算法实现与性能实验尚未完成。</p>
+  </div>
+  <aside class="speaker-notes"><p>不把中期方案当作已完成的第二点成果。导师不要求已有阶段结果，但最终论文仍需完成与主张相匹配的验证。实验主要基线可为适用的经典保护/恢复与固定状态搬运，最近邻作书面差异对照。</p><p>待验证事项是研究任务和风险，不是已经发现的系统失败。必要时根据正确性、成本或差异核查修订主场景。</p></aside>
+</section>
+
+<section class="slide" data-section="4" data-title="参考文献">
+  <h2 class="slide-title">参考文献</h2>
+  <div class="content" style="top:128px;gap:16px">
+    <ol class="refs">
+      <li>Borzunov et al. <span class="ref-title">Distributed Inference and Fine-tuning of Large Language Models Over The Internet.</span> 2023.<br><a target="_blank" rel="noopener noreferrer" href="https://arxiv.org/html/2312.08361v1">arXiv:2312.08361v1（Petals）</a></li>
+      <li>Lee et al. <span class="ref-title">Low-Latency Edge LLM Handover via Joint KV Cache Transfer and Token Prefill.</span> 2026.<br><a target="_blank" rel="noopener noreferrer" href="https://arxiv.org/html/2603.28018v1">arXiv:2603.28018v1（ctHO）</a></li>
+      <li>Zhang et al. <span class="ref-title">Efficient KV Cache Migration for Geo-Distributed LLM Inference in Collaborative Edge Computing.</span> ICDCS, 2026.<br><a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.1109/2575-8411.2026.00033">DOI: 10.1109/2575-8411.2026.00033（EdgeFlow）</a></li>
+      <li>Natalino et al. <span class="ref-title">Restoration in Optical Cloud Networks With Relocation and Services Differentiation.</span> JOCN, 2016.<br><a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.1364/JOCN.8.000100">DOI: 10.1364/JOCN.8.000100</a></li>
+      <li>Natalino, Rostami, Monti. <span class="ref-title">Storage Protection with Connectivity and Processing Restoration for Survivable Cloud Services.</span> ICCCN, 2021.<br><a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.1109/ICCCN52240.2021.9522324">DOI: 10.1109/ICCCN52240.2021.9522324（SCORE）</a></li>
+    </ol>
+  </div>
+  <aside class="speaker-notes"><p>引用限于原文已读取的机制与模型，不用论文最大提升值作本课题结果。Petals和ctHO为固定版本预印本；EdgeFlow为用户提供的正式版部分正文；PR-SRD与SCORE为前轮作者稿关键段落。</p><p>补充参照：Cross-Layer Failure Recovery for Geo-distributed Training over Optical Transport Networks（CLFR，用户已发表第一点）；Li et al., Robust AI Inference Model Placement with Cross Layer Backup over Optical Transport Networks, ACP 2025, DOI 10.1109/ACP66871.2025.11350578。后者讨论部署与跨层备份，不应把其内容据为X02首创。</p></aside>
+</section>
+
+<section class="slide" data-section="4" data-title="请老师批评指正">
+  <div class="thanks"><h1>请老师批评指正</h1><p>光网络故障下的推理状态重建与光资源联合恢复</p><p class="summary">联合决定留在哪里、重建多少、走哪条路、分配哪些光资源<br>在状态正确与资源约束下，恢复运行中的推理服务</p></div>
+  <aside class="speaker-notes"><p>结束时回到研究问题，不声称已验证贡献。可请老师重点指导：主场景是否适合作为第二点、联合模型范围是否合适、应优先核验哪种状态恢复接口和参数。</p></aside>
+</section>
+</main>
+
+<nav id="tools" aria-label="演示工具"><button id="prev" title="上一页（←）">←</button><button id="next" title="下一页（→）">→</button><button id="overview-btn">目录 O</button><button id="notes-btn">讲稿 N</button><button id="full-btn">全屏 F</button><button id="print-btn">打印 P</button></nav>
+<div id="hint">← → / 空格 翻页　·　O 目录　·　N 讲稿　·　F 全屏　·　P 打印</div>
+<div id="overview" class="overlay" role="dialog" aria-modal="true" aria-labelledby="overview-title"><div class="overlay-head"><span id="overview-title">X02 · 幻灯片总览</span><button id="close-overview">返回演示 Esc</button></div><div id="overview-grid"></div></div>
+<aside id="notes-panel" aria-label="当前幻灯片讲稿"><button class="close" id="close-notes" aria-label="关闭讲稿">×</button><h2 id="notes-title"></h2><div id="notes-content"></div></aside>
+<div id="live-status" role="status" aria-live="polite"></div>
+<script>
+(()=>{'use strict';
+ const stage=document.getElementById('stage'),slides=[...document.querySelectorAll('.slide')];
+ const sections=['研究背景','核心思路','模型与方法','初步分析','参考文献'];
+ const logo=document.querySelector('.cover-logo').src;
+ let index=0,toolTimer,touchX=null;
+ const overview=document.getElementById('overview'),notes=document.getElementById('notes-panel');
+ const perSection=sections.map((_,s)=>slides.map((x,i)=>Number(x.dataset.section)===s?i:-1).filter(x=>x>=0));
+ slides.forEach((slide,i)=>{
+  slide.setAttribute('role','group');slide.setAttribute('aria-roledescription','幻灯片');slide.setAttribute('aria-label',`${i+1} / ${slides.length} ${slide.dataset.title}`);
+  const nav=document.createElement('nav');nav.className='topnav';nav.setAttribute('aria-label','章节导航');
+  sections.forEach((name,s)=>{const part=document.createElement('div');part.className='nav-section'+(Number(slide.dataset.section)===s?' current':'');
+   const link=document.createElement('button');link.className='section-link';link.textContent=name;link.onclick=()=>go(perSection[s][0]);part.append(link);
+   const dots=document.createElement('div');dots.className='nav-dots';
+   perSection[s].forEach(n=>{const d=document.createElement('button');d.className='nav-dot'+(n===i?' current':n<i?' past':'');d.title=`${n+1}. ${slides[n].dataset.title}`;d.setAttribute('aria-label',d.title);d.onclick=()=>go(n);dots.append(d)});part.append(dots);nav.append(part);
+  });slide.prepend(nav);
+  if(slide.querySelector('.slide-title')){const img=document.createElement('img');img.src=logo;img.alt='北京邮电大学';img.className='brand';slide.append(img)}
+  const foot=document.createElement('footer');foot.className='foot';foot.innerHTML=`<span>中期研究方案</span><span class="foot-center">推理状态重建与光资源联合恢复</span><span class="foot-page">${i+1} / ${slides.length}</span>`;slide.append(foot);
+  const thumb=document.createElement('button');thumb.className='thumb';thumb.dataset.index=i;thumb.innerHTML=`<small>${String(i+1).padStart(2,'0')} / ${slides.length}</small><strong>${slide.dataset.title}</strong><span>${sections[Number(slide.dataset.section)]}</span>`;thumb.onclick=()=>{closeOverview();go(i)};document.getElementById('overview-grid').append(thumb);
+ });
+ function resize(){const scale=Math.min(innerWidth/1280,innerHeight/720);stage.style.transform=`translate(-50%,-50%) scale(${scale})`}
+ function go(n,writeHash=true){index=Math.max(0,Math.min(slides.length-1,Number(n)||0));slides.forEach((s,i)=>{s.classList.toggle('active',i===index);s.setAttribute('aria-hidden',String(i!==index));if(i===index)s.removeAttribute('inert');else s.setAttribute('inert','')});
+  document.querySelectorAll('.thumb').forEach((t,i)=>t.classList.toggle('active',i===index));
+  document.getElementById('notes-title').textContent=`${index+1}. ${slides[index].dataset.title}`;document.getElementById('notes-content').innerHTML=slides[index].querySelector('.speaker-notes')?.innerHTML||'<p>本页无补充讲稿。</p>';
+  document.getElementById('live-status').textContent=`第${index+1}页，共${slides.length}页：${slides[index].dataset.title}`;
+  document.title=`${index+1}/${slides.length} · ${slides[index].dataset.title} · X02`;
+  if(writeHash&&location.hash!==`#${index+1}`)history.replaceState(null,'',`#${index+1}`);
+ }
+ function toggleOverview(){if(overview.classList.contains('open')){closeOverview();return}overview.classList.add('open');document.querySelector('.thumb.active')?.focus()}
+ function closeOverview(){overview.classList.remove('open')}
+ function toggleNotes(){notes.classList.toggle('open')}
+ async function fullscreen(){try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen()}catch{showTools()}}
+ function showTools(){document.body.classList.add('show-tools');clearTimeout(toolTimer);toolTimer=setTimeout(()=>document.body.classList.remove('show-tools'),2400)}
+ document.getElementById('prev').onclick=()=>go(index-1);document.getElementById('next').onclick=()=>go(index+1);document.getElementById('overview-btn').onclick=toggleOverview;document.getElementById('close-overview').onclick=closeOverview;document.getElementById('notes-btn').onclick=toggleNotes;document.getElementById('close-notes').onclick=()=>notes.classList.remove('open');document.getElementById('full-btn').onclick=fullscreen;document.getElementById('print-btn').onclick=()=>window.print();
+ addEventListener('resize',resize);addEventListener('mousemove',showTools);addEventListener('hashchange',()=>go((parseInt(location.hash.slice(1),10)||1)-1,false));
+ document.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  if(e.key==='Escape'){closeOverview();notes.classList.remove('open');return}if(overview.classList.contains('open'))return;
+  if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){if(e.key===' '&&e.target.tagName==='BUTTON')return;e.preventDefault();go(index+1)}
+  else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(index-1)}else if(e.key==='Home'){e.preventDefault();go(0)}else if(e.key==='End'){e.preventDefault();go(slides.length-1)}else if(e.key.toLowerCase()==='o'){e.preventDefault();toggleOverview()}else if(e.key.toLowerCase()==='n'){e.preventDefault();toggleNotes()}else if(e.key.toLowerCase()==='f'){e.preventDefault();fullscreen()}else if(e.key.toLowerCase()==='p'){e.preventDefault();window.print()}
+ });
+ stage.addEventListener('touchstart',e=>{touchX=e.touches[0].clientX},{passive:true});stage.addEventListener('touchend',e=>{if(touchX===null)return;const diff=e.changedTouches[0].clientX-touchX;if(Math.abs(diff)>60&&!overview.classList.contains('open'))go(index+(diff<0?1:-1));touchX=null},{passive:true});
+ window.__x02={go,get index(){return index},get count(){return slides.length}};
+ resize();go((parseInt(location.hash.slice(1),10)||1)-1,false);
+})();
+</script>
+</body>
+</html>

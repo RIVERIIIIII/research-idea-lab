@@ -1,0 +1,1211 @@
+=== PDF page 1 ===
+CARAMEL : A CCELERATING DECENTRALIZED DISTRIBUTED DEEP
+LEARNING WITH COMPUTATION SCHEDULING
+Sayed Hadi Hashemi * 1 Sangeetha Abdu Jyothi * 2 3 Brighten Godfrey 4 5 Roy Campbell 4
+ABSTRACT
+The method of choice for parameter aggregation in Deep Neural Network (DNN) training, a network-intensive
+task, is shifting from the Parameter Server model to decentralized aggregation schemes (AllReduce) inspired
+by theoretical guarantees of better performance. However, current implementations of AllReduce overlook the
+interdependence of communication and computation, resulting in signiﬁcant performance degradation. In this
+paper, we develop Caramel, a system that accelerates decentralized distributed deep learning through model-
+aware computation scheduling and communication optimizations for AllReduce. Caramel achieves this goal
+through (a) computation DAG scheduling that expands the feasible window of transfer for each parameter (transfer
+boundaries), and (b) network optimizations for smoothening of the load including adaptive batching and pipelining
+of parameter transfers. Caramel maintains the correctness of the dataﬂow model, is hardware-independent, and
+does not require any user-level or framework-level changes. We implement Caramel over TensorFlow and show
+that the iteration time of DNN training can be improved by up to 3.62× in a cloud environment.
+1 I NTRODUCTION
+Deep Neural Networks (DNNs) form the crux of advanced
+solutions in a variety of ﬁelds such as computer vision and
+natural language processing. In frameworks such as Tensor-
+Flow (Abadi et al., 2016), the interdependence of compu-
+tation and communication operations involved in training
+a model is represented using a dataﬂow graph, which is a
+Directed Acyclic Graph (DAG). The state of the DNN is
+represented by a vector of parameters. Each iteration in-
+volves the computation of parameter updates, followed by
+its exchange between the participating nodes.
+Today, performance and scalability of distributed DNN train-
+ing in the cloud are bottlenecked by this parameter aggrega-
+tion (Iandola et al., 2016; Keuper, 2016). Recently, decen-
+tralized aggregation schemes (Barnett et al., 1994; Thakur
+& Gropp, 2003; Dean & Ghemawat, 2008) have emerged as
+a popular choice of aggregation in many frameworks (Baidu
+Research, 2016; Sergeev & Balso, 2018; TensorFlow, 2019).
+In these schemes, unlike in the Parameter Server model,
+parameters are aggregated through collective transfers such
+as MPI allreduce() in MPI (Gropp et al., 1999) and
+ncclAllReduce() in Nvidia’s NCCL. However, in spite
+of recent optimizations (Goyal et al., 2017), current de-
+*Equal contribution 1Google 2UC Irvine 3VMware Re-
+search 4UIUC 5VMware. Correspondence to: Sayed Hadi
+Hashemi <hashemi3@illinois.edu>, Sangeetha Abdu Jyothi
+<sangeetha.aj@uci.edu>.
+centralized implementations fail to achieve the guaranteed
+performance gains since they overlook interdependency of
+communication and computation, especially in the cloud,
+leaving GPUs idle for a signiﬁcant fraction of time.
+In this paper, we introduce CARAMEL to improve efﬁciency
+of decentralized DNN training, in terms of iteration time
+and GPU utilization, through model-aware dataﬂow DAG
+optimizations. CARAMEL achieves this goal through (a)
+computation scheduling that expands the feasible window
+of transfer for each parameter (transfer boundaries) and (b)
+network optimizations that smoothen the load.
+The transfer boundaries of a parameter represent the win-
+dow when that parameter can be aggregated without block-
+ing computation. When the transfer boundaries are farther
+apart, the performance is less affected by a slow network.
+CARAMEL expands these boundaries through scheduling
+optimizations of the computation DAG where it (i) moves
+the start boundaries earlier while also reducing variance and
+(ii) pushes the end boundary by postponing the execution
+of some computation operations to the forward pass of next
+iteration. Optimizations for smoothening the network load
+include (iii) batching of small parameters to reduce the net-
+work overhead, and (iv) adaptive splitting and pipelining
+of parameters to accelerate aggregation of large data which
+involves multi-stage network transfers with intermediate
+aggregation computation at workers.
+Optimizations in CARAMEL are motivated by following ob-
+servations of shortcomings in state-of-the-art decentralized
+arXiv:2004.14020v1  [cs.NI]  29 Apr 2020
+
+=== PDF page 2 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+aggregation systems.
+First, a dataﬂow model (DAG) may have multiple feasible
+traversals, i.e., different orders of execution for computation
+operations in the DAG which are all valid. Network transfers
+are leaf nodes in this dataﬂow DAG. Based on the schedule
+chosen for computation operations, network transfers may
+be activated (i.e., parameters being ready for aggregation)
+in different orders across multiple workers. This can prove
+detrimental in decentralized aggregation where all workers
+should activate the same parameter before its transfer can
+be initiated and bad schedules can delay transfers. To solve
+this problem, CARAMEL enforces a schedule on network
+transfers by adding additional dependencies in the DAG to
+force all workers to follow the same best schedule. Note
+that this does not affect the correctness of the initial model
+as CARAMEL is enforcing one of the valid schedules in the
+initial DAG, thereby reducing the variance in start boundary
+of each parameter.
+Second, we identify an opportunity for increasing the win-
+dow of network transfer during an iteration by pushing
+the end boundary. An iteration has two phases: forward
+pass and backpropagation phase. Currently, transfers are
+restricted to the backpropagation phase. We propose tech-
+niques for extending network transfers to forward pass in
+CARAMEL by postponing execution of some network opera-
+tions to the forward pass of the next iteration in the dataﬂow
+DAG without affecting computation operations.
+Third, all DNNs we analyzed have a large number of small
+parameters which incur signiﬁcant overhead during network
+transfer. To tackle the small-parameter overhead, we im-
+plement model-aware batching in CARAMEL , while also
+ensuring that the batched parameters are ready at nearly the
+same time to avoid waiting.
+Fourth, transfer of large parameters can be accelerated by
+splitting a single large aggregation operation into multiple
+smaller aggregations over partitions of the data and pipelin-
+ing computation and communication stages of each sub-
+operation. CARAMEL adaptively chooses the optimal level
+of splitting them.
+To the best of our knowledge, CARAMEL is the ﬁrst work
+that improves overlap of communication and computation
+in DNN training solely by computation scheduling/trans-
+formation. The network optimizations in CARAMEL (adap-
+tive batching and splitting) are also implemented as DAG
+operations. CARAMEL advances state of the art by gen-
+erating an optimized DAG with several practical beneﬁts:
+(a) CARAMEL can use all accelerators/network fabrics sup-
+ported by ML framework out of the box, (b) CARAMEL is
+portable and compatible with ML pipeline services such as
+fault recovery/checkpointing, and (c) no modiﬁcations to
+ML frameworks or external dependencies are required with
+CARAMEL .
+We implementCARAMEL over TensorFlow and demonstrate
+that the iteration time can be reduced by up to 3.62×, with
+up to 73% network cost reduction. In summary, we make
+the following contributions:
+• We identify opportunities for improving efﬁciency of
+decentralized distributed DNN training.
+• We develop CARAMEL and implement it over Ten-
+sorFlow with model-aware optimizations to expand
+transfer boundaries and smoothen network utilization.
+• We extensively evaluate the performance ofCARAMEL
+in the Azure cloud and show that training iteration time
+can be improved by up to 3.62× and GPU utilization
+by up to 3× in 5 commonly used DNN models.
+2 B ACKGROUND
+In this section, we give a brief overview of the distributed
+DNN training environment that we aim to optimize.
+Popular machine learning frameworks such as Tensor-
+Flow (Abadi et al., 2016) and PyTorch (Paszke et al., 2017)
+represent the DNN training as a Directed Acyclic Graph
+(DAG). A toy model is given in Figure 1a. A DAG has two
+types of operations (ops): computation ops (multiplication,
+convolution etc.) and communication ops (read and update).
+Each parameter is read and updated independently. Each
+iteration has two stages: forward pass and backpropagation
+phase. In the forward pass, a loss function is calculated
+based on the input to the model. In the backpropagation
+phase, the model parameters are updated based on the cal-
+culated loss.
+We target the commonly used model replica (MR) (also
+called data parallel) style of distributed training. In this
+style, each participating node called worker has a copy of the
+complete DAG. Input data is partitioned and fed in parallel
+to the workers. A worker computes updates (gradients) to
+model parameters based on its inputs. Update to a given
+parameter is of the same size (byte length) at all workers and
+the aggregation process is typically a commutative operation
+(mainly addition). In synchronized training in model replica
+there is a barrier at the end of iteration to ensure all the
+workers have their updates aggregated.
+Parameter aggregation can be done in several ways. In Pa-
+rameter Server (PS) mode, there are one or more centralized
+servers responsible for aggregating parameters. In this pa-
+per, our focus is on decentralized aggregation techniques
+(Bucket or Ring algorithm (Barnett et al., 1994), Vector
+Halving and Distance Doubling Algorithm (HD) (Thakur
+& Gropp, 2003), Shufﬂe (Dean & Ghemawat, 2008), etc.).
+In all decentralized patterns, aggregation of a parameter is
+initiated only after it is activated at all workers. Unlike PS,
+
+=== PDF page 3 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+Forward Pass Backpropagation
+ Transfer  
+ Boundary
+Barrier
+5’ 2’2
+4’
+53
+4
+3’ 1’1
+A A
+(a) Example DAG
+5’3’4’2’1’
+    ATransfer Boundary
+GPU
+A
+5’3’4’2’1’
+Network
+GPU
+(b) Best Schedule
+5’4’3’2’1’
+ ATransfer Boundary
+GPU
+A
+5’4’3’ 2’1’
+Network
+GPU
+(c) Worst Schedule
+Figure 1. Impact of Transfer Window on Performance
+0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4
+Communication to Computation Ratio ( )
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0Overlap Coefficient ( )
+TensorFlow + MPI (68%)
+TensorFlow + PS (78%)
+Caramel (92%)
+    Better Performance    
+35%
+40%
+45%
+50%55%
+60%
+65%
+70%
+75%
+80%
+85%
+90%
+95%
+99%
+Figure 2. Overlap coefﬁcient and communication/computation ra-
+tio for different frameworks with GPU utilization contours in the
+background (using Inception-v3 with 8 workers).
+all workers are involved in the process with communica-
+tion and computation load related to aggregation distributed
+across nodes based on the pattern selected. Currently, de-
+centralized aggregation is initiated for each parameter in the
+backpropagation phase after the parameter is updated.
+3 M OTIVATION
+In distributed DNN training, GPUs are forced to be idle
+when waiting for network transfers to complete. In this
+section, we deﬁne transfer boundaries of a parameter and
+analyze various factors causing delays in DNN training.
+3.1 Deﬁning the Environment
+The total iteration time (T ), communication time (N), and
+the computation time (C) are related asT≤N +C since the
+computation and communication may overlap. As shown
+in (Hashemi et al., 2019), the communication/computation
+ratio,ρ, the overlap coefﬁcient,α, and the GPU utilization,
+U, are related as follows:U = 1
+1+ρ−α∗min(ρ,1). Whenρ<
+1, communication time is smaller than the total computation
+Time
+Backpropagation Forward Pass
+(a) Parameter Server
+Time
+Backpropagation Forward Pass (b) Decentralized aggregation
+Figure 3. Comparison of transfer boundaries in a single iteration
+of distributed training with PS and decentralized aggregation. Data
+collected from training VGG-16 with batch size of 256.
+time, providing ample opportunity for running GPUs at high
+utilization. Poor overlap of communication and computation
+can result in low GPU utilization.
+3.2 Performance of current systems
+Similar to PS comparisons in (Hashemi et al., 2019), we
+plot the contour curves for GPU utilization with respect to
+α andρ to understand the performance of MPI implemen-
+tation in the state-of-the-art decentralized aggregation with
+Horovod (Sergeev & Balso, 2018). We observe that Tensor-
+Flow with Horovod suffers from poor overlap of communi-
+cation and computation, and hence poor GPU utilization. In
+this paper, we will identify causes for this poor performance
+and design optimizations in CARAMEL that help us improve
+GPU utilization signiﬁcantly.
+3.3 Understanding Model Characteristics
+Next, we deﬁne transfer window of a parameter and identify
+causes of low GPU utilization based on this characteristic
+and other well-known attributes of a model.
+3.3.1 Transfer Boundary
+We deﬁnetransfer boundary of a parameter based on the
+window where its aggregation is feasible. The start bound-
+ary is determined by the completion of the computation
+operation that updates the parameter. The end boundary is
+the computation operation that reads the parameter. Given
+a schedule of computation operations, start and end bound-
+aries of a parameter are ﬁxed. For example, in Figure 1a,
+start boundary is at 3′ where parameter A is updated and
+end boundary is at 1′ where parameterA is read.
+
+=== PDF page 4 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+0 20 40 60 80 100
+% of Runtime
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16
+Forward Pass
+(a) Percentage of Forward Pass in com-
+mon DNN models
+��
+����
+����
+����
+����
+��
+�� � �� � �� � �� � �� � �� � �� � �� �
+���
+����������������������
+����������
+������������
+������������
+�������������
+������
+(b) Parameter Size distribution in 5 DNN models
+64.0B 1.0KB 16.0KB 256.0KB 4.0MB 64.0MB
+Data Size
+1
+10
+100
+1000Aggregation Time (ms) (c) End-to-end transfer time within
+TensorFlow at different data sizes
+Figure 4. Understanding model characteristics: opportunities for optimization (a) signiﬁcant duration of forward pass which is not used
+for transfers (b) large number of small parameters, (c) large network overhead at small data sizes
+3.3.2 Opportunities for Performance Improvement
+(A) Randomness in transfer boundaries: In decentral-
+ized aggregation, all workers should have the parameter
+available for aggregation before the transfer can be initiated.
+However, there are multiple feasible orders for executing
+operations in a DAG. As a result, parameters may become
+available at different workers in varying orders. For exam-
+ple, Figures 1b and 1c show two schedules of computation
+operations which are both feasible according to Figure 1a.
+In the best schedule, transfer boundaries are farther apart,
+allowing better overlap of computation and communication,
+which will in turn improve GPU utilization. In the worst
+schedule, the overlap is signiﬁcantly reduced due to the
+shorter window available. Thus, we can increase the win-
+dow between transfer boundaries through better scheduling
+of computation operations.
+(B) Restrictions on network transfers: In PS, the parame-
+ters are updated at the backpropogation phase of an iteration
+and read in the forward pass of next iteration. However, cur-
+rent implementations of decentralized schemes restrict these
+network transfers to the backpropagation phase. As a result,
+the network is not utilized during the forward pass as shown
+in Figure 3. In common models, forward pass accounts for
+about 30% of the computation time (Figure 4(a)) which is
+currently not utilized for network transfers.
+(C) Large overhead for small parameters: PDF of pa-
+rameter sizes across 5 popular models are given in Figure 4
+(b). We observe that there are a large number of small pa-
+rameters, with 50% of parameters smaller than 20KB in all
+models. This observation also holds for 15 other models
+that we evaluated. Next, we study the impact of small pa-
+rameters by measuring the time to receive a small parameter
+within the TensorFlow framework. This is the end-to-end
+time from the application perspective which includes the
+network transfer time and the time for serialization/deserial-
+ization, kernel to user-space delay etc. In Figure 4 (c), we
+show the end-to-end transfer time from within TensorFlow
+5’ 2’
+4’
+3’ 1’
+A
+(a) Before
+5’ 2’
+4’
+3’ 1’
+A (b) After
+Figure 5. DAG Optimization in Caramel
+for different data sizes with recursive doubling-halving al-
+gorithm on 16 workers. We observe that small parameters
+incur a large delay due to non-network overheads. Thus, we
+can improve performance by batching smaller parameters.
+Also, different parameters are read and updated at different
+times, based on their order of activation in the DAG. This
+opens the door for smart parameter batching and scheduling
+based on their transfer boundaries.
+4 C ARAMEL DESIGN
+Network transfer optimization in CARAMEL involves four
+functionalities: (i) dataﬂow DAG optimizer, (ii) small-
+parameter batcher, (iii) network transfer scheduler, and (iv)
+adaptive depth enforcer.
+4.1 Dataﬂow DAG Optimizer
+In decentralized aggregation patterns, it is necessary to have
+a parameter ready for aggregation at all workers before it
+can be aggregated (§ 3.3 B). This module is responsible for
+(i) determining the best executing order of ops in the DAG
+and (ii) adding additional dependencies in the model to
+ensure that there is only a single feasible order of execution.
+Stage 1 — Determining the best order: To maximize
+the overlap coefﬁcient,α, the computations should be pri-
+oritized in a manner that activates the communication op-
+erations as early as possible (early start boundary for pa-
+rameters). We add the minimal number of additional de-
+
+=== PDF page 5 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+Forward 
+pass
+A
+Back 
+Prop Update
+Barrier
+!A
+A A
+Forward 
+pass
+(a) Before
+Forward 
+pass
+A
+Back 
+Prop Update
+Barrier
+!A
+!A
+Forward 
+passA
+(b) After
+Figure 6. Transfer Scheduling in Caramel
+pendencies to ensure desired ordering on the parameter
+updates/activation.
+First, we trace execution of an iteration on a single machine
+10 times. The execution time of a computation operation is
+determined as the minimum observed time across all runs.
+Empirically, we ﬁnd that our method can accurately predict
+the computation time of execution (with less than 3% error
+in the worst case) with only 5 runs.
+Next, we use an iterative greedy algorithm to ﬁnd the best
+order of parameter updates. In each step, we calculate the to-
+tal time taken by computation ops that need to be completed
+before each parameter can be activated. The parameter with
+the least cost of computation required to activate it is chosen
+and the computation ops that it depends on are marked as
+completed (their are not counted as dependencies in the
+next iterations). This process is repeated until all parameter
+updates are visited.
+Stage 2 — Enforcing the best order: This is an iterative
+process where parameters are activated in the best order cho-
+sen in the previous stage. In each step, we ﬁnd the list of all
+ops that the chosen parameter directly or indirectly depends
+on. We deﬁne thefree set as the set of all ready-to-execute
+ops, i.e., ops with no dependencies on any unexecuted ops.
+The end set is the list of ops which the target parameter
+update depends on directly. New dependencies are added
+between end set of parameter with tag i and free set of
+parameter with tag i + 1. Parameters are executed in the
+increasing order of their tags (based on the chosen order).
+This ensures that at each given time, only ops needed for the
+target parameter update can be executed. It is worth noting
+that adding additional control dependencies to the dataﬂow
+model does not change the underlying logic of the DAG.
+The enforced order is one of the feasible orders in which
+the DAG may be executed, even without the additional
+dependencies.
+4.2 Parameter Batcher
+Small parameters incur large overhead (§ 3.3). Hence, the
+goal of parameter batching is to reduce this overhead by
+combining parameters in to groups. In our implementation,
+we focus on grouping small parameters only. Larger pa-
+rameters, larger than a certain threshold determined by the
+network characteristics, are transferred without batching.
+We begin with the order we obtained (§ 4.1) and calculate the
+expected parameter update time. For each parameter, in the
+ascending order of the estimated update time, we determine
+whether to batch it or not. If the size of the parameter
+is larger than the threshold (the choice of the threshold
+explained in the next paragraph), it is transferred without
+batching. If the parameter is smaller than the threshold, we
+decide whether to transfer immediately (effectively, putting
+the transfer in a queue to transfer eventually) or add to the
+current active batch. The current batch is transferred when
+the active batch size exceeds the threshold or if the transfers
+in the queue are done before the next parameter update.
+This algorithm ensures that parameters are batched when-
+ever there is an opportunity, i.e., the network is busy with
+other transfers. The threshold plays an important role in this
+algorithm. If the threshold is too small, too few parameters
+will be batched. If it is too large, the batching overhead will
+exceed the beneﬁt. The threshold can be set manually.
+We use a network model to predict the total transfer time for
+a given data size. Empirically, we ﬁnd that a simple linear
+regression model can accurately predict the transfer time
+for a given data size in the network. In order to generate
+this model, we run two sets of network microbenchmarks
+for two data sizes: 64B, and 4MB . The choice of data
+size is arbitrary; we get very similar results with different
+combinations. For each chosen data size, we run sequential
+aggregation transfers and record the time. Next, we ﬁt this
+data to a linear model. Using theis network model, we
+estimate the best threshold as follows:
+Threshold =minx
+f (2x)
+2f (x) > 0.8
+wheref (d) is the network transfer time for data sized. We
+obtain the minimum overhead using this threshold.
+4.3 Network Transfer Scheduler
+The network transfer scheduler is responsible for increasing
+the overlap coefﬁcient by scheduling parameter transfers
+efﬁciently. Transfers are scheduled in both backward pass
+and forward pass to overcome the shortcomings discussed
+in§ 3.3, without affecting the computation (Figure 6).
+Moving a network transfer to the forward pass has the pos-
+sibility of causing delay in computation. We avoid this
+problem through model-awareness. A parameter cannot be
+
+=== PDF page 6 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+updated beyond its transfer boundaries. For batched param-
+eters, this boundary is determined by the parameter that is
+read at the earliest time/updated at the latest time.
+We implement a greedy 2D-Bin packing algorithm to pack
+the parameters based on their feasible window. The two
+dimensions are time and data size. The algorithm proceeds
+as follows. First, we sort the batched groups in the descend-
+ing order of size. Second, for each group, we attempt to
+pack the group in parallel with computation, ﬁrst in the
+backward pass (any time after the end of the batch); if that
+is not feasible, next, in the forward pass (any time before
+the start of the batch). At the end of this stage, we have a
+few groups which are allocated a transfer time and some
+that are unassigned.
+In the third stage, we repeat the same process on unassigned
+items, but allowing transfers beyond the computation time,
+i.e., after the end of the backward pass, or before the start of
+the forward pass. For each item, we compare the additional
+time added to iteration time by placing the group in FP and
+BP, and we choose the one with the smallest overhead.
+4.4 Adaptive Depth Enforcer
+In decentralized algorithms, there are two or more stages
+where data is transferred and aggregated across participat-
+ing nodes. In each step, data is transferred on the network,
+and is sent to application to be reduced, before the result is
+sent again over the network. This back and forth between
+network and application reduces the network utilization
+since the network is not utilized during the reduction at the
+application layer. One solution for avoiding this network
+under-utilization is to chunk (or break) the data in to a few
+pieces, and transfer each chunk independently in parallel.
+The number of chunks is called depth of algorithm. In this
+case, while one chunk is being reduced on the CPU, an-
+other chunk can be sent over the network, i.e., this enables
+pipelining of network transfer and application-level process-
+ing across various chunks. The choice of depth in some
+DL systems is ﬁxed. For example in (Goyal et al., 2017) a
+ﬁxed depth of 2 is used. Throughout the experimentation
+we observe that the depth has a conﬂicting effect on transfer
+performance. As shown in Figure 13, transfer time of small
+parameters increases with increasing depth. In the worst
+case, we observe 3× slow down going from depth of 1 to 8.
+For large parameters, however, the transfer time decreases
+by increasing the depth. At the peak, we observer 60%
+decrease in transfer time going from depth of 1 to 8.
+We choose the depth of transfer adaptively, starting from a
+depth of 1 at smaller parameter sizes to a maximum of 8
+at larger sizes. The depth is determined based on the data
+size and a threshold, (this is same as the parameter batching
+threshold in 4.2). As shown in Figure 13, our adaptive depth
+gets the best performance; smallest transfer time at all sizes.
+In-Graph Implementation In contrast to other imple-
+mentations of decentralized aggregation in deep learning
+systems such as Horovod (in TensorFlow and PyTorch) and
+Gloo (in Caffe2) where the aggregation pattern is abstracted
+as a single op in the dataﬂow model, we implement the
+aggregation pattern as a part of the DAG. In other words,
+the data conversion, transfer, and aggregation are deﬁned as
+standard dataﬂow ops. This allows the aggregation pattern
+to take advantage of further optimizations by the framework
+such as op fusing, XLA (Leary & Wang, 2017). Addition-
+ally, in-Graph implementation does not dependent on exter-
+nal dependencies such as MPI, making it more accessible
+and easier to deploy in the cloud environment.
+5 I MPLEMENTATION
+We implement CARAMEL as a Python library over Tensor-
+Flow. The code is publicly available (obfuscated for re-
+view). The library takes user code dataﬂow model intended
+for a single device, and generates an In-Graph distributed
+dataﬂow model. C ARAMEL API declaration is as follows:
+def ARModel(context,
+number_of_workers,
+serialization = True,
+batching = True,
+scheduling = True,
+analyzers = None,
+device_list = None)
+The functionality of CARAMEL is divided in two: 1) extract-
+ing information from the environment and calculating the
+best network schedule based on the user-provided code, 2)
+generating a new distributed TensorFlow dataﬂow model
+with the added optimizations.
+Figure 7 shows the main components of Caramel. Dis-
+tributed Dataﬂow Model Generator is the component
+which glues together all the other components in the sys-
+tem and provides an interface to the user to interact with
+CARAMEL . The ultimate goal of this component is to gen-
+erate a network-optimized distributed model. This compo-
+nent generates a distributed dataﬂow model using the aggre-
+gation pattern as the network primitive. Next, it applies
+the optimizations on the dataﬂow model through Dataﬂow
+Modiﬁers. Each modiﬁer applies an optimization on the
+dataﬂow graph. For example, the DAG optimizer takes a list
+of control dependencies and adds it to the dataﬂow model.
+The behavior of the modiﬁers and the choice of aggregation
+pattern is controlled by the analyzers. Each analyzer gen-
+erates a piece of information to be used by other analyzers
+or modiﬁers.Static Analysis component is responsible for
+ﬁguring out the data dependencies between analyzers and
+executing them. The Distributed Dataﬂow Model Gen-
+erator automatically selects the set of analyzers based on
+optimizations. However, the user can send a custom list of
+
+=== PDF page 7 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+CARAMEL
+Static Analysis
+Distributed 
+Dataflow Model 
+Generator
+User-Provided 
+Code
+TensorFlow
+Analyzers Library Dataflow 
+Modifiers
+Aggregation 
+Patterns
+Figure 7. Caramel Implementation
+analyzers.
+6 E XPERIMENTS
+In this section, we evaluate the efﬁciency of Caramel system
+implemented over TensorFlow.
+Experiment settings: We run our tests on Azure cloud
+environment using Standard NC6 virtual machines (6 cores,
+56 GB memory, 1 X Nvidia K80 GPU with 12GB memory).
+The bandwidth is 10 Gbps. Our evaluations use 8 to 16
+workers.
+We use Microsoft Data Science Virtual Machine for Linux
+(Ubuntu) image on our VMs which comes with CUDA 9.0,
+cuDNN 7.0.5, Anaconda Python 3.5.4, Open MPI 1.10.2,
+and Horovod 0.11.3. We upgrade the TensorFlow to the
+GPU-enabled binary release of 1.8 frompip repository.
+DNN models: We analyze 16 models and select 5 repre-
+sentative neural networks for our experiments. (Model,
+number of parameters, total parameter size (MiB)) are
+as follows: (AlexNet-v2 (Krizhevsky, 2014), 16, 191.9),
+(Inception-v3 (Szegedy et al., 2015), 196, 103.5), ResNet-
+v1-50 (He et al., 2015), 108, 97.4), (ResNet-v2-152 (He
+et al., 2016), 363, 229.5), and (VGG-16 (Simonyan & Zis-
+serman, 2014), 32, 527.8). We use the reference implemen-
+tation in github.com/tensorflow/models.
+We evaluated both synthetic and real data based training. For
+real data, we read the Imagenet Dataset in TFRecord format
+from a shared NFS-connected Azure storage, resize it with
+augmentation and prefetch the data during the training. This
+initial evaluation showed that we have less than1% iteration
+time difference between experiments with synthetic data
+and real data (except in AlexNet-v2 with 3% error). Hence,
+for the rest of the experiments, we rely on synthetic data.
+6.1 Comparison with other systems
+We compare performance of CARAMEL with Parameter
+Server scheme (with #Parameter servers = #workers and
+#workers/2) and Horovod (state-of-the-art decentralized ag-
+gregation scheme). We evaluate two metrics: iteration time
+(Figure 8) and GPU utilization (Figure 9) with 8 and 16
+workers. We observe that performance of CARAMEL is con-
+sistently better than PS and Horovod with lower iteration
+time and higher GPU utilization across all conﬁgurations
+tested. The largest improvement is observed with VGG-16
+at 16 workers with 3.62× improvement in iteration time
+and 3.5× in GPU utilization. This highest beneﬁt is ob-
+served for DNNs with largest variance in parameter sizes.
+We also observe that CARAMEL optimizations result in a
+GPU utilization of atleast 70% in all networks tested.
+To understand the performance better, we trace the execution
+of each iteration using tensorflow-tracer (Sayed
+Hadi Hashemi, 2019). We measureα andρ from the traces
+(Inception-v3 example in Figure 2). In Figure 10, we ob-
+serve that at all sizes tested, CARAMEL results in reduced
+communication cost compared to the baselines due to adap-
+tive depth and batching. The beneﬁts accrued byCARAMEL
+over PS is due to reduced network cost and over Horovod is
+due to better overlap. While overlap of CARAMEL is better
+than Horovod, it is still worse than PS. However, this is
+compensated by signiﬁcant reduction in network cost.
+6.2 Impact of Caramel Optimizations
+In this section, we quantify the contribution of each of the
+optimizations in terms of overlap coefﬁcient (α) and com-
+munication cost in CARAMEL towards the performance
+beneﬁts achieved. In Figure 11, we see the impact of putting
+these optimizations together on a single model, Inception-
+v3 with 8 workers. Adaptive All Reduce: Compared to the
+MPI implementation in Horovod, the adaptive all reduce sig-
+niﬁcantly improves the overlap and cost, thereby the GPU
+utilization by 14%. Batching: Implementation reduces the
+overlap slightly. However, signiﬁcant reduction in communi-
+cation overhead further improves the GPU utilization by4%.
+Transfer Boundaries: Adding the computation scheduling,
+increases communication cost, but improves overlap signif-
+icantly. As a result, the GPU utilization increases by 24%
+(92% in CARAMEL vs. 68% in MPI implementation of
+Horovod). Similar trends hold in training of other networks
+as shown in Figure 12.
+6.3 Evaluation of Adaptive Decentralized Schemes
+We test constant depth and adaptive depth schemes at dif-
+ferent data sizes (shown in Figure 13. At smaller data sizes,
+splitting the data to be aggregated into smaller chunks re-
+sults in increased transfer time. This is caused by the high
+overhead in each chunk. Hence, a smaller value of depth
+works better for small data transfers. At large data sizes, on
+the other hand, a larger depth allows pipelining of multiple
+transfers, particularly the processing at nodes. The adaptive
+
+=== PDF page 8 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+0 2 4 6 8 10
+Iteration Time (second)
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16
+Caramel
+Horovod
+PS(4)
+PS(8)
+(a) 8-Worker
+0.0 2.5 5.0 7.5 10.0 12.5
+Iteration Time (second)
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16
+Caramel
+Horovod
+PS(8)
+PS(16) (b) 16-Worker
+Figure 8. Comparison of Iteration Time in Caramel with PS and Horovod. Lower is better.
+0 20 40 60 80 100
+GPU Utilization (%)
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16
+Caramel
+Horovod
+PS(4)
+PS(8)
+(a) 8-Worker
+0 20 40 60 80 100
+GPU Utilization (%)
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16
+Caramel
+Horovod
+PS(8)
+PS(16) (b) 16-Worker
+Figure 9. Comparison of GPU Utilization in Caramel with PS and Horovod. Higher is better.
+scheme in CARAMEL chooses depth of 1 at small data sizes
+and a depth of 8 at the largest size tested. Note that the
+y-axis is logscale; the adaptive scheme achieves 60% lower
+transfer time compared with depth 1 at 100 MB.
+All results until the previous subsection are based on shufﬂe
+mode of decentralized aggregation. However, CARAMEL
+optimizations are applicable to all decentralized aggregation
+schemes. In FIgure 14, we show the iteration time with two
+other decentralized schemes: ring and halving-doubling at
+two transfer sizes representating small and large transfers.
+Shufﬂe has the highest performance beneﬁt with less number
+of workers, hence we showed results for this scheme. As
+the number of workers increase, halving-doubling has better
+performance. The choice of the best aggregation scheme
+depends on the number of workers, network bandwidth
+available, etc.
+In summary, we have shown that CARAMEL offers the
+following performance beneﬁts:
+• CARAMEL improves iteration time by up to 3.62× and
+GPU utilization by up to 3.5× compared with Horovod
+in 5 popular DNNs.
+• Optimizations in CARAMEL reduces communication cost
+and improves the communication/computation overlap.
+• Small parameter batching and adaptive depth allows
+CARAMEL to choose the optimal chunk size for transmis-
+sion with minimal overhead.
+• CARAMEL is the ﬁrst system implementing decentrilized
+aggregation to support network transfers during the for-
+ward pass of computation, thereby increasing overlap
+signiﬁcantly.
+7 D ISCUSSION
+In this section, we discuss limitations of CARAMEL and
+avenues for future work.
+Dynamic and variable models: CARAMEL cannot accu-
+rately predict the timing of dataﬂow models with Dynamic
+control ﬂow (Yu et al., 2018) or models with highly variable
+input sizes (e.g. DeepSpeech2 (Amodei et al., 2015)) since
+our model relies on the iterative nature of the DNN train-
+ing. In such environments, inaccurate prediction can lead to
+higher iteration time.
+Extending network optimization to multiple GPUs:
+CARAMEL focuses on optimizing network transfers over
+the cloud network. Our implementation does not rely on
+Nvidia’s NCCL or other GPU-to-GPU libraries to aggregate
+the data on a single machine. In future, CARAMEL can be
+
+=== PDF page 9 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+-0.4 -0.3 -0.2 -0.1 0.0
+Overlap ( ) Changes Compared to PS
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16
+Workers
+8
+16
+(a) Overlap vs PS
+0 20 40 60 80
+Communication Reduction (%) Compared to PS
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16 (b) Network Cost vs PS
+0.0 0.2 0.4
+Overlap  Changes Compared to Horovod
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16
+(c) Overlap vs Horovod
+0 20 40 60 80
+Communication Reduction (%) Compared to Horovod
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16 (d) Network Cost vs Horovod
+Figure 10. Micro Comparison of Caramel with PS and Horovod. Higher is Better.
+0.0 0.2 0.4 0.6 0.8 1.0 1.2 1.4
+Communication to Computation Ratio ( )
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0Overlap Coefficient ( )
+35%
+40%
+45%
+50%55%
+60%
+65%
+70%
+75%
+80%
+85%
+90%
+95%
+99%
+In-DAG Adaptive All Reduce
+Parameter Gradient Batching
+Parameter Aggregation Scheduling
+MPI (68%)
+AR + Batching + Scheduling (92%)
+Adaptive All Reduce (82%)
+AR + Batching (86%)
+Figure 11. Caramel Components Contributions on Performance of
+Inception v3
+extended with additional optimization for network aggrega-
+tion between multiple GPUs within a single machine.
+Alternative implementations: Our implementation cur-
+rently generates an In-Graph dataﬂow model, where the
+dataﬂow at all workers is represented in a single large DAG
+and later partitioned. The size of this graph grows as the
+number of workers increases, which may increase the Ten-
+sorFlow processing time at large graph sizes. Note that we
+have not hit this limit with the current models. In contrast,
+Horovod uses a Between-Graph dataﬂow model, where each
+worker’s version of dataﬂow model is generated separately.
+Since none of the optimizations in CARAMEL is dependent
+on the type of the dataﬂow model, CARAMEL components
+may also be implemented as a ”between-graph”.
+Extending to other frameworks: CARAMEL is currently
+implemented over TensorFlow. However, the optimizations
+are independent of the choice of framework, and can be
+adapted to other systems (similar to porting Horovod from
+TensorFlow to PyTorch (Paszke et al., 2017)).
+8 R ELATED WORK
+Several solutions have been proposed for reducing iteration
+time through network acceleration in distributed DNN train-
+ing. The ﬁrst category focuses on modifying the machine
+learning algorithm with the objective of optimizing network
+tranfers (Alistarh et al., 2017; Wen et al., 2017; Zhang et al.,
+2017). CARAMEL does not change the DNN, it only adds
+additional dependencies in the dataﬂow DAG without al-
+tering the underlying logic. The second class of solutions
+decreases network overhead by reducing the precision of pa-
+rameters (Vanhoucke et al., 2011; Courbariaux et al., 2015;
+Gupta et al., 2015). CARAMEL does not change the param-
+eters of the DNN. The third approach is to optimize the
+aggregation pattern for accelerated DNN training (Goyal
+et al., 2017; Cho et al., 2017; Amodei et al., 2015; You et al.,
+2017; Akiba et al., 2017; Zhang et al., 2017). CARAMEL
+belongs to this category. However, prior solutions for im-
+proving communication/computation overlap (Arnold, 2016;
+Cui et al., 2016; Zhang et al., 2017) developed for earlier
+layer-by-layer systems where the model is sequential can-
+
+=== PDF page 10 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+-0.1 0.0 0.1 0.2 0.3
+Overlap Coefficient ( ) Changes
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16
+(a) Overlap
+-40 -20 0 20 40
+Communication Reduction (%)
+AlexNet v2
+Inception V3
+Resnet-50 v1
+Resnet-152 v2
+VGG-16
+Scheduling
+Batching
+Adaptive All Reduce (b) Network Cost
+Figure 12. Contribution of each module in Caramel to performance. Higher is better.
+�� �
+�� �
+�� �
+�� � �� � �� � �� � �� � �� � �� �
+������������������
+�����������������
+�����
+�
+�
+�
+�
+��������
+Figure 13. Impact of depth on transfer time
+0 1 2 3 4 5
+Transfer Time (ms)
+4
+8
+16Number of Workers
+Transfer Size=64B
+Shuffle (Adaptive)
+Ring (Adaptive)
+Halving Doubling (Adaptive)
+(a) Small Transfers
+0 100 200 300 400
+Transfer Time (ms)
+4
+8
+16Number of Workers
+Transfer Size=64MB
+(b) Large Transfers
+Figure 14. Performance Comparison of Different Collective Trans-
+fer Implementation in Caramel. Lower is better.
+not be adapted to modern DAG-based systems. CARAMEL
+algorithms are not related to these prior solutions.
+Solutions for improving communication/computation over-
+lap in Parameter Server (PS) based systems cannot optimize
+Collective communication (AR) due to signiﬁcant differ-
+ences in execution model. PS has 3 steps: Push gradients
+to PS, Update parameters on PS, and Pull parameters to
+workers. Poseidon (Zhang et al., 2017), P3 (Jayarajan et al.,
+2019), and TicTac (Hashemi et al., 2019) overlap Pull, Up-
+date, and Push across different parameters at the same time
+in PS-based aggregation. AllReduce (which CARAMEL
+tackles) has only 2 steps: collective reduce of gradients
+followed by Update parameters at each worker (Fig 1).
+More importantly, similar techniques are used differently in
+Caramel and past work. E.g., CARAMEL splits transfers to
+overlap ”time on wire” with kernel context switching and
+aggregation op within a single transfer. P3 splits a transfer
+to overlap Push and Pull of subparts. CARAMEL transfers
+all subparts in parallel while P3 transfers sequentially.
+Kylix (Zhao & Canny, 2014) proposed the use of allre-
+duce primitives (such as recursive halving-doubling used by
+CARAMEL ) in commodity clusters primarily for big data
+processing systems such as Hadoop and PowerGraph. It
+leverages sparsity of data to optimize network transfers.
+While CARAMEL relies on the same primitives, we imple-
+ment additional optimizations tailored to the TensorFlow
+framework. Moreover, CARAMEL chooses when to do the
+aggregation and on what data size based on the model and
+network characteristics. Another work (Li et al., 2017)
+that optimizes allreduce for machine learning frameworks
+is tailored for HPC environment with high speeds and not
+suitable for the cloud environment (InﬁniBand is54+Gbps
+and Azure cloud environment provides the highest cloud
+bandwidth of 10Gbps.)
+Horovod (Sergeev & Balso, 2018), built atop an earlier
+work (Baidu Research, 2016), uses decentralized aggre-
+gation pattern with model-replica training jobs similar to
+CARAMEL . Horovod also adds communication ops to
+
+=== PDF page 11 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+dataﬂow DAG of TensorFlow. However, it redirects the
+communication to MPI or NCCL allreduce implementa-
+tions with limited optimizations on transfer. In contrast with
+Horovod, CARAMEL involves signiﬁcant optimization for
+overlap improvement and communication cost reduction
+using ﬁne-grained scheduling and batching. The large per-
+formance beneﬁts of CARAMEL over Horovod is due to
+these model- and network-aware optimizations.
+ByteScheduler (Peng et al., 2019), a generic scheduler
+for both PS and AllReduce with network-only optimiza-
+tions, has limitations for AllReduce workloads. It needs
+custom implementation for every accelerator and network
+fabric. Currently, it only supports NVIDIA GPUs but
+not CPU/TPU (ByteScheduler, 2019). CARAMEL works
+with all hardware supported by TensorFlow out of the box.
+ByteScheduler also requires out-of-DAG implementation
+of parameter optimization and only supports SGD, Adam
+and RMSprop currently (ByteScheduler, 2019). CARAMEL
+supports all TensorFlow optimizers and auxilliary services
+such as checkpointing without any modiﬁcation. Random
+execution order of transfers which could cause deadlock
+and underutilized network and pipelining of parameters are
+other problems in AllReduce that only CARAMEL tackles.
+More importantly, prior work in this space require changes
+to the underlying framework: P3 (Jayarajan et al., 2019)
+modiﬁed KVServer in MXNet, TicTac (Hashemi et al.,
+2019) modiﬁed WorkerService in TensorFlow, ByteSched-
+uler (Peng et al., 2019) uses out-of-DAG scheduler.
+CARAMEL works with vanilla TensorFlow without any
+changes to the underlying framework.
+9 C ONCLUSION
+Iteration time in distributed DNN training in cloud envi-
+ronment is often bottlenecked by network transfers. In
+this paper, we develop CARAMEL to accelerate DNN train-
+ing through network transfer optimizations. CARAMEL
+identiﬁes the appropriate aggregation pattern for a given
+network environment to reduce the communication cost.
+The communication/computation overlap is improved with
+model- and network-aware optimizations. High perfor-
+mance gains achieved by decentralized aggregation patterns
+in CARAMEL motivates further research in decentralized
+aggregation mechanisms tailored for cloud environments.
+REFERENCES
+Abadi, M., Barham, P., Chen, J., Chen, Z., Davis, A., Dean, J.,
+Devin, M., Ghemawat, S., Irving, G., Isard, M., et al. Tensor-
+Flow: A System for Large-Scale Machine Learning. In OSDI,
+volume 16, pp. 265–283, 2016.
+Akiba, T., Suzuki, S., and Fukuda, K. Extremely Large Minibatch
+SGD: Training ResNet-50 on ImageNet in 15 Minutes. CoRR,
+abs/1711.04325, 2017. URL http://arxiv.org/abs/
+1711.04325.
+Alistarh, D., Grubic, D., Li, J., Tomioka, R., and V ojnovic, M.
+QSGD: Communication-Efﬁcient SGD via Gradient Quantiza-
+tion and Encoding. In Advances in Neural Information Process-
+ing Systems, pp. 1707–1718, 2017.
+Amodei, D., Anubhai, R., Battenberg, E., Case, C., Casper, J.,
+Catanzaro, B., Chen, J., Chrzanowski, M., Coates, A., Diamos,
+G., Elsen, E., Engel, J., Fan, L., Fougner, C., Han, T., Han-
+nun, A. Y ., Jun, B., LeGresley, P., Lin, L., Narang, S., Ng,
+A. Y ., Ozair, S., Prenger, R., Raiman, J., Satheesh, S., Seeta-
+pun, D., Sengupta, S., Wang, Y ., Wang, Z., Wang, C., Xiao,
+B., Yogatama, D., Zhan, J., and Zhu, Z. Deep Speech 2: End-
+to-End Speech Recognition in English and Mandarin. CoRR,
+abs/1512.02595, 2015. URL http://arxiv.org/abs/
+1512.02595.
+Arnold, S. An Introduction to Distributed Deep Learning. https:
+//seba1511.com/dist_blog/, 2016.
+Baidu Research. baidu-allreduce. https://github.com/
+baidu-research/baidu-allreduce, 2016.
+Barnett, M., Shuler, L., van De Geijn, R., Gupta, S., Payne, D. G.,
+and Watts, J. Interprocessor collective communication library
+(InterCom). In Scalable High-Performance Computing Confer-
+ence, 1994., Proceedings of the , pp. 357–364. IEEE, 1994.
+ByteScheduler. Github. https://
+github.com/bytedance/byteps/blob/
+e4bbd24747470941bb5b76f542d4e8b2a9d02e1a/
+example/pytorch/benchmark_bytescheduler.
+py#L26, 2019.
+Cho, M., Finkler, U., Kumar, S., Kung, D., Saxena, V ., and Sreed-
+har, D. PowerAI DDL. arXiv preprint arXiv:1708.02188, 2017.
+Courbariaux, M., Bengio, Y ., and David, J.-P. Binaryconnect:
+Training deep neural networks with binary weights during prop-
+agations. In Advances in neural information processing systems,
+pp. 3123–3131, 2015.
+Cui, H., Zhang, H., Ganger, G. R., Gibbons, P. B., and Xing, E. P.
+GeePS: Scalable deep learning on distributed GPUs with a GPU-
+specialized parameter server. In Proceedings of the Eleventh
+European Conference on Computer Systems, pp. 4. ACM, 2016.
+Dean, J. and Ghemawat, S. Mapreduce: Simpliﬁed data processing
+on large clusters. Commun. ACM , 51(1):107–113, January
+2008. ISSN 0001-0782. doi: 10.1145/1327452.1327492.
+URL http://doi.acm.org.proxy2.library.
+illinois.edu/10.1145/1327452.1327492.
+Goyal, P., Doll´ar, P., Girshick, R., Noordhuis, P., Wesolowski, L.,
+Kyrola, A., Tulloch, A., Jia, Y ., and He, K. Accurate, Large
+Minibatch SGD: Training ImageNet in 1 Hour. arXiv preprint
+arXiv:1706.02677, 2017.
+Gropp, W., Gropp, W. D., Lusk, A. D. F. E. E., Lusk, E., and
+Skjellum, A. Using MPI: portable parallel programming with
+the message-passing interface, volume 1. MIT press, 1999.
+
+=== PDF page 12 ===
+CARAMEL : Accelerating Decentralized Distributed Deep Learning with Model-Aware Scheduling
+Gupta, S., Agrawal, A., Gopalakrishnan, K., and Narayanan, P.
+Deep learning with limited numerical precision. InInternational
+Conference on Machine Learning, pp. 1737–1746, 2015.
+Hashemi, S. H., Jyothi, S. A., and Campbell, R. H. TicTac: Improv-
+ing Distributed Deep Learning with Communication Scheduling.
+2019.
+He, K., Zhang, X., Ren, S., and Sun, J. Deep residual learning
+for image recognition. CoRR, abs/1512.03385, 2015. URL
+http://arxiv.org/abs/1512.03385.
+He, K., Zhang, X., Ren, S., and Sun, J. Identity mappings in
+deep residual networks. CoRR, abs/1603.05027, 2016. URL
+http://arxiv.org/abs/1603.05027.
+Iandola, F. N., Moskewicz, M. W., Ashraf, K., and Keutzer, K.
+Firecaffe: Near-linear acceleration of deep neural network train-
+ing on compute clusters. In 2016 IEEE Conference on Com-
+puter Vision and Pattern Recognition, CVPR 2016, Las V e-
+gas, NV , USA, June 27-30, 2016 , pp. 2592–2600, 2016. doi:
+10.1109/CVPR.2016.284. URL https://doi.org/10.
+1109/CVPR.2016.284.
+Jayarajan, A., Wei, J., Fedorova, A., and Pekhimenko, G. Priority-
+based Parameter Propagation for Distributed DNN Training.
+2019.
+Keuper, J. Distributed training of deep neuronal networks: The-
+oretical and practical limits of parallel scalability. CoRR,
+abs/1609.06870, 2016. URL http://arxiv.org/abs/
+1609.06870.
+Krizhevsky, A. One weird trick for parallelizing convolutional
+neural networks. arXiv preprint arXiv:1404.5997, 2014.
+Leary, C. and Wang, T. XLA: TensorFlow, compiled. TensorFlow
+Dev Summit, 2017.
+Li, Z., Davis, J., and Jarvis, S. An efﬁcient task-based all-reduce for
+machine learning applications. In Proceedings of the Machine
+Learning on HPC Environments, MLHPC’17, pp. 2:1–2:8, New
+York, NY , USA, 2017. ACM. ISBN 978-1-4503-5137-9. doi:
+10.1145/3146347.3146350. URL http://doi.acm.org/
+10.1145/3146347.3146350.
+Paszke, A., Gross, S., Chintala, S., and Chanan, G. PyTorch:
+Tensors and dynamic neural networks in Python with strong
+GPU acceleration, 2017.
+Peng, Y ., Zhu, Y ., Chen, Y ., Bao, Y ., Yi, B., Lan, C., Wu, C., and
+Guo, C. A generic communication scheduler for distributed
+dnn training acceleration. In Proceedings of the 27th ACM
+Symposium on Operating Systems Principles , SOSP 19, pp.
+1629, New York, NY , USA, 2019. Association for Computing
+Machinery. ISBN 9781450368735. doi: 10.1145/3341301.
+3359642. URL https://doi.org/10.1145/3341301.
+3359642.
+Sayed Hadi Hashemi, Paul Rausch, B. R. K.-Y . C. S. L. V . K. R.
+H. C. tensorﬂow-tracing: A performance tuning framework
+for production. USENIX Conference on Operational Machine
+Learning, 2019.
+Sergeev, A. and Balso, M. D. Horovod: fast and easy distributed
+deep learning in tensorﬂow. CoRR, abs/1802.05799, 2018. URL
+http://arxiv.org/abs/1802.05799.
+Simonyan, K. and Zisserman, A. Very deep convolutional
+networks for large-scale image recognition. arXiv preprint
+arXiv:1409.1556, 2014.
+Szegedy, C., Vanhoucke, V ., Ioffe, S., Shlens, J., and Wojna, Z. Re-
+thinking the inception architecture for computer vision. CoRR,
+abs/1512.00567, 2015. URL http://arxiv.org/abs/
+1512.00567.
+TensorFlow. tf.distribute.experimental.multiworkermirroredstrategy.
+https://www.tensorflow.org/api_docs/
+python/tf/distribute/experimental/
+MultiWorkerMirroredStrategy, 2019. (Accessed on
+09/09/2019).
+Thakur, R. and Gropp, W. D. Improving the performance of
+collective operations in MPICH. In European Parallel Virtual
+Machine/Message Passing Interface Users Group Meeting, pp.
+257–267. Springer, 2003.
+Vanhoucke, V ., Senior, A., and Mao, M. Z. Improving the speed
+of neural networks on CPUs. In Proc. Deep Learning and
+Unsupervised Feature Learning NIPS Workshop, volume 1, pp.
+4. Citeseer, 2011.
+Wen, W., Xu, C., Yan, F., Wu, C., Wang, Y ., Chen, Y ., and Li,
+H. Terngrad: Ternary gradients to reduce communication in
+distributed deep learning. In Advances in Neural Information
+Processing Systems, pp. 1508–1518, 2017.
+You, Y ., Zhang, Z., Hsieh, C., and Demmel, J. 100-epoch ImageNet
+Training with AlexNet in 24 Minutes. CoRR, abs/1709.05011,
+2017. URL http://arxiv.org/abs/1709.05011.
+Yu, Y ., Abadi, M., Barham, P., Brevdo, E., Burrows, M., Davis, A.,
+Dean, J., Ghemawat, S., Harley, T., Hawkins, P., et al. Dynamic
+control ﬂow in large-scale machine learning. In Proceedings of
+the Thirteenth EuroSys Conference, pp. 18. ACM, 2018.
+Zhang, H., Zheng, Z., Xu, S., Dai, W., Ho, Q., Liang, X., Hu,
+Z., Wei, J., Xie, P., and Xing, E. P. Poseidon: An Efﬁcient
+Communication Architecture for Distributed Deep Learning on
+GPU Clusters. In 2017 USENIX Annual Technical Conference
+(USENIX ATC 17) , pp. 181–193, Santa Clara, CA, 2017.
+USENIX Association. ISBN 978-1-931971-38-6. URL
+https://www.usenix.org/conference/atc17/
+technical-sessions/presentation/zhang.
+Zhao, H. and Canny, J. Kylix: A sparse allreduce for commodity
+clusters. In 2014 43rd International Conference on Parallel
+Processing, pp. 273–282, Sept 2014. doi: 10.1109/ICPP.2014.
+36.

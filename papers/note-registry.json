@@ -1,0 +1,142 @@
+{
+  "purpose": "Paper identity and sequence reservations across historical and active notes; corpus membership is defined only by JSONL.",
+  "next_note_sequence": "033",
+  "notes": [
+    {
+      "paper_id": "doi-bf74f70e129688b9f8140a658461c41c5ad0dc93886388444d689a5bf6aefc20",
+      "note_sequence": "001",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/001-Power-Aware-Allocation-of-Graph-Jobs-in-Geo-Distributed-Cloud-Networks.md"
+    },
+    {
+      "paper_id": "doi-6292f6af13eff21be0406757a9650aad82274991d55767ebed0695d900ee9f36",
+      "note_sequence": "002",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/002-Distributed-Training-of-Graph-Convolutional-Networks.md"
+    },
+    {
+      "paper_id": "arxiv-2504.17096",
+      "note_sequence": "003",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/003-Sailor-Automating-Distributed-Training-over-Dynamic-Heterogeneous-and-Geo-Distributed-Clusters.md"
+    },
+    {
+      "paper_id": "doi-28ec1674c2592b53d660fec8e98d179b1d53d088ab9a3aa3ba317194ca8ec922",
+      "note_sequence": "004",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/004-Exploiting-spectrum-sharing-for-soft-failure-recovery.md",
+      "active_note": "papers/notes/004-Exploiting-Spectrum-Sharing-for-Soft-Failure-Recovery.md"
+    },
+    {
+      "paper_id": "doi-ffdb39e27e6ff730db4c1d1bcd3a37df8c5c735ce4247d36f37fbb406e7413c4",
+      "note_sequence": "005",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/005-Modeling-Soft-Failure-Evolution-for-Triggering-Timely-Repair.md"
+    },
+    {
+      "paper_id": "openalex-w3037519745",
+      "note_sequence": "007",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/007-Resource-Elasticity-in-Distributed-Deep-Learning.md"
+    },
+    {
+      "paper_id": "doi-c0a1a370a2817c41b56baca60d53b263e1c7e65bd37473abb498764c84ff8ba2",
+      "note_sequence": "009",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/009-CD-CBA-cross-domain-communication-bound-aware-resource-allocation.md"
+    },
+    {
+      "paper_id": "doi-1915b7050a926a547d48ce40f328a1037a59347ca6c1f0e41e9e5e2cc708c250",
+      "note_sequence": "012",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/012-Probabilistic-Shared-Risk-Link-Groups.md"
+    },
+    {
+      "paper_id": "doi-9a31f9cf00c5424841e64b70a521325632ad9fa457e6ca856337d1e6ce735962",
+      "note_sequence": "014",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/014-Resource-Allocation-in-Flexible-Bandwidth-Fine-Grained-Optical-Transport-Networks.md"
+    },
+    {
+      "paper_id": "doi-9b69963c66961509c7ce36bb9cf7676ceda50b1246e60ab2d14ee51010a89ad7",
+      "note_sequence": "015",
+      "archived_note": "archive/2026-10-09-research-reset/papers/notes/015-GeoPipe-Geo-distributed-LLM-Training-Framework.md"
+    },
+    {
+      "paper_id": "doi-f2da11e9c262e630efad483c72a2ed48fac9df666ba67c868e9a0db98d6efa66",
+      "note_sequence": "016",
+      "active_note": "papers/notes/016-Bandwidth-Squeezed-Restoration-in-Spectrum-Sliced-Elastic-Optical-Path-Networks-SLICE.md"
+    },
+    {
+      "paper_id": "doi-77638408a2fdb08ff82b82f37dd43511d5a2f60546ab46a5506fd27d4fca3e22",
+      "note_sequence": "017",
+      "active_note": "papers/notes/017-Survivability-in-optical-networks.md"
+    },
+    {
+      "paper_id": "doi-a22d0d255b08b024f83f312ccb3a0e008badf042bdd2ebf2e9cf360ee2a7f9f4",
+      "note_sequence": "018",
+      "active_note": "papers/notes/018-Survivable-WDM-mesh-networks.md"
+    },
+    {
+      "paper_id": "doi-85146ea788146e7a6b6f23c953aac77952b3b69f4a144d109da5ff2cdf9aed64",
+      "note_sequence": "019",
+      "active_note": "papers/notes/019-A-unified-framework-for-shared-protection-schemes-in-optical-mesh-network.md"
+    },
+    {
+      "paper_id": "doi-b5315866469261c081250bcdcf5fa7eef701933a1b79fb009fe7d265824076b9",
+      "note_sequence": "020",
+      "active_note": "papers/notes/020-Fast-Optical-Layer-Mesh-Protection-Using-Pre-Cross-Connected-Trails.md"
+    },
+    {
+      "paper_id": "doi-73123ce06b0b578da0559aaaad9ae243e94d2b792c9f67340a10ff6c1b7bb921",
+      "note_sequence": "021",
+      "active_note": "papers/notes/021-Robust-QoT-Assured-Resource-Allocation-in-Shared-Backup-Path-Protection-Based-EONs.md"
+    },
+    {
+      "paper_id": "doi-2a2f6d008bc2e03b8314ba5d2da83f6c84b44aef3d8605a2080f664d2cb81693",
+      "note_sequence": "022",
+      "active_note": "papers/notes/022-Path-protection-routing-and-wavelength-assignment-RWA-in-WDM-mesh-networks-under-duct-layer-constraints.md"
+    },
+    {
+      "paper_id": "doi-b4c7f54ab60d4863993ed1f59a288c4a2dea2c8ab42d0a310a8aadd2938e0d3d",
+      "note_sequence": "023",
+      "active_note": "papers/notes/023-A-Survey-on-OFDM-Based-Elastic-Core-Optical-Networking.md"
+    },
+    {
+      "paper_id": "doi-2b0e890a041c91c2eab4f73380d6bb48b71480134536a1e8e8a038c4e969c142",
+      "note_sequence": "024",
+      "active_note": "papers/notes/024-Routing-and-Spectrum-Assignment-for-Dual-Failure-Path-Protected-Elastic-Optical-Networks.md"
+    },
+    {
+      "paper_id": "doi-4a2cb92e16659d031e79df0378662e3690b96277ac187b974382b5ba657518e0",
+      "note_sequence": "025",
+      "active_note": "papers/notes/025-Improving-training-time-and-GPU-utilization-in-geo-distributed-language-model-training.md"
+    },
+    {
+      "paper_id": "doi-9e89a0eecd7e32a9403c8e879ddb33febd74868da96839007c7c86a268fba4c3",
+      "note_sequence": "026",
+      "active_note": "papers/notes/026-DistServe-Disaggregating-Prefill-and-Decoding-for-Goodput-optimized-Large-Language-Model-Serving.md"
+    },
+    {
+      "paper_id": "doi-a1478aad65f6807e61c250d70ac98ee8e7d5553781dc37f12b9738a71833e102",
+      "note_sequence": "027",
+      "active_note": "papers/notes/027-Llumnix-Dynamic-Scheduling-for-Large-Language-Model-Serving.md"
+    },
+    {
+      "paper_id": "doi-7fce45b00580a652cff98673b074c10cfea800f51e0249213329a67a4d4061e3",
+      "note_sequence": "028",
+      "active_note": "papers/notes/028-Bamboo-Making-Preemptible-Instances-Resilient-for-Affordable-Training-of-Large-DNNs.md"
+    },
+    {
+      "paper_id": "doi-51b02a686de46dedf64a72d748c2733f09d519b29ea4035e1137e7eaea468f09",
+      "note_sequence": "029",
+      "active_note": "papers/notes/029-EasyScale-Elastic-Training-with-Consistent-Accuracy-and-Improved-Utilization-on-GPUs.md"
+    },
+    {
+      "paper_id": "doi-40a6e6a6631c624764ffeb27e308e16447a0fd4ecc7c15565443605c866f7e29",
+      "note_sequence": "030",
+      "active_note": "papers/notes/030-NetKV-Network-Aware-Decode-Instance-Selection-for-Disaggregated-LLM-Inference.md"
+    },
+    {
+      "paper_id": "doi-e44731dc3b5862a8437c2152be2bb471a623376d36e71d60e1e3f94084066ce1",
+      "note_sequence": "031",
+      "active_note": "papers/notes/031-GORGO-Online-Tuning-for-Cross-Region-Network-Aware-LLM-Serving.md"
+    },
+    {
+      "paper_id": "doi-343e35e7b4b90a450f7a36bcfd0bcd4ee9f5c63bab90dee0ebd378cf14047226",
+      "note_sequence": "032",
+      "active_note": "papers/notes/032-Efficient-KV-Cache-Migration-for-Geo-Distributed-LLM-Inference-in-Collaborative-Edge-Computing.md"
+    }
+  ]
+}

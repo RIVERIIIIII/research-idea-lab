@@ -1,0 +1,510 @@
+{
+  "date": "2026-10-09",
+  "base_commit": "cd70d563d16c61c5f666cd2fe6270ece2362d906",
+  "files": [
+    {
+      "original_path": "papers/candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/papers/candidates.jsonl",
+      "sha256": "e990fea48fb22459800fa64152dc787cac5db17760308188587f5509dfae0856",
+      "bytes": 408110
+    },
+    {
+      "original_path": "papers/selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/papers/selected.jsonl",
+      "sha256": "f2c09dda2a42125d7b1031bbe8a72e70def86aebee0e282554c1aee23eee9774",
+      "bytes": 30521
+    },
+    {
+      "original_path": "papers/notes/001-Power-Aware-Allocation-of-Graph-Jobs-in-Geo-Distributed-Cloud-Networks.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/001-Power-Aware-Allocation-of-Graph-Jobs-in-Geo-Distributed-Cloud-Networks.md",
+      "sha256": "7bc4d6e71c254e2195a2545e73e05203cac552ba17f9622a0d580fd4a4995309",
+      "bytes": 14644
+    },
+    {
+      "original_path": "papers/notes/002-Distributed-Training-of-Graph-Convolutional-Networks.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/002-Distributed-Training-of-Graph-Convolutional-Networks.md",
+      "sha256": "7b9d8d37b6abfa428b4db2d8bf29e10f8e1b28996927360fdeb7d39f68e970fe",
+      "bytes": 11474
+    },
+    {
+      "original_path": "papers/notes/003-Sailor-Automating-Distributed-Training-over-Dynamic-Heterogeneous-and-Geo-Distributed-Clusters.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/003-Sailor-Automating-Distributed-Training-over-Dynamic-Heterogeneous-and-Geo-Distributed-Clusters.md",
+      "sha256": "a3b920a72d46b608be7d472de0083623fae3fb527e87decb0de8fc28e28d51a3",
+      "bytes": 5559
+    },
+    {
+      "original_path": "papers/notes/004-Exploiting-spectrum-sharing-for-soft-failure-recovery.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/004-Exploiting-spectrum-sharing-for-soft-failure-recovery.md",
+      "sha256": "f4e36b14987c077c310f789e89012526cb9e5b8790b5bda7b38d0b5e471601fd",
+      "bytes": 12039
+    },
+    {
+      "original_path": "papers/notes/005-Modeling-Soft-Failure-Evolution-for-Triggering-Timely-Repair.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/005-Modeling-Soft-Failure-Evolution-for-Triggering-Timely-Repair.md",
+      "sha256": "880275383d12e10371484de91132093e6027d913f252ea9fb44c13446d6e5669",
+      "bytes": 7706
+    },
+    {
+      "original_path": "papers/notes/007-Resource-Elasticity-in-Distributed-Deep-Learning.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/007-Resource-Elasticity-in-Distributed-Deep-Learning.md",
+      "sha256": "e00782577dc95899dfbc87a1e603e8412ce83fe5a31f835a023fc179dc5c1159",
+      "bytes": 2801
+    },
+    {
+      "original_path": "papers/notes/009-CD-CBA-cross-domain-communication-bound-aware-resource-allocation.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/009-CD-CBA-cross-domain-communication-bound-aware-resource-allocation.md",
+      "sha256": "7980e90152f3bf898910beda9bf5ecd0102c59ffd38af867bd738760a7105c9b",
+      "bytes": 13662
+    },
+    {
+      "original_path": "papers/notes/012-Probabilistic-Shared-Risk-Link-Groups.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/012-Probabilistic-Shared-Risk-Link-Groups.md",
+      "sha256": "006ddbdb960ce711816b7d56fa01c4975ce56829d088da361273bc4effd6fca4",
+      "bytes": 7478
+    },
+    {
+      "original_path": "papers/notes/014-Resource-Allocation-in-Flexible-Bandwidth-Fine-Grained-Optical-Transport-Networks.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/014-Resource-Allocation-in-Flexible-Bandwidth-Fine-Grained-Optical-Transport-Networks.md",
+      "sha256": "20aba77f1645fb9ea91bf2b59565dc119794cff5ba065e539524ea8c4e052dab",
+      "bytes": 13605
+    },
+    {
+      "original_path": "papers/notes/015-GeoPipe-Geo-distributed-LLM-Training-Framework.md",
+      "archived_path": "archive/2026-10-09-research-reset/papers/notes/015-GeoPipe-Geo-distributed-LLM-Training-Framework.md",
+      "sha256": "4d1cd11cb0d0e18fb8fc8c217e92eec1ecd32087880bdbf0a78f841fe64b0314",
+      "bytes": 7488
+    },
+    {
+      "original_path": "research/backchecks/.DS_Store",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/.DS_Store",
+      "sha256": "05368affd489c264562bc741a6550178d8dab7491f0393fbf85935331a05fd5e",
+      "bytes": 6148
+    },
+    {
+      "original_path": "research/backchecks/DISC-HYP-A.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/DISC-HYP-A.md",
+      "sha256": "408f365902a03c7abc7fa53c7e8354a001753a0a4abeda786eabe1c81a10de65",
+      "bytes": 10806
+    },
+    {
+      "original_path": "research/backchecks/HYP-001.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/HYP-001.md",
+      "sha256": "217c0e8b53b31e8da6278a21e6a570e238986f1fc45cf7cf038a2ccc069b1ecc",
+      "bytes": 7773
+    },
+    {
+      "original_path": "research/backchecks/HYP-002.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/HYP-002.md",
+      "sha256": "a8153bb6c695fc91342700d02a6a6a3ebc5a0139115613a38d2a09f75b54aab7",
+      "bytes": 6538
+    },
+    {
+      "original_path": "research/backchecks/data/DISC-HYP-A-candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/DISC-HYP-A-candidates.jsonl",
+      "sha256": "a23a9ef9e9ee97b9b4d9f266219f57462a88db09b76ced23c71283dd2d1e0a38",
+      "bytes": 237111
+    },
+    {
+      "original_path": "research/backchecks/data/DISC-HYP-A-downloads.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/DISC-HYP-A-downloads.jsonl",
+      "sha256": "21d29f018d82efeef0cf049b9c258759fcee98629cfc5371446fbb8b02992bad",
+      "bytes": 577
+    },
+    {
+      "original_path": "research/backchecks/data/DISC-HYP-A-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/DISC-HYP-A-report.json",
+      "sha256": "cc6f47abd8ab0888f467a0fbd044120e0ea9db2d7d6bbdbad5c679d517bfb5ad",
+      "bytes": 1813
+    },
+    {
+      "original_path": "research/backchecks/data/DISC-HYP-A-selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/DISC-HYP-A-selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/backchecks/data/DISC-HYP-A-supplement-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/DISC-HYP-A-supplement-report.json",
+      "sha256": "df6b055e82d13a91c2ca4c2488dc3faca28e762f4a1acc07cde728b9675c68a9",
+      "bytes": 1174
+    },
+    {
+      "original_path": "research/backchecks/data/HYP-001-candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/HYP-001-candidates.jsonl",
+      "sha256": "65560d2a8856a0896598822a6418f431c3722026848e533fee77c3ccb50922cc",
+      "bytes": 156739
+    },
+    {
+      "original_path": "research/backchecks/data/HYP-001-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/HYP-001-report.json",
+      "sha256": "e25bc2a0cfa1c0992c97c713befffe12daaa2265bcd8a8a1ff1ccec04f14d6ba",
+      "bytes": 1713
+    },
+    {
+      "original_path": "research/backchecks/data/HYP-001-selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/HYP-001-selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/backchecks/data/HYP-001-supplement-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/HYP-001-supplement-report.json",
+      "sha256": "24a4a7db925c11ce3bd0b60fff6ee0c119f658f0006dc66872102597841de0ba",
+      "bytes": 1063
+    },
+    {
+      "original_path": "research/backchecks/data/HYP-002-candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/HYP-002-candidates.jsonl",
+      "sha256": "cb4c761c7ce1a729b56f8b3aad54efe9d7fc3925e7cd717009e598237f2c748e",
+      "bytes": 164901
+    },
+    {
+      "original_path": "research/backchecks/data/HYP-002-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/HYP-002-report.json",
+      "sha256": "109cad0deb5f64be07768b1967cbb24260b59de24549ab958550cdd2b72ff7b5",
+      "bytes": 1745
+    },
+    {
+      "original_path": "research/backchecks/data/HYP-002-selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/HYP-002-selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/backchecks/data/HYP-002-supplement-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/backchecks/data/HYP-002-supplement-report.json",
+      "sha256": "33ba5a15dcbf751f09df9404acf59f17634763e0cdce5ece83da8c69c7f921df",
+      "bytes": 1063
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/analysis.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/analysis.md",
+      "sha256": "1ebd02db515d174273125370855164f6773b74d7cca19745e31db4e71fe4b2b2",
+      "bytes": 5940
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/data/candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/data/candidates.jsonl",
+      "sha256": "8a48bef196bdac51957b162cc94466605041d4012dcfc1f3f6e343c2a366f299",
+      "bytes": 53846
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/data/report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/data/report.json",
+      "sha256": "68591194fbbdcaf6ff4f15476240052d3285f6402faa26059714b259fd0d30d0",
+      "bytes": 2414
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/data/selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/data/selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/minimal-problem-validation.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/minimal-problem-validation.md",
+      "sha256": "bce75b0bfbc91a61e01c95d7c43bac011815ca65b42a3389c901391f95b59c95",
+      "bytes": 8395
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/minimal-stability-check.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/minimal-stability-check.md",
+      "sha256": "ff59a18ae8e2f64eb16733783032ce4c8ef875438fa012543091ab0143e2e699",
+      "bytes": 3017
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/minimal-stability-results.csv",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/minimal-stability-results.csv",
+      "sha256": "82e398678cb46cf69b38acc32824c9030a0320b1cdc5f55c703f010cc321941f",
+      "bytes": 3070
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/minimal_stability_check.py",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/minimal_stability_check.py",
+      "sha256": "a520381b20080d78080a9701a57e084a44f8be610be95d56f8ffa91ad1b95ba8",
+      "bytes": 4297
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/paper-story-assessment.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/paper-story-assessment.md",
+      "sha256": "c877f88e36d20bdadec5cd333feda44699d064614d225388de97e273f1f01864",
+      "bytes": 6990
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/sf1/data/candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/sf1/data/candidates.jsonl",
+      "sha256": "cdebb8f2e3778922e63926bc052df7055340bc656f0dc34cc906e4f3befd25c4",
+      "bytes": 83726
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/sf1/data/report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/sf1/data/report.json",
+      "sha256": "43617a508db6eb49d900e7cba67fc252f9cb387063093abd0499be9d7e0abeed",
+      "bytes": 1742
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/sf1/data/selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/sf1/data/selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/sf2/data/candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/sf2/data/candidates.jsonl",
+      "sha256": "eb82506e6bbda0b76e90262546a1565cf22322188a1b470492c334452e7daa5a",
+      "bytes": 116890
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/sf2/data/report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/sf2/data/report.json",
+      "sha256": "57ec44f4ae7c244d01132ec9ef81520c54fa329316ff2a1346a80a13462d3662",
+      "bytes": 1103
+    },
+    {
+      "original_path": "research/investigations/soft-failure-training-impact/sf2/data/selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/soft-failure-training-impact/sf2/data/selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/investigations/srlg-dependent-protection/adjacent-branches-screening.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/srlg-dependent-protection/adjacent-branches-screening.md",
+      "sha256": "630c37aa889f7465e364d094eef389c05eb57c7c8210a60b82a4ebfa80abb8a5",
+      "bytes": 5549
+    },
+    {
+      "original_path": "research/investigations/srlg-dependent-protection/minimal-problem-check.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/investigations/srlg-dependent-protection/minimal-problem-check.md",
+      "sha256": "531a8a02200be810f48a5297530c2c3553443f089c76a2f13e126294bea04cdb",
+      "bytes": 4957
+    },
+    {
+      "original_path": "research/hypotheses.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/hypotheses.md",
+      "sha256": "f3da17ea58276a7d563b53eea421d6c8fec96829d2ca8df091e51e05c6040ad4",
+      "bytes": 13369
+    },
+    {
+      "original_path": "research/explorations/next-candidate/backup-activation-qot-targeted-check.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/backup-activation-qot-targeted-check.md",
+      "sha256": "26d159286be7269e3d33894281539b8eb5fd5b3ce2aba87ceee6b79815763c21",
+      "bytes": 8159
+    },
+    {
+      "original_path": "research/explorations/next-candidate/branch-screening.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/branch-screening.md",
+      "sha256": "beffcde9e1d18e9783d743282befdc7e352c09528da67047b278ae851119c754",
+      "bytes": 14344
+    },
+    {
+      "original_path": "research/explorations/next-candidate/collateral-qot-transient-early-screen.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/collateral-qot-transient-early-screen.md",
+      "sha256": "b88a21f3415499b8513f9488d9bf12160fbf5c9f0287aec238904d0506fde7b7",
+      "bytes": 5506
+    },
+    {
+      "original_path": "research/explorations/next-candidate/collective-optical-failure-early-screen.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/collective-optical-failure-early-screen.md",
+      "sha256": "6334d6841e227969bf883b2db89353f9cbd3f719901d5ca38a71411ce46d531a",
+      "bytes": 7226
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/checkpoint-protection-candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/checkpoint-protection-candidates.jsonl",
+      "sha256": "cd183c1a2037f74e18dcce69a4170831d8ada7e6310d5a1eb014610a0ea6bc05",
+      "bytes": 50246
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/checkpoint-protection-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/checkpoint-protection-report.json",
+      "sha256": "4aaf16f5c4c1a13d7f6e46eb8d70d484d94d7f55decfc6aff7dd6dcd2fc31681",
+      "bytes": 1148
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/checkpoint-protection-selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/checkpoint-protection-selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/correlated-collective-candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/correlated-collective-candidates.jsonl",
+      "sha256": "41f29d0b40a954f10ce86ae38cf2a03b24cd80cee567cab7f75c89f0d2c3cd74",
+      "bytes": 86675
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/correlated-collective-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/correlated-collective-report.json",
+      "sha256": "664b7ef15054c43b56be7b746137eb87b0bae5646c83fccca6284a66656692cc",
+      "bytes": 977
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/correlated-collective-selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/correlated-collective-selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/cross-layer-diagnosis-candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/cross-layer-diagnosis-candidates.jsonl",
+      "sha256": "ad6eeb073840ee36003230fc203ac5ffa92c0c2b627f1e938283e3ef6d540244",
+      "bytes": 70138
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/cross-layer-diagnosis-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/cross-layer-diagnosis-report.json",
+      "sha256": "420b5f2ae8d76d14c29db48ac395e5a2c8b230f06770024c196b5822c906df29",
+      "bytes": 961
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/cross-layer-diagnosis-selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/cross-layer-diagnosis-selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/inference-survivability-candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/inference-survivability-candidates.jsonl",
+      "sha256": "72ef801e045c3a31ed2c12429a51e7ac4ef8bd61c81cf171ef440e58f88f3021",
+      "bytes": 37786
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/inference-survivability-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/inference-survivability-report.json",
+      "sha256": "6fafce823c29637bb57bb6a264da0af0e414197afd2cae68158aa2f11de067e8",
+      "bytes": 1123
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/inference-survivability-selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/inference-survivability-selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/reconfiguration-candidates.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/reconfiguration-candidates.jsonl",
+      "sha256": "fc80973438db46cbce8a4f102da4735c148c774a6a394d964eb5af270018b156",
+      "bytes": 49870
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/reconfiguration-report.json",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/reconfiguration-report.json",
+      "sha256": "ecb924b97775d0d4889b0d2e66a0eb24cf8e94a1dc732759833ee195dd41da05",
+      "bytes": 1164
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data/reconfiguration-selected.jsonl",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data/reconfiguration-selected.jsonl",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "original_path": "research/explorations/next-candidate/data-supply-and-backup-interference-early-screen.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/data-supply-and-backup-interference-early-screen.md",
+      "sha256": "98c4e68f39c99b2c71bdd84925cd2cde9e451e6270de4aaca8554632eadd847f",
+      "bytes": 3510
+    },
+    {
+      "original_path": "research/explorations/next-candidate/diagnosis-early-check.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/diagnosis-early-check.md",
+      "sha256": "bc872f3fdc4ef31b2fec17fcd250faa65f69574c38e98336f7114a00507b7cb7",
+      "bytes": 5029
+    },
+    {
+      "original_path": "research/explorations/next-candidate/directional-optical-outage-early-screen.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/directional-optical-outage-early-screen.md",
+      "sha256": "98144dba7ad11ea51caaba5eca94f9e69798f3c0f12651a052280b8ac00a7a9c",
+      "bytes": 2156
+    },
+    {
+      "original_path": "research/explorations/next-candidate/disc-tc-1-minimal-problem-check.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/disc-tc-1-minimal-problem-check.md",
+      "sha256": "76d738a0e95333312af00f450222b36c9080aa59b98b68c2cef4941428fcafa0",
+      "bytes": 5948
+    },
+    {
+      "original_path": "research/explorations/next-candidate/disc-tc-2-minimal-problem-check.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/disc-tc-2-minimal-problem-check.md",
+      "sha256": "70b0948060632b1092402819cf8aaea76010352c91e154ca9f4fdf9086984788",
+      "bytes": 5034
+    },
+    {
+      "original_path": "research/explorations/next-candidate/early-warning-and-hitless-otn-early-screen.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/early-warning-and-hitless-otn-early-screen.md",
+      "sha256": "2696c728489e1ae6547d52a309187a9be2823c09e48319e0be4c887c2e2924d3",
+      "bytes": 3923
+    },
+    {
+      "original_path": "research/explorations/next-candidate/empirical-impact-early-screen.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/empirical-impact-early-screen.md",
+      "sha256": "1ce9b2cd5b61255e8a1c9acf17867ced386a56728bcc36a22f61b6f601cc2dd4",
+      "bytes": 3251
+    },
+    {
+      "original_path": "research/explorations/next-candidate/gap001-revisit-early-check.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/gap001-revisit-early-check.md",
+      "sha256": "cba39c1e6bfcc372b0509d9d37016a0e4713deb330fb48236a18f5f9003931e3",
+      "bytes": 8089
+    },
+    {
+      "original_path": "research/explorations/next-candidate/intermittent-optical-fault-early-screen.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/intermittent-optical-fault-early-screen.md",
+      "sha256": "ed53ecbca765e60886f7933c80bad351796c798df8931465eacbbd4a64009575",
+      "bytes": 2052
+    },
+    {
+      "original_path": "research/explorations/next-candidate/optical-constraint-problem-screening.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/optical-constraint-problem-screening.md",
+      "sha256": "36fbe64b65e7a0a77e10fdbb9ea0bbe04b860bf3f7bfa4163788ffb5a38fddc1",
+      "bytes": 3781
+    },
+    {
+      "original_path": "research/explorations/next-candidate/re-screen-after-threshold-correction.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/re-screen-after-threshold-correction.md",
+      "sha256": "b1140ac4d636c17734fe9fbb0a7bcedd8ea25ec6ed571a11d7a128b954857e8e",
+      "bytes": 6959
+    },
+    {
+      "original_path": "research/explorations/next-candidate/task-consequence-discussion.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/explorations/next-candidate/task-consequence-discussion.md",
+      "sha256": "00cf6000f99ae6ec7f82cfafbb17c23413836cd622e9f67d89f5e44a6a840549",
+      "bytes": 5855
+    },
+    {
+      "original_path": "research/gaps.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/gaps.md",
+      "sha256": "800ae068d1682726a849afa1d72262308a8dc52bd379e0adefb2d33701ee8e3e",
+      "bytes": 15358
+    },
+    {
+      "original_path": "research/literature-search-report-2026-10-04.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/literature-search-report-2026-10-04.md",
+      "sha256": "ce7b904b5886f12cabcbaf60255f0cd29ab9db6cff2a580a0f80dfb1831b6545",
+      "bytes": 3379
+    },
+    {
+      "original_path": "research/survey.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/survey.md",
+      "sha256": "022b61944cdd9b630609814544171aa51b9d89db44348af14ccb3ee6fb0af4e5",
+      "bytes": 13230
+    },
+    {
+      "original_path": "research/current-status.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/current-status.md",
+      "sha256": "174e095e274aa39098cf87ec38571975bc0e2ec272f87a6efc7ab4beb430e4b5",
+      "bytes": 8791
+    },
+    {
+      "original_path": "research/candidate-ideas.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/candidate-ideas.md",
+      "sha256": "8ee8da40b202e65f6085496e024a418564cfa6861eecb1adca35b13da5052815",
+      "bytes": 9259
+    },
+    {
+      "original_path": "research/candidate-directions.md",
+      "archived_path": "archive/2026-10-09-research-reset/research/candidate-directions.md",
+      "sha256": "12612d8ed0aecd299dc5046a141b533b64845a4e31cda58fb4069c0680d96aff",
+      "bytes": 12737
+    }
+  ]
+}

@@ -1,5 +1,12 @@
 # Project Workflow
 
+## Active Research and Historical Archive
+
+- 当前研究入口为 `research/research-brief.md` 与 `research/current-status.md`。
+- `archive/` 是历史资料，不得默认批量读取为当前 corpus 或沿用其中的研究结论、候选优先级与问题禁区。仅在明确证据需求下回查，复用前按当前 Brief 核验。
+- 当前 corpus 只由 `papers/candidates.jsonl` 与 `papers/selected.jsonl` 定义；PDF、人工收集资料或历史笔记的存在不表示已纳入。
+- 创建或复用笔记前读取 `papers/note-registry.json`（如存在）。历史 `paper_id`、note sequence 和 evidence ID 不变；新序号不得占用历史保留序号。
+
 所有研究类工作优先读取 `research/research-brief.md`。它定义研究范围，是文献流程的上游约束，但不是 Skill。
 
 工作流：
@@ -57,3 +64,12 @@ Research Area
 - 论文唯一身份始终是 frontmatter/JSONL 中的稳定 `paper_id`。
 - note 文件名采用 `{sequence}-{filesystem-safe-title}.md`，仅供人类阅读。
 - sequence 首次分配后不变；文件名、sequence 或标题 slug 均不得替代 `paper_id` 参与 evidence、survey、gap 或 hypothesis 引用。
+
+## Thesis Screening Requirements
+
+- 毕业论文定位、第一点章节边界、排序偏好和中期交付以 `research/research-brief.md` 的 Thesis Requirements 为准；执行筛选时使用 `docs/mechanism-discovery.md` 的分层规范。
+- 第二点须有实质机制贡献、独立支撑一章且不重复第一点，允许合理增量，不要求独立投稿。共用模型仅为排序偏好，章节关系保持开放。
+- 基础事实有依据、因果推导具体且可证伪即可形成假设，不要求已有论文证明新机制。中期不要求已完成实验或完整算法实现，不降低最终验证要求。
+- 规范同步不自动触发现有线索、假设或候选的推进、淘汰或状态变更。
+
+- 第二点必须属于光网络研究，光网络机制构成贡献核心。候选须说明大模型任务的信息、约束或控制能力如何实质改变光网络保护、恢复、资源共享、风险建模或光资源配置决策；仅任务调度、状态恢复或计算优化不符合要求，总主题不扩大到一般跨域系统研究。

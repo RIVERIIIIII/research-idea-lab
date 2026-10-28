@@ -1,0 +1,40 @@
+{
+  "queries": [
+    "Survivability in optical networks",
+    "Survivable WDM mesh networks",
+    "A unified framework for shared protection schemes in optical mesh network",
+    "Fast optical layer mesh protection using pre cross connected trails",
+    "Robust QoT Assured Resource Allocation in Shared Backup Path Protection Based EONs"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 10
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 10,
+  "batch_after_dedup": 10,
+  "batch_dedup": {
+    "input": 10,
+    "merged": 0,
+    "conflicts": 1,
+    "added": 10
+  },
+  "existing_merge": {
+    "input": 10,
+    "merged": 0,
+    "conflicts": 1,
+    "added": 10
+  },
+  "candidates": 36,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "papers/candidates.jsonl",
+  "selected_path": "papers/selected.jsonl"
+}

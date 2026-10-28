@@ -1,0 +1,38 @@
+{
+  "queries": [
+    "Oobleck resilient distributed training pipeline templates",
+    "Bamboo making preemptible instances resilient distributed training",
+    "EasyScale elastic training consistent accuracy"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 6
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 6,
+  "batch_after_dedup": 6,
+  "batch_dedup": {
+    "input": 6,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 6
+  },
+  "existing_merge": {
+    "input": 6,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 6
+  },
+  "candidates": 6,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/stage2-recovery-search-candidates.jsonl",
+  "selected_path": "research/stage2-recovery-search-selected.jsonl"
+}

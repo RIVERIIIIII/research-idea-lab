@@ -1,0 +1,39 @@
+{
+  "queries": [
+    "elastic optical network soft failure recovery computation aware migration spectrum allocation",
+    "joint optical spectrum allocation virtual machine migration bandwidth",
+    "KV cache migration activation recomputation network resource allocation",
+    "NFV optical network failure recovery migration routing spectrum joint optimization"
+  ],
+  "seeds": [],
+  "source_counts": {
+    "arxiv": 0,
+    "semantic_scholar": 0,
+    "openalex": 12
+  },
+  "expansion_counts": {
+    "citations": 0,
+    "references": 0,
+    "related": 0,
+    "seeds": 0
+  },
+  "raw_before_dedup": 12,
+  "batch_after_dedup": 12,
+  "batch_dedup": {
+    "input": 12,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 12
+  },
+  "existing_merge": {
+    "input": 12,
+    "merged": 0,
+    "conflicts": 0,
+    "added": 12
+  },
+  "candidates": 12,
+  "selected": 0,
+  "errors": [],
+  "candidates_path": "research/backchecks/HYP-001-candidates.jsonl",
+  "selected_path": "research/backchecks/HYP-001-selected.jsonl"
+}

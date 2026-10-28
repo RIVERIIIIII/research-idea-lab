@@ -1,0 +1,85 @@
+service:
+  # 随机种子配置，用于控制随机数生成，确保结果可复现
+  random_seed: 42
+
+  # 模型选择模式配置（用于多维度对比实验）
+  # 可选值：
+  #   - "random": 随机选择模型（原有行为）
+  #   - "Qwen2.5": 固定使用Qwen2.5模型（小模型，72B参数）
+  #   - "gpt-3": 固定使用gpt-3模型（中模型，175B参数）
+  #   - "llama-3": 固定使用llama-3模型（大模型，405B参数）
+  model_selection_mode: "Qwen2.5"
+
+  # 随机到达事件配置
+  model_selection_mode: "Qwen2.5"
+
+  num_events:
+    distributed_training: 30
+  lambda:
+    distributed_training: 0.000001
+
+  # 随机到达事件服务参数配置
+  random_event_config:
+    # 分布式训练事件配置
+    distributed_training:
+      # 模型配置选项列表（每个模型包含对应的训练配置）
+      model_configs:
+        - model_name: "Qwen2.5"
+          layers: 80
+          hidden_dim: 8192
+          model_params: 72
+          parallelism:
+            tensor_parallel: 8
+            pipeline_parallel: 8
+            data_parallel: 128
+          # 内嵌训练配置，与模型规模匹配
+          training_config:
+            tokens: 5.0
+            # global_batch_size = DP × 128 = 128 × 128 = 16384
+            global_batch_size: 16384
+            mini_batch_size: 128
+            micro_batch_size: 2
+            sequence_length: 4096
+            epochs: 1
+            precision: "fp16"
+            deadline: 100 # 单位：天
+
+        - model_name: "gpt-3"
+          layers: 96
+          hidden_dim: 12288
+          model_params: 175
+          parallelism:
+            tensor_parallel: 8
+            pipeline_parallel: 8
+            data_parallel: 128
+          # 内嵌训练配置，与模型规模匹配
+          training_config:
+            tokens: 10.0
+            # global_batch_size = DP × 256 = 128 × 256 = 32768
+            global_batch_size: 32768
+            mini_batch_size: 256
+            micro_batch_size: 2
+            sequence_length: 4096
+            epochs: 1
+            precision: "fp16"
+            deadline: 100
+
+        - model_name: "llama-3"
+          layers: 126
+          hidden_dim: 16384
+          model_params: 405
+          parallelism:
+            tensor_parallel: 8
+            pipeline_parallel: 16
+            data_parallel: 128
+          # 内嵌训练配置，与模型规模匹配
+          training_config:
+            tokens: 15.0
+            # global_batch_size = DP × 256 = 128 × 256 = 32768
+            global_batch_size: 32768
+            mini_batch_size: 256
+            micro_batch_size: 2
+            sequence_length: 8192
+            epochs: 1
+            precision: "fp16"
+            deadline: 100

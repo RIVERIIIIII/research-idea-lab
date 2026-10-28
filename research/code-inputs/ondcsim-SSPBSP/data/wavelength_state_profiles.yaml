@@ -1,0 +1,42 @@
+wavelength_state_profiles:
+  fragmented_wan_demo:
+    description: >
+      Main-experiment training-backbone links keep a shared healthy spectrum
+      window, while each fixed reroute result exposes only a very small amount
+      of scenario-specific spare spectrum. This makes reroute length the main
+      driver of fault severity, and leaves wavelength availability only as the
+      limited recovery space for pure optical compensation.
+    links:
+      2006:
+        notes: "Training backbone: healthy shared spectrum window plus a small high-index spare pool."
+        available_wavelength_ids: ["1-20", "29-34"]
+      2007:
+        notes: "Heavy-fault reroute-only segment with limited dedicated spare."
+        available_wavelength_ids: ["1-20", "33-34"]
+      2009:
+        notes: "Training backbone plus a small high-index spare pool; light/medium reroutes can consume a subset of it."
+        available_wavelength_ids: ["1-20", "29-34"]
+      2010:
+        notes: "Light-fault reroute-only segment with limited dedicated spare."
+        available_wavelength_ids: ["1-20", "29-30"]
+      2011:
+        notes: "Medium-fault reroute-only segment with limited dedicated spare."
+        available_wavelength_ids: ["1-20", "31-32"]
+      2012:
+        notes: "Training backbone plus a small high-index spare pool; heavy reroute can consume a subset of it."
+        available_wavelength_ids: ["1-20", "29-34"]
+      2013:
+        notes: "Medium/heavy reroute segment with scenario-specific spare."
+        available_wavelength_ids: ["1-20", "31-34"]
+      2014:
+        notes: "Training backbone plus a small high-index spare pool; heavy reroute can consume a subset of it."
+        available_wavelength_ids: ["1-20", "29-34"]
+      2015:
+        notes: "Training backbone central link with healthy shared spectrum window plus a small high-index spare pool."
+        available_wavelength_ids: ["1-20", "29-34"]
+      2020:
+        notes: "Training backbone plus a small high-index spare pool; medium reroute can consume a subset of it."
+        available_wavelength_ids: ["1-20", "29-34"]
+      2021:
+        notes: "Training backbone plus a small high-index spare pool; light reroute can consume a subset of it."
+        available_wavelength_ids: ["1-20", "29-34"]
